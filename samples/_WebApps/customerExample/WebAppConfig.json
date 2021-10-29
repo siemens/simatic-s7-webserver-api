@@ -1,0 +1,51 @@
+// Copyright (c) 2021, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+
+{
+  "directoriesToIgnoreForUpload": [ "git" ],
+  "resourcesToIgnoreForUpload": [],
+  "fileExtensionsToIgnoreForUpload": [ ".git" ],
+  "name": "customerExample",
+  "state": 1,
+  "type": 1,
+  "default_page": "index.html",
+  "not_found_page": "index.html",
+  "not_authorized_page": "login.html",
+  "applicationResources": [
+    {
+      "name": "JavaScript/api.js",
+      "size": 11878,
+      "media_type": "application/javascript",
+      "visibility": 1,
+      "last_modified": "2021-04-29T18:45:27.2982925+02:00",
+      "ignoreBOMDifference": false
+    },
+    {
+      "name": "api.css",
+      "size": 857,
+      "media_type": "text/css",
+      "visibility": 1,
+      "last_modified": "2021-04-29T18:45:17.3551538+02:00",
+      "ignoreBOMDifference": false
+    },
+    {
+      "name": "index.html",
+      "size": 2373,
+      "media_type": "text/html",
+      "visibility": 1,
+      "last_modified": "2021-04-29T18:47:02.1902153+02:00",
+      "ignoreBOMDifference": false
+    },
+    {
+      "name": "login.html",
+      "size": 926,
+      "media_type": "text/html",
+      "visibility": 1,
+      "last_modified": "2021-04-29T18:47:24.3380348+02:00",
+      "ignoreBOMDifference": false
+    }
+  ],
+  "protectedResources": [ "protected.html" ],
+  "pathToWebAppDirectory": "C:\\Users\\z003pktn\\source\\repos\\webserverapi\\Webserver.Api\\_WebApps\\customerExample"
+}

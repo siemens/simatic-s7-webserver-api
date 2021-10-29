@@ -1,0 +1,57 @@
+﻿<!--
+    // Copyright (c) 2021, Siemens AG
+    //
+    // SPDX-License-Identifier: MIT
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>[example] Turbine controls</title>
+    <link rel="stylesheet" href="api.css" />
+    <script src="JavaScript/api.js"></script>
+    <!--<script src="JavaScript/jquery.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+<body onload="getToken()">
+    <span id="notice" style="display: inline-block">Please log in first</span><br>
+    <button id="btn-login" onclick="openModal()"> Login </button>
+    <button id="btn-logout" onclick="apiLogout()" hidden> Log out </button>
+    <h1> Example controls for the turbine <span id="turbine-number">#</span></h1><br />
+    Turbine speed: <input id="turb-speed" readonly> <button onclick="updateTurbineSpeed()">Get current value</button><br>
+    Turbine speed (SP): <input id="turb-speed-sp" value="Not set" onchange="turbSpeed(this)" autocomplete="off"><br>
+    Turbine manual control:
+    <select onchange="turbineSpeedOverride(this)" autocomplete="off">
+        <option value=""></option>
+        <option value="false">NO</option>
+        <option value="true">YES</option>
+    </select>
+    <br>
+    <h2>Read/Write multiple values</h2>
+    <table id="tag-table-read" class="tag-table">
+        <tr>
+            <th align="left">Turbine safe operating values</th>
+            <th align="left">Safe Values</th>
+            <th align="left">Update with values</th>
+        </tr>
+        <tr>
+            <td>Turbine speed</td>
+            <td id="turb-speed-val"></td>
+            <td><input id="turb-speed-max-sp"></td>
+        </tr>
+        <tr>
+            <td>Turbine acceleration</td>
+            <td id="turb-accel-val"></td>
+            <td><input id="turb-accel-max-sp"></td>
+        </tr>
+        <tr>
+            <td>Turbine jerk</td>
+            <td id="turb-jerk-val"></td>
+            <td><input id="turb-jerk-max-sp"></td>
+        </tr>
+    </table><br>
+    <button onclick="bulkReadValues()">Get current values</button>
+    <button onclick="bulkWriteValues()">Update with desired values</button><br>
+    You are using Api version: <span id="version-label"></span>
+</body>
+</html>

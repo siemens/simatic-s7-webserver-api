@@ -57,6 +57,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// Array Dimensions - in case the Data is an array this fills the indexers.
         /// </summary>
+        [JsonProperty(Order = 1)]
         public List<ApiPlcProgramDataArrayIndexer> Array_dimensions { get; set; }
 
         /// <summary>

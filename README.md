@@ -47,7 +47,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.RequestHandler;
 ...
-var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", ""));
+var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", "");
 var client = await ApiHttpClientAuthorizationHandler.GetAuthorizedHTPPClientAsync(connectionConfiguration);
 var requestFactory = new ApiRequestFactory();
 var requestHandler = new ApiHttpClientRequestHandler(client, requestFactory);
@@ -75,6 +75,17 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.RequestHandler;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
+using System.IO;
+using System.Linq;
+...
+public static DirectoryInfo CurrentExeDir
+{
+    get
+    {
+        string dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        return (new FileInfo(dllPath)).Directory;
+    }
+}
 ...
 var app = new ApiWebAppData() { Name = "customerExample", State = ApiWebAppState.Enabled };
 await requestHandler.WebAppCreateAsync(app);
@@ -101,15 +112,6 @@ using Siemens.Simatic.S7.Webserver.API.Deployer;
 using Siemens.Simatic.S7.Webserver.API.FileParser;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-...
-public static DirectoryInfo CurrentExeDir
-{
-    get
-    {
-        string dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        return (new FileInfo(dllPath)).Directory;
-    }
-}
 ...
 var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
 app = parser.Parse();
@@ -173,7 +175,8 @@ await requestHandler.PlcProgramWriteAsync("\"DataTypes\".\"TIA_Dates\".\"Date\""
 Also for these PlcProgram methods there is an Implementation for an ApiPlcProgramData object that can be used for the Api methods:
 ```cs
 ...
-
+using System.Collections.Generic;
+...
 // Do not provide any variable when browsing to browse the "root" "directory" of the plc program data:
 List<ApiPlcProgramData> allMyPlcProgramBlocks = (await requestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children)).Result;
 // A DB called "DataTypes" has the variables we care about:

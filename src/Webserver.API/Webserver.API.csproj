@@ -16,6 +16,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PackageIcon>sie-logo-layer-petrol-rgb-1200-630_original.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +28,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <None Include="..\..\docs\screens\sie-logo-layer-petrol-rgb-1200-630_original.png" Pack="true" PackagePath="\" />
+  </ItemGroup>  
+
 </Project>

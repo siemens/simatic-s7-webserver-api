@@ -23,12 +23,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Siemens.Simatic.S7.Webserver.API.RequestHandler
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
 {
     /// <summary>
     /// Request Handlerusing the Microsoft.Net.HttpClient to send the requests to the API
     /// </summary>
-    public class ApiHttpClientRequestHandler : IAsyncApiRequestHandler
+    public class ApiHttpClientRequestHandler : IApiRequestHandler
     {
         /// <summary>
         /// Should prob not be changed!
@@ -59,10 +59,10 @@ namespace Siemens.Simatic.S7.Webserver.API.RequestHandler
         /// </summary>
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory = null)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory)
         {
             this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            this.ApiRequestFactory = apiRequestFactory??new ApiRequestFactory();
+            this.ApiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
         }
 
         /// <summary>
@@ -1512,5 +1512,209 @@ namespace Siemens.Simatic.S7.Webserver.API.RequestHandler
             }
             return bulkResponse;
         }
+
+        public ApiBulkResponse ApiBulk(IEnumerable<IApiRequest> apiRequests)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiArrayOfApiClassResponse ApiBrowse() => ApiBrowseAsync().GetAwaiter().GetResult();
+
+        public ApiBrowseTicketsResponse ApiBrowseTickets(string ticketId) => ApiBrowseTicketsAsync(ticketId).GetAwaiter().GetResult();
+
+        public ApiBrowseTicketsResponse ApiBrowseTickets(ApiTicket ticket) => ApiBrowseTicketsAsync(ticket).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse ApiCloseTicket(string ticketId) => ApiCloseTicketAsync(ticketId).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse ApiCloseTicket(ApiTicket ticket) => ApiCloseTicketAsync(ticket).GetAwaiter().GetResult();
+
+        public ApiSingleStringResponse ApiGetCertificateUrl() => ApiGetCertificateUrlAsync().GetAwaiter().GetResult();
+
+        public ApiArrayOfApiClassResponse ApiGetPermissions() => ApiGetPermissionsAsync().GetAwaiter().GetResult();
+
+        public ApiLoginResponse ApiLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse ApiLogout() => ApiLogoutAsync().GetAwaiter().GetResult();
+
+        public ApiSingleStringResponse ApiPing() => ApiPingAsync().GetAwaiter().GetResult();
+
+        public ApiDoubleResponse ApiVersion() => ApiVersionAsync().GetAwaiter().GetResult();
+
+        public byte[] DownloadTicket(string ticketId) => DownloadTicketAsync(ticketId).GetAwaiter().GetResult();
+
+        public ApiPlcProgramBrowseResponse PlcProgramBrowse(ApiPlcProgramBrowseMode plcProgramBrowseMode, string var = null) => PlcProgramBrowseAsync(plcProgramBrowseMode, var).GetAwaiter().GetResult();
+
+        public ApiPlcProgramBrowseResponse PlcProgramBrowse(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var) => PlcProgramBrowseAsync(plcProgramBrowseMode, var).GetAwaiter().GetResult();
+
+        public ApiResultResponse<T> PlcProgramRead<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null) => PlcProgramReadAsync<T>(var, plcProgramReadMode).GetAwaiter().GetResult();
+
+        public ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null) => PlcProgramReadAsync<T>(var, plcProgramReadMode).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse PlcProgramWrite(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null) 
+            => PlcProgramWriteAsync(var, valueToBeSet, plcProgramWriteMode).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse PlcProgramWrite(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
+            => PlcProgramWriteAsync(var, valueToBeSet, plcProgramWriteMode).GetAwaiter().GetResult();
+
+        public ApiReadOperatingModeResponse PlcReadOperatingMode() => PlcReadOperatingModeAsync().GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode) 
+            => PlcRequestChangeOperatingModeAsync(plcOperatingMode).GetAwaiter().GetResult();
+
+        public void UploadTicket(string ticketId, ByteArrayContent data) => UploadTicketAsync(ticketId, data).GetAwaiter().GetResult();
+
+        public void UploadTicket(string ticketId, string pathToFile) => UploadTicketAsync(ticketId, pathToFile).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResponse WebAppBrowse(string webAppName = null) => WebAppBrowseAsync(webAppName).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResponse WebAppBrowse(ApiWebAppData webAppData) => WebAppBrowseAsync(webAppData).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResourcesResponse WebAppBrowseResources(ApiWebAppData webApp, string resourceName = null) => WebAppBrowseResourcesAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResourcesResponse WebAppBrowseResources(string webAppName, ApiWebAppResource resource) => WebAppBrowseResourcesAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResourcesResponse WebAppBrowseResources(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppBrowseResourcesAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiWebAppBrowseResourcesResponse WebAppBrowseResources(string webAppName, string resourceName = null) => WebAppBrowseResourcesAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppCreate(ApiWebAppData webApp) => WebAppCreateAsync(webApp).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppCreate(string webAppName, ApiWebAppState? apiWebAppState = null) => WebAppCreateAsync(webAppName, apiWebAppState).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppCreateResource(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppCreateResourceAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppCreateResource(string webAppName, ApiWebAppResource resource) => WebAppCreateResourceAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppCreateResource(ApiWebAppData webApp, string resourceName, string media_type, string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null) 
+            => WebAppCreateResourceAsync(webApp, resourceName, media_type, last_modified, apiWebAppResourceVisibility, etag).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppCreateResource(string webAppName, string resourceName, string media_type, string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
+            => WebAppCreateResourceAsync(webAppName, resourceName, media_type, last_modified, apiWebAppResourceVisibility, etag).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDelete(ApiWebAppData webApp) => WebAppDeleteAsync(webApp).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDelete(string webAppName) => WebAppDeleteAsync(webAppName).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDeleteResource(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppDeleteResourceAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDeleteResource(string webAppName, ApiWebAppResource resource) => WebAppDeleteResourceAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDeleteResource(ApiWebAppData webApp, string resourceName) => WebAppDeleteResourceAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueOnSuccessResponse WebAppDeleteResource(string webAppName, string resourceName) => WebAppDeleteResourceAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppDownloadResource(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppDownloadResourceAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppDownloadResource(string webAppName, ApiWebAppResource resource) => WebAppDownloadResourceAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppDownloadResource(ApiWebAppData webApp, string resourceName) => WebAppDownloadResourceAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiTicketIdResponse WebAppDownloadResource(string webAppName, string resourceName) => WebAppDownloadResourceAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppRename(ApiWebAppData webApp, string newWebAppName) => WebAppRenameAsync(webApp, newWebAppName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppRename(string webAppName, string newWebAppName) => WebAppRenameAsync(webAppName, newWebAppName).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppRenameResource(ApiWebAppData webApp, ApiWebAppResource resource, string newResourceName) 
+            => WebAppRenameResourceAsync(webApp, resource, newResourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppRenameResource(string webAppName, ApiWebAppResource resource, string newResourceName) 
+            => WebAppRenameResourceAsync(webAppName, resource, newResourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppRenameResource(ApiWebAppData webApp, string resourceName, string newResourceName) 
+            => WebAppRenameResourceAsync(webApp, resourceName, newResourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppRenameResource(string webAppName, string resourceName, string newResourceName) 
+            => WebAppRenameResourceAsync(webAppName, resourceName, newResourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetDefaultPage(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppSetDefaultPageAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetDefaultPage(string webAppName, ApiWebAppResource resource) => WebAppSetDefaultPageAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetDefaultPage(ApiWebAppData webApp, string resourceName) => WebAppSetDefaultPageAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetDefaultPage(string webAppName, string resourceName) => WebAppSetDefaultPageAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotAuthorizedPage(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppSetNotAuthorizedPageAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotAuthorizedPage(string webAppName, ApiWebAppResource resource) => WebAppSetNotAuthorizedPageAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotAuthorizedPage(ApiWebAppData webApp, string resourceName) => WebAppSetNotAuthorizedPageAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotAuthorizedPage(string webAppName, string resourceName) => WebAppSetNotAuthorizedPageAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotFoundPage(ApiWebAppData webApp, ApiWebAppResource resource) => WebAppSetNotFoundPageAsync(webApp, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotFoundPage(string webAppName, ApiWebAppResource resource) => WebAppSetNotFoundPageAsync(webAppName, resource).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotFoundPage(ApiWebAppData webApp, string resourceName) => WebAppSetNotFoundPageAsync(webApp, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetNotFoundPage(string webAppName, string resourceName) => WebAppSetNotFoundPageAsync(webAppName, resourceName).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceETag(ApiWebAppData webApp, ApiWebAppResource resource, string newETagValue) 
+            => WebAppSetResourceETagAsync(webApp, resource, newETagValue).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceETag(string webAppName, ApiWebAppResource resource, string newETagValue) 
+            => WebAppSetResourceETagAsync(webAppName, resource, newETagValue).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceETag(ApiWebAppData webApp, string resourceName, string newETagValue) 
+            => WebAppSetResourceETagAsync(webApp, resourceName, newETagValue).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceETag(string webAppName, string resourceName, string newETagValue) 
+            => WebAppSetResourceETagAsync(webAppName, resourceName, newETagValue).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceMediaType(ApiWebAppData webApp, ApiWebAppResource resource, string newMediaType) 
+            => WebAppSetResourceMediaTypeAsync(webApp, resource, newMediaType).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceMediaType(string webAppName, ApiWebAppResource resource, string newMediaType) 
+            => WebAppSetResourceMediaTypeAsync(webAppName, resource, newMediaType).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceMediaType(ApiWebAppData webApp, string resourceName, string newMediaType) 
+            => WebAppSetResourceMediaTypeAsync(webApp, resourceName, newMediaType).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceMediaType(string webAppName, string resourceName, string newMediaType) 
+            => WebAppSetResourceMediaTypeAsync(webAppName, resourceName, newMediaType).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(ApiWebAppData webApp, ApiWebAppResource resource, string newModificationTime)
+            => WebAppSetResourceModificationTimeAsync(webApp, resource, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(string webAppName, ApiWebAppResource resource, string newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webAppName, resource, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(ApiWebAppData webApp, string resourceName, string newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webApp, resourceName, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(string webAppName, string resourceName, string newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webAppName, resourceName, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(string webAppName, string resourceName, DateTime newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webAppName, resourceName, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(string webAppName, ApiWebAppResource resource, DateTime newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webAppName, resource, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(ApiWebAppData webApp, string resourceName, DateTime newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webApp, resourceName, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceModificationTime(ApiWebAppData webApp, ApiWebAppResource resource, DateTime newModificationTime) 
+            => WebAppSetResourceModificationTimeAsync(webApp, resource, newModificationTime).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceVisibility(ApiWebAppData webApp, ApiWebAppResource resource, ApiWebAppResourceVisibility newResourceVisibility) 
+            => WebAppSetResourceVisibilityAsync(webApp, resource, newResourceVisibility).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceVisibility(string webAppName, ApiWebAppResource resource, ApiWebAppResourceVisibility newResourceVisibility)
+            => WebAppSetResourceVisibilityAsync(webAppName, resource, newResourceVisibility).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceVisibility(ApiWebAppData webApp, string resourceName, ApiWebAppResourceVisibility newResourceVisibility)
+            => WebAppSetResourceVisibilityAsync(webApp, resourceName, newResourceVisibility).GetAwaiter().GetResult();
+
+        public ApiTrueWithResourceResponse WebAppSetResourceVisibility(string webAppName, string resourceName, ApiWebAppResourceVisibility newResourceVisibility)
+            => WebAppSetResourceVisibilityAsync(webAppName, resourceName, newResourceVisibility).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetState(ApiWebAppData webApp, ApiWebAppState newApiWebAppState)
+            => WebAppSetStateAsync(webApp, newApiWebAppState).GetAwaiter().GetResult();
+
+        public ApiTrueWithWebAppResponse WebAppSetState(string webAppName, ApiWebAppState newApiWebAppState)
+            => WebAppSetStateAsync(webAppName, newApiWebAppState).GetAwaiter().GetResult();
     }
 }

@@ -6,30 +6,35 @@ using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Extensions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Deployer
+namespace Siemens.Simatic.S7.Webserver.API.Services.Deployer
 {
     /// <summary>
     /// Class used for the automated deployment of WebApps to a PLC (1500)
     /// </summary>
-    public class WebAppDeployer
+    public class ApiWebAppDeployer
     {
         private readonly IApiRequestHandler ApiRequestHandler;
+        private readonly IApiResourceHandler ApiResourceHandler;
 
         /// <summary>
         /// You can implement the functions on your own - the Handler will call the functions of the implementation
-        /// that implements the functions of the IApiRequestHandler.
+        /// that implements the functions of the IAsyncApiRequestHandler. (e.g. by a ApiHttpClientRequestHandler)
         /// </summary>
-        /// <param name="requestHandler"></param>
-        public WebAppDeployer(IApiRequestHandler requestHandler)
+        /// <param name="apiRequestHandler"></param>
+        /// <param name="apiResourceHandler"></param>
+        public ApiWebAppDeployer(IApiRequestHandler apiRequestHandler, IApiResourceHandler apiResourceHandler)
         {
-            this.ApiRequestHandler = requestHandler;
+            this.ApiRequestHandler = apiRequestHandler;
+            this.ApiResourceHandler = apiResourceHandler;
         }
 
         /// <summary>
@@ -40,26 +45,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Deployer
         /// </summary>
         /// <param name="webApp"></param>
         /// <returns></returns>
-        private void Deploy(ApiWebAppData webApp)
+        private async Task DeployAsync(ApiWebAppData webApp)
         {
-            var res = ApiRequestHandler.WebAppCreate(webApp.Name);
+            var res = await ApiRequestHandler.WebAppCreateAsync(webApp.Name);
             foreach (var r in webApp.ApplicationResources)
             {
-                ApiRequestHandler.DeployResource(webApp, r);
+                await ApiResourceHandler.DeployResourceAsync(webApp, r);
             }
             if (webApp.Not_authorized_page != null)
             {
-                 ApiRequestHandler.WebAppSetNotAuthorizedPage(webApp.Name, webApp.Not_authorized_page);
+                await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page);
             }
-
+                
             if (webApp.Not_found_page != null)
             {
-                 ApiRequestHandler.WebAppSetNotFoundPage(webApp.Name, webApp.Not_found_page);
-
+                await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page);
+                    
             }
             if (webApp.Default_page != null)
             {
-                 ApiRequestHandler.WebAppSetDefaultPage(webApp.Name, webApp.Default_page);
+                await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page);
             }
         }
 
@@ -70,7 +75,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Deployer
         /// PathToWebAppDirectory
         /// TAKE CARE: 
         /// If you insert a webapp e.g. that you read from webapp.browse it will not contain the Applicationresources - during delta compare
-        /// the function will recognise that there are no resources on the webapp that you want to have on the plc and therefor delete all the resources that are
+        /// the function will recognise that there are no resources on the webapp that you want to have on the plc 
+        /// and therefor delete all the resources that are
         /// currently on the plc!
         /// </summary>
         /// <param name="webApp">webappdata - e.g. from parsed webappdirectory</param>
@@ -78,51 +84,59 @@ namespace Siemens.Simatic.S7.Webserver.API.Deployer
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
         /// <returns></returns>
-        public void DeployOrUpdate(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1)
+        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1)
         {
-            var webApps =  ApiRequestHandler.WebAppBrowse();
+            var webApps = await ApiRequestHandler.WebAppBrowseAsync();
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
             {
-                 Deploy(webApp);
+                await DeployAsync(webApp);
             }
             else
             {
                 // check for changes!
-                var browseResourcesResponse =  ApiRequestHandler.WebAppBrowseResources(webApp.Name);
+                var browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp.Name);
                 var browsedResources = browseResourcesResponse.Result.Resources;
                 var appOrdered = webApp.ApplicationResources.OrderBy(el => el.Name).ToList();
-                List<ApiWebAppResource> browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
+                var browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
                 // set the IgnoreBOMDifference for all resources that have it set on the app and are found on the plc!
                 var appOnBrowsed = browsedOrdered.Where(el => appOrdered.Any(el2 => el.Name == el2.Name)).ToList();
-                foreach (var res in appOnBrowsed)
+                foreach(var res in appOnBrowsed)
                 {
-                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name) ?? throw new NullReferenceException("resource is not on app but expected to be!!!");
+                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name) 
+                        ?? throw new NullReferenceException("resource is not on app but expected to be!!!");
                     res.IgnoreBOMDifference = res2.IgnoreBOMDifference;
                 }
-                // resources are not all the same data
                 // found except those that are on app are those to be deleted
                 var browsedExceptApp = browsedOrdered.Except(appOrdered).ToList();
                 // app except those that have been found (and equal) are those to be added
                 var appExceptBrowsed = appOrdered.Except(browsedOrdered).ToList();
                 int tries = 0;
+                // resources are not all the same data
                 while (!Enumerable.SequenceEqual(appOrdered, browsedOrdered) && (tries < amountOfTriesForResourceDeployment))
                 {
+                    // elements that should further be deleted but are not found in the comparison before!
+                    var elemsToFurtherdelete = (browsedOrdered.Where(el => appExceptBrowsed
+                    .Any(el2 => el2.Name == el.Name && !(browsedExceptApp.Any(el3 => el3.Name == el2.Name))))).ToList();
+                    if(elemsToFurtherdelete.Count != 0)
+                    {
+                        throw new Exception("Comparison insufficient!");
+                    }
                     foreach (ApiWebAppResource r in browsedExceptApp)
                     {
-                         ApiRequestHandler.WebAppDeleteResource(webApp.Name, r.Name);
+                        await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
                     }
                     foreach (ApiWebAppResource r in appExceptBrowsed)
                     {
                         try
                         {
-                             ApiRequestHandler.DeployResource(webApp, r);
+                            await ApiResourceHandler.DeployResourceAsync(webApp, r);
                         }
                         catch (ApiTicketNotInCompletedStateException)
                         {
                             Console.WriteLine($"Upload for resource: {r.Name} failed for the {(tries + 1).ToString()}. time!");
                         }
                     }
-                    browseResourcesResponse =  ApiRequestHandler.WebAppBrowseResources(webApp.Name);
+                    browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp.Name);
                     browsedResources = browseResourcesResponse.Result.Resources;
                     browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
                     browsedExceptApp = browsedOrdered.Except(appOrdered).ToList();
@@ -140,28 +154,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Deployer
                     throw new ApiResourceDeploymentFailedException($"Resources found that should were not expected to be on the app:{browsedThatShouldntBe}" +
                         $"Resources that were expected to be on the app but aren't:{missing}");
                 }
-                var browsedWebAppResp =  ApiRequestHandler.WebAppBrowse(webApp.Name);
+                var browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp.Name);
                 ApiWebAppData browsedWebApp = browsedWebAppResp.Result.Applications.First();
                 if (!browsedWebApp.Equals(webApp))
                 {
                     // webapp data is not the same
                     if (browsedWebApp.Not_authorized_page != webApp.Not_authorized_page)
                     {
-                         ApiRequestHandler.WebAppSetNotAuthorizedPage(webApp.Name, webApp.Not_authorized_page);
+                        await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page);
                     }
                     if (browsedWebApp.Not_found_page != webApp.Not_found_page)
                     {
-                         ApiRequestHandler.WebAppSetNotFoundPage(webApp.Name, webApp.Not_found_page);
+                        await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page);
                     }
                     if (browsedWebApp.Default_page != webApp.Default_page)
                     {
-                         ApiRequestHandler.WebAppSetDefaultPage(webApp.Name, webApp.Default_page);
+                        await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page);
                     }
-                    if(browsedWebApp.State != webApp.State)
+                    if (browsedWebApp.State != webApp.State)
                     {
-                        ApiRequestHandler.WebAppSetState(webApp.Name, webApp.State);
+                        await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State);
                     }
-                    browsedWebAppResp =  ApiRequestHandler.WebAppBrowse(webApp.Name);
+                    browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp.Name);
                     browsedWebApp = browsedWebAppResp.Result.Applications.First();
                     if (!browsedWebApp.Equals(webApp))
                     {
@@ -174,5 +188,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Deployer
                 }
             }
         }
+
+        public void Deploy(ApiWebAppData webApp) => DeployAsync(webApp).GetAwaiter().GetResult();
+
+        public void DeployOrUpdate(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1) => DeployOrUpdateAsync(webApp, amountOfTriesForResourceDeployment).GetAwaiter().GetResult();
     }
 }

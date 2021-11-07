@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,17 +22,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Extensions
         /// </summary>
         /// <param name="requests">List of ApiRequests for which uniqueness should be made sure</param>
         /// <param name="requestIdGenerator">Request Id Generator - will default to ApiRequestIdGenerator (when null is given)</param>
-        /// <param name="threadSleepTimeInMilliseconds">Time in milliseconds for the Thread to sleep in between assigning Request Ids from Generator</param>
-        public static void MakeSureRequestIdsAreUnique(this List<ApiRequest> requests, IApiRequestIdGenerator requestIdGenerator = null, int threadSleepTimeInMilliseconds = 16)
+        public static void MakeSureRequestIdsAreUnique(this List<ApiRequest> requests, IIdGenerator requestIdGenerator)
         {
-            var reqIdGenerator = requestIdGenerator ?? new ApiRequestIdGenerator();
+            if(requestIdGenerator == null)
+            {
+                throw new ArgumentException(nameof(requestIdGenerator) + " was null!");
+            }
             while (requests.GroupBy(el => el.Id).Count() != requests.Count)
             {
                 requests.Where(el => requests.Any(el2 => el.Id == el2.Id))
                     .ToList().ForEach(el =>
                     {
-                        el.Id = reqIdGenerator.GetRandomString(8);
-                        Thread.Sleep(threadSleepTimeInMilliseconds);
+                        el.Id = requestIdGenerator.Generate(8);
                     });
             }
         }

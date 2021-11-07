@@ -22,7 +22,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// <param name="length">length of the string you want</param>
         /// <param name="random">if you want to provide a random yourself feel free</param>
         /// <returns></returns>
-        public static string GetRandomString(int length, Random random = null)
+        public static string Generate(int length, Random random = null)
         {
             if (random == null)
                 random = new Random();

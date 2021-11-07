@@ -12,7 +12,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
     {
         public string Generate(int length)
         {
-            if(length>0)
+            if(length < 0)
             {
                 throw new ArgumentException($"{nameof(length)} must be greater than 0 (was: {length})!");
             }

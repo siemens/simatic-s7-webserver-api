@@ -17,14 +17,16 @@ using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
 {
-    class ApiPlcProgramHandler
+    /// <summary>
+    /// Api PlcProgram Handler
+    /// </summary>
+    public class ApiPlcProgramHandler
     {
         private readonly IApiRequestHandler ApiRequestHandler;
         private readonly IIdGenerator IdGenerator;
 
         /// <summary>
-        /// You can implement the functions on your own - the Handler will call the functions of the implementation
-        /// that implements the functions of the IAsyncApiRequestHandler. (e.g. by a ApiHttpClientRequestHandler)
+        /// Api PlcProgram Handler
         /// </summary>
         /// <param name="asyncRequestHandler"></param>
         public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IIdGenerator idGenerator)

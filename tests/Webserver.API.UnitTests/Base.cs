@@ -1,8 +1,9 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
 using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,12 @@ namespace Webserver.API.UnitTests
 
         public ApiRequestFactory ApiRequestFactory;
 
+        public IIdGenerator ReqIdGenerator;
+
         public Base()
         {
-            ApiRequestFactory = new ApiRequestFactory();
+            ReqIdGenerator = new CharSetIdGenerator();
+            ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator);
         }
     }
 }

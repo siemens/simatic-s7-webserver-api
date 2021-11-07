@@ -10,9 +10,10 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Extensions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Responses;
+using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -911,7 +912,8 @@ namespace Webserver.API.UnitTests
             {
                 throw new Exception("Parents have been modified!");
             }
-            var dataTypesChildrenWithInfo = await TestHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesDb);
+            var plcProgramHandler = new ApiPlcProgramHandler(TestHandler, ReqIdGenerator);
+            var dataTypesChildrenWithInfo = await plcProgramHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesDb);
             if(dataTypesDb.Children.Count == 0)
             {
                 throw new Exception("Children have not been added!");
@@ -925,7 +927,7 @@ namespace Webserver.API.UnitTests
             mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.PlcProgramBrowseDataTypesDTL); // Respond with JSON    
             var dataTypesChildDTL = dataTypesChildrenWithInfo.Result.First(el => el.Name == "DTL");
-            var dtlChildren = (await TestHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesChildDTL)).Result;
+            var dtlChildren = (await plcProgramHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesChildDTL)).Result;
             if(dtlChildren.Any(el => el.Parents.Count != 2 || !el.Parents.Any(par => par.Name == "DataTypes") || !el.Parents.Any(par => par.Name =="DTL")))
             {
                 throw new Exception("Parents have not been added as expected!");
@@ -938,7 +940,7 @@ namespace Webserver.API.UnitTests
             {
                 throw new Exception("Object links are not updated as expected!");
             }
-            dtlChildren = (await TestHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesChildDTL)).Result;
+            dtlChildren = (await plcProgramHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesChildDTL)).Result;
             if (dtlChildren.Any(el => el.Parents.Count != 2 || !el.Parents.Any(par => par.Name == "DataTypes") || !el.Parents.Any(par => par.Name == "DTL")))
             {
                 throw new Exception("Parents have not been added as expected!");

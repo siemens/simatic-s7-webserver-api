@@ -14,7 +14,7 @@ namespace Webserver.API.UnitTests
     /// <summary>
     /// Tests for the RequestFactory!
     /// </summary>
-    public class RequestFactoryTests
+    public class RequestFactoryTests : Base
     {
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void DefaultValueCheckerTrue()
         {
-            var reqFac = new ApiRequestFactory();
+            var reqFac = new ApiRequestFactory(ReqIdGenerator);
             if(reqFac.PerformCheck == false)
             {
                 Assert.Fail("Perform Check by default is false!");

@@ -4,6 +4,7 @@
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Extensions;
 using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
-    public class ExtensionTests
+    public class ExtensionTests : Base
     {
 
         [Test]
@@ -23,11 +24,19 @@ namespace Webserver.API.UnitTests
             {
                 requests.Add(new ApiRequest("", "", "1"));
             }
-            requests.MakeSureRequestIdsAreUnique();
-            if(requests.GroupBy(el => el.Id).Count() != requests.Count)
+            if (ReqIdGenerator is CharSetIdGenerator)
+            {
+                var charSetGen = ReqIdGenerator as CharSetIdGenerator;
+                Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
+            }
+            requests.MakeSureRequestIdsAreUnique(ReqIdGenerator);
+            
+            Console.WriteLine($"Determined ThreadSleepTime:{ReqIdGenerator}");
+            if (requests.GroupBy(el => el.Id).Count() != requests.Count)
             {
                 Assert.Fail("Requests are not handled as they should be!");
             }
+            
         }
     }
 }

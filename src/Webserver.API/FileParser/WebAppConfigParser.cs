@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Services.Deployer;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,8 @@ namespace Siemens.Simatic.S7.Webserver.API.FileParser
         /// </summary>
         public bool IgnoreBOMDifference { get; set; }
 
+        private readonly IApiWebAppResourceBuilder ApiWebAppResourceBuilder;
+
         /// <summary>
         /// Constructing the class will not yet Parse the ApiWebAppDatat - that'll happen once you call the Function Parse() on the instance so a user can also adjust the paths and reuse an instance if he wants to
         /// </summary>
@@ -42,11 +45,12 @@ namespace Siemens.Simatic.S7.Webserver.API.FileParser
         /// <param name="webAppConfigFileName">Important to set the PathToWebAppDirectory in case you want to use a deployer for example!(since the resources have to be built by it)</param>
         /// <param name="ignoreBOMDifference"> a boolean that will be set for every resource that will be parsed! For details look at ApiwebAppResources ignoreBOMDifference
         /// for no value given IgnoreBOMDifference will default to false</param>
-        public WebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, bool ignoreBOMDifference = false)
+        public WebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, IApiWebAppResourceBuilder webAppResourceBuilder, bool ignoreBOMDifference = false)
         {
             this.PathToWebAppDirectory = pathToWebAppDirectory;
             this.WebAppConfigFileName = webAppConfigFileName;
             this.IgnoreBOMDifference = ignoreBOMDifference;
+            ApiWebAppResourceBuilder = webAppResourceBuilder;
         }
 
 

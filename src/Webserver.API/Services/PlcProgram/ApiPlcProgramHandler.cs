@@ -56,6 +56,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     {
                         var.Children = new List<ApiPlcProgramData>();
                     }
+                    if (el.ArrayElements?.Count != 0)
+                    {
+                        foreach (var arrayEl in el.ArrayElements)
+                        {
+                            arrayEl.Parents = el.Parents;
+                        }
+                    }
                     if (!var.Children.Any(child => child.Equals(el)))
                     {
                         var.Children.Add(el);
@@ -76,6 +83,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         public async Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple)
         {
             var toReturn = structToRead.ShallowCopy();
+            toReturn.Children = new List<ApiPlcProgramData>(structToRead.Children);
+            toReturn.ArrayElements = new List<ApiPlcProgramData>(structToRead.ArrayElements);
+            toReturn.Parents = new List<ApiPlcProgramData>(structToRead.Parents);
             if (toReturn.Children == null || toReturn.Children.Count == 0)
             {
                 await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn);
@@ -84,16 +94,48 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             ApiRequestFactory factory = new ApiRequestFactory(IdGenerator);
             foreach (var child in toReturn.Children)
             {
-                requests.Add(factory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
+                if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
+                {
+                    await PlcProgramReadStructByChildValuesAsync(requestHandler, child, childrenReadMode);
+                }
+                else if (child.ArrayElements?.Count != 0)
+                {
+                    foreach (var arrayElement in child.ArrayElements)
+                    {
+                        if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
+                        {
+                            await PlcProgramReadStructByChildValuesAsync(requestHandler, arrayElement, childrenReadMode);
+                        }
+                        else
+                        {
+                            requests.Add(factory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
+                            Thread.Sleep(threadSleepTimeInMilliseconds);
+                        }
+                    }
+                }
+                else if (child.Children?.Count == 0)
+                {
+                    requests.Add(factory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
+                    Thread.Sleep(threadSleepTimeInMilliseconds);
+                }
+                else
+                {
+                    throw new Exception("Dont quite know how I landed here!");
+                }
             }
             requests.MakeSureRequestIdsAreUnique(IdGenerator);
-            var childvalues = await ApiRequestHandler.ApiBulkAsync(requests);
-            foreach (var childval in childvalues.SuccessfulResponses)
+            if (requests.Count > 0)
             {
-                var accordingRequest = requests.First(el => el.Id == childval.Id);
-                var requestedVarString = accordingRequest.Params["var"];
-                var childWithVarString = toReturn.Children.First(el => el.GetVarNameForMethods() == (string)requestedVarString);
-                childWithVarString.Value = childval.Result;
+                var childvalues = await requestHandler.ApiBulkAsync(requests);
+                foreach (var childval in childvalues.SuccessfulResponses)
+                {
+                    var accordingRequest = requests.First(el => el.Id == childval.Id);
+                    var requestedVarString = accordingRequest.Params["var"];
+                    var childOrArrayElementWithVarString = toReturn.Children.FirstOrDefault(el => el.GetVarNameForMethods() == (string)requestedVarString) ??
+                        (toReturn.Children.First(el => el.ArrayElements.Any(arrEl => arrEl.GetVarNameForMethods() == (string)requestedVarString))
+                            .ArrayElements.First(arrEl => arrEl.GetVarNameForMethods() == (string)requestedVarString));
+                    childOrArrayElementWithVarString.Value = childval.Result;
+                }
             }
             return toReturn;
         }

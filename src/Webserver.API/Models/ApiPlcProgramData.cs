@@ -54,11 +54,125 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 dataType = value;
             } }
 
+        private List<ApiPlcProgramDataArrayIndexer> _arrayDimensions;
         /// <summary>
         /// Array Dimensions - in case the Data is an array this fills the indexers.
         /// </summary>
         [JsonProperty(Order = 1)]
-        public List<ApiPlcProgramDataArrayIndexer> Array_dimensions { get; set; }
+        public List<ApiPlcProgramDataArrayIndexer> Array_dimensions
+        {
+            get
+            {
+                return _arrayDimensions;
+            }
+            set
+            {
+                _arrayDimensions = value;
+                this.ArrayElements = BuildChildrenFromArrayDimensions(_arrayDimensions);
+            }
+        }
+
+        /// <summary>
+        /// Build Children from Array Dimensions of the given Array
+        /// </summary>
+        /// <param name="arrayDimensions">Array Dimensions of the given Array</param>
+        /// <returns>Children for the given Array</returns>
+        public List<ApiPlcProgramData> BuildChildrenFromArrayDimensions(List<ApiPlcProgramDataArrayIndexer> arrayDimensions)
+        {
+            List<ApiPlcProgramData> result = new List<ApiPlcProgramData>();
+            if (!this.Datatype.IsSupportedByPlcProgramReadOrWrite())
+            {
+                throw new NotImplementedException("Currently Support is not implemented!");
+            }
+            var amountOfElements = GetAmountOfElements(arrayDimensions);
+            Queue<ApiPlcProgramDataArrayIndexer> queue = new Queue<ApiPlcProgramDataArrayIndexer>();
+            foreach (var arrayDimension in arrayDimensions)
+            {
+                queue.Enqueue(arrayDimension);
+            }
+            var arrayDimensionStringsToAdd = BuildArrayDimensionStringWithBraces(queue);
+            foreach (var childString in arrayDimensionStringsToAdd)
+            {
+                var toAdd = this.ShallowCopy();
+                toAdd.Name = toAdd.Name + childString;
+                toAdd.IsArrayElement = true;
+                toAdd.Parents = this.Parents;
+                toAdd.Children = this.Children;
+                // dont! toAdd.ArrayElements = this.ArrayElements;
+                result.Add(toAdd);
+            }
+            return result;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arrayDimensions"></param>
+        /// <returns></returns>
+        public List<string> BuildArrayDimensionStringWithBraces(Queue<ApiPlcProgramDataArrayIndexer> arrayDimensions) => (BuildArrayDimensionString(arrayDimensions, new List<string>())).Select(
+            returnString =>
+            {
+                return returnString = "[" + returnString.Substring(0, returnString.Length - 1) + "]";
+            })
+            .ToList();
+        /// <summary>
+        /// Build a List of string containing the array dimension Fields
+        /// </summary>
+        /// <param name="arrayDimensions"></param>
+        /// <param name="currentReturnString"></param>
+        /// <returns></returns>
+        private List<string> BuildArrayDimensionString(Queue<ApiPlcProgramDataArrayIndexer> arrayDimensions, List<string> currentReturnString)
+        {
+            List<string> toReturnString = new List<string>();
+            var arrDim = arrayDimensions.Dequeue();
+            if (currentReturnString.Count != 0)
+            {
+                foreach (var currentStr in currentReturnString)
+                {
+                    for (int j = 0; j < arrDim.Count; j++)
+                    {
+                        toReturnString.Add(currentStr + (arrDim.Start_index + j).ToString() + ",");
+                    }
+                }
+            }
+            else
+            {
+                for (int j = 0; j < arrDim.Count; j++)
+                {
+                    toReturnString.Add((arrDim.Start_index + j).ToString() + ",");
+                }
+            }
+            if (arrayDimensions.Count != 0)
+            {
+                return BuildArrayDimensionString(arrayDimensions, toReturnString);
+            }
+            else
+            {
+                return toReturnString;
+            }
+        }
+        /// <summary>
+        /// Get Amount of Elements with given array Dimensions
+        /// </summary>
+        /// <param name="arrayDimensions">Array Dimensions of the Array</param>
+        /// <returns>Amount of Elements overall</returns>
+        public int GetAmountOfElements(List<ApiPlcProgramDataArrayIndexer> arrayDimensions)
+        {
+            int result = 1;
+            foreach (var arrayDimension in arrayDimensions)
+            {
+                result = arrayDimension.Count * result;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Bool that indicates wether "this" was set by ArrayDimensions
+        /// </summary>
+        public bool IsArrayElement { get; set; }
+        /// <summary>
+        /// Elements build from the given Array Dimensions
+        /// </summary>
+        public List<ApiPlcProgramData> ArrayElements { get; set; }
 
         /// <summary>
         /// May be null - Max Length of the Data
@@ -103,6 +217,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             this.Parents = new List<ApiPlcProgramData>();
             this.Children = new List<ApiPlcProgramData>();
+            this.ArrayElements = new List<ApiPlcProgramData>();
         }
 
         /// <summary>
@@ -111,7 +226,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public string GetNameWithQuotes()
         {
-            return "\"" + Name + "\"";
+            if (IsArrayElement)
+            {
+                return "\"" + Name.Substring(0, (Name.LastIndexOf('['))) + "\"" + Name.Substring(Name.LastIndexOf("["));
+            }
+            else
+            {
+                return "\"" + Name + "\"";
+            }
         }
 
         /// <summary>
@@ -140,6 +262,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             return JsonConvert.SerializeObject(this, new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver()
                 , NullValueHandling = NullValueHandling.Ignore });
+        }
+
+        /// <summary>
+        /// Call GetNameWithQuotes for debugging comfort!
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return GetNameWithQuotes();
         }
 
         /// <summary>

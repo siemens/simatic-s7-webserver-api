@@ -39,7 +39,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// If plcProgramBrowseMode == ApiPlcProgramBrowseMode.Children: ELSE "normal PlcProgramBrowse implementation"
         /// PlcProgramBrowse that will add the Elements from the response to the children of given var, also adds the parents of var to the list of parents of the children and also var as parent
         /// </summary>
-        /// <param name="requestHandler">Api RequestHandler used to send the request</param>
         /// <param name="plcProgramBrowseMode">Mode for PlcProgramBrowse function</param>
         /// <param name="var">the db/structure of which the children should be browsed</param>
         /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
@@ -75,7 +74,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <summary>
         /// Method to comfortably read all Children of a struct using a Bulk Request
         /// </summary>
-        /// <param name="requestHandler">request Handler to use for the Api Bulk Request</param>
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
         /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
         /// <param name="threadSleepTimeInMilliseconds">Time in milliseconds for the Thread to sleep in between creating Requests (=> so that new Ids will be generated)</param>
@@ -96,7 +94,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             {
                 if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
                 {
-                    await PlcProgramReadStructByChildValuesAsync(requestHandler, child, childrenReadMode);
+                    await PlcProgramReadStructByChildValuesAsync(child, childrenReadMode);
                 }
                 else if (child.ArrayElements?.Count != 0)
                 {
@@ -104,19 +102,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     {
                         if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
                         {
-                            await PlcProgramReadStructByChildValuesAsync(requestHandler, arrayElement, childrenReadMode);
+                            await PlcProgramReadStructByChildValuesAsync(arrayElement, childrenReadMode);
                         }
                         else
                         {
                             requests.Add(factory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
-                            Thread.Sleep(threadSleepTimeInMilliseconds);
                         }
                     }
                 }
                 else if (child.Children?.Count == 0)
                 {
                     requests.Add(factory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
-                    Thread.Sleep(threadSleepTimeInMilliseconds);
                 }
                 else
                 {
@@ -126,7 +122,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             requests.MakeSureRequestIdsAreUnique(IdGenerator);
             if (requests.Count > 0)
             {
-                var childvalues = await requestHandler.ApiBulkAsync(requests);
+                var childvalues = await ApiRequestHandler.ApiBulkAsync(requests);
                 foreach (var childval in childvalues.SuccessfulResponses)
                 {
                     var accordingRequest = requests.First(el => el.Id == childval.Id);
@@ -143,7 +139,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <summary>
         /// Method to comfortably write all Children of a struct using a Bulk Request
         /// </summary>
-        /// <param name="requestHandler">request Handler to use for the Api Bulk Request</param>
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
         /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
         /// <param name="threadSleepTimeInMilliseconds">Time in milliseconds for the Thread to sleep in between creating Requests (=> so that new Ids will be generated)</param>

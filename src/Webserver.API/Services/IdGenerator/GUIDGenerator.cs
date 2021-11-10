@@ -49,12 +49,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         {
             if(Length < 0)
             {
-                throw new ArgumentException($"{nameof(Length)} must be greater than 0 (was: {Length})!");
+                throw new InvalidOperationException($"{nameof(Length)} must be greater than 0 (was: {Length})!");
             }
             var result = Guid.NewGuid().ToString();
             if(result.Length < Length)
             {
-                throw new ArgumentException($"{nameof(Length)} must be smaller than {result.Length} (was: {Length})!");
+                throw new InvalidOperationException($"{nameof(Length)} must be smaller than {result.Length} (was: {Length})!");
             }
             return result.Substring(0, Length);
         }

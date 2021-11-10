@@ -15,15 +15,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     /// <summary>
     /// Data Class for parameterization of HttpClient configuration
     /// </summary>
-    public class ClientConfiguration
+    public class HttpClientConnectionConfiguration
     {
         /// <summary>
         /// Function to MemberwiseClone a HttpClientConnectionConfiguration to another Object.
         /// </summary>
         /// <returns></returns>
-        public ClientConfiguration ShallowCopy()
+        public HttpClientConnectionConfiguration ShallowCopy()
         {
-            return (ClientConfiguration)this.MemberwiseClone();
+            return (HttpClientConnectionConfiguration)this.MemberwiseClone();
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="baseAddress">PLC base Address/DNS name</param>
         /// <param name="username">Plc User Management username to login with</param>
         /// <param name="password">Plc User Management password for Username</param>
-        public ClientConfiguration(string baseAddress, string username, string password)
+        public HttpClientConnectionConfiguration(string baseAddress, string username, string password)
         {
             this.BaseAddress = baseAddress;
             this.Username = username;

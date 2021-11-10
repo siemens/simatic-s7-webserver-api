@@ -37,7 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
         /// Property ApiRequestFactory">Request factory to get request from
         /// </param>
         /// <returns></returns>
-        public static async Task<HttpClient> GetAuthorizedHTPPClientAsync(ClientConfiguration ClientConfiguration)
+        public static async Task<HttpClient> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration ClientConfiguration)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
@@ -105,7 +105,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
         /// </param>
         /// <param name="include_web_application_cookie">include web application cookie - if you need it you can get the web application cookie value for access of userdef. webapp pages</param>
         /// <returns></returns>
-        public static async Task<HttpClientAndWebAppCookie> GetAuthorizedHTPPClientAsync(ClientConfiguration ClientConfiguration, bool include_web_application_cookie)
+        public static async Task<HttpClientAndWebAppCookie> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration ClientConfiguration, bool include_web_application_cookie)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {

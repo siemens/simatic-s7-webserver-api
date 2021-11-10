@@ -29,6 +29,11 @@ namespace Webserver.API.UnitTests
                 var charSetGen = ReqIdGenerator as CharSetIdGenerator;
                 Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
             }
+            if(ReqIdGenerator is GUIDGenerator)
+            {
+                var guidGen = ReqIdGenerator as GUIDGenerator;
+                Console.WriteLine($"Determined DefaultLength:{guidGen.DefaultLength}");
+            }
             Assert.That(requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, TimeSpan.FromMinutes(2)) == true);
         }
 

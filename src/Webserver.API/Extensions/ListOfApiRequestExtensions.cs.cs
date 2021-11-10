@@ -22,20 +22,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Extensions
         /// </summary>
         /// <param name="requests">List of ApiRequests for which uniqueness should be made sure</param>
         /// <param name="requestIdGenerator">Request Id Generator - will default to ApiRequestIdGenerator (when null is given)</param>
-        public static void MakeSureRequestIdsAreUnique(this List<ApiRequest> requests, IIdGenerator requestIdGenerator)
+        /// <param name="timeOut">How long this function will try to "uniquelify" the requests</param>
+        public static bool MakeSureRequestIdsAreUnique(this List<ApiRequest> requests, IIdGenerator requestIdGenerator, TimeSpan? timeOut = null)
         {
             if(requestIdGenerator == null)
             {
                 throw new ArgumentException(nameof(requestIdGenerator) + " was null!");
             }
-            while (requests.GroupBy(el => el.Id).Count() != requests.Count)
+            var startTime = DateTime.Now;
+            var ignoreTimeOut = false;
+            if (timeOut == null)
+            {
+                ignoreTimeOut = true;
+            }
+            while (requests.GroupBy(el => el.Id).Count() != requests.Count && (((startTime + timeOut) > DateTime.Now) || ignoreTimeOut))
             {
                 requests.Where(el => requests.Any(el2 => el.Id == el2.Id))
                     .ToList().ForEach(el =>
                     {
-                        el.Id = requestIdGenerator.Generate(8);
+                        el.Id = requestIdGenerator.Generate();
                     });
             }
+            return (requests.GroupBy(el => el.Id).Count() == requests.Count);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Webserver.API.UnitTests
 
         public Base()
         {
-            ReqIdGenerator = new CharSetIdGenerator();
+            ReqIdGenerator = new GUIDGenerator();
             ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator);
         }
     }

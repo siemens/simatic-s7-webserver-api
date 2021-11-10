@@ -17,7 +17,7 @@ namespace Webserver.API.UnitTests
     {
 
         [Test]
-        public void MakeSureNoIdIsContainedTwiceSleepTime16()
+        public void MakeSureNoIdIsContainedTwice()
         {
             var requests = new List<ApiRequest>();
             for(int i = 0; i< 500;i++)
@@ -29,14 +29,27 @@ namespace Webserver.API.UnitTests
                 var charSetGen = ReqIdGenerator as CharSetIdGenerator;
                 Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
             }
-            requests.MakeSureRequestIdsAreUnique(ReqIdGenerator);
-            
-            Console.WriteLine($"Determined ThreadSleepTime:{ReqIdGenerator}");
-            if (requests.GroupBy(el => el.Id).Count() != requests.Count)
+            Assert.That(requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, TimeSpan.FromMinutes(2)) == true);
+        }
+
+        [Test]
+        public void MakeSureNoIdIsContainedTwice_TooSlow()
+        {
+            var requests = new List<ApiRequest>();
+            for (int i = 0; i < 1000000; i++)
             {
-                Assert.Fail("Requests are not handled as they should be!");
+                requests.Add(new ApiRequest("", "", "1"));
             }
-            
+            if (ReqIdGenerator is CharSetIdGenerator)
+            {
+                var charSetGen = ReqIdGenerator as CharSetIdGenerator;
+                Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
+            }
+            TimeSpan timeOut = TimeSpan.FromMilliseconds(1);
+            var start = DateTime.Now;
+            Console.WriteLine($"Could successfully \"uniquelify\" requests?:{requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, timeOut)}");
+            var end = DateTime.Now;
+            Assert.That((end - start - timeOut - TimeSpan.FromMilliseconds(300)) < TimeSpan.FromSeconds(0));
         }
     }
 }

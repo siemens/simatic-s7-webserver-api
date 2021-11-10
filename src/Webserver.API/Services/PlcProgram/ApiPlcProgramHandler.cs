@@ -26,9 +26,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         private readonly IIdGenerator IdGenerator;
 
         /// <summary>
+        /// Timeout for creating requests - defaults to 1 minute
+        /// </summary>
+        public TimeSpan? TimeOutCreatingRequests;
+
+        /// <summary>
         /// Api PlcProgram Handler
         /// </summary>
-        /// <param name="asyncRequestHandler"></param>
+        /// <param name="asyncRequestHandler">Request Handler to send the Requests to the plc</param>
+        /// <param name="idGenerator">ID generator (for requests)</param>
         public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IIdGenerator idGenerator)
         {
             this.ApiRequestHandler = asyncRequestHandler;
@@ -119,7 +125,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     throw new Exception("Dont quite know how I landed here!");
                 }
             }
-            requests.MakeSureRequestIdsAreUnique(IdGenerator);
+            requests.MakeSureRequestIdsAreUnique(IdGenerator, TimeOutCreatingRequests);
             if (requests.Count > 0)
             {
                 var childvalues = await ApiRequestHandler.ApiBulkAsync(requests);
@@ -156,7 +162,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             {
                 requests.Add(factory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
             }
-            requests.MakeSureRequestIdsAreUnique(IdGenerator);
+            requests.MakeSureRequestIdsAreUnique(IdGenerator, TimeOutCreatingRequests);
             return await ApiRequestHandler.ApiBulkAsync(requests);
         }
 

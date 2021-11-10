@@ -8,20 +8,55 @@ using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
 {
-    class GUIDGenerator : IIdGenerator
+    /// <summary>
+    /// GUID Generator: use Guid implementation to create (request) id(s)
+    /// </summary>
+    public class GUIDGenerator : IIdGenerator
     {
-        public string Generate(int length)
+        /// <summary>
+        /// Length for the id(s) generated
+        /// </summary>
+        public int Length { get; set; }
+
+        /// <summary>
+        /// Default value for Length
+        /// </summary>
+        public int DefaultLength { get; }
+
+        /// <summary>
+        /// GUID Generator: use Guid implementation to create (request) id(s)
+        /// </summary>
+        public GUIDGenerator()
         {
-            if(length < 0)
+            DefaultLength = Guid.NewGuid().ToString().Length;
+            Length = DefaultLength;
+        }
+
+        /// <summary>
+        /// GUID Generator: use Guid implementation to create (request) id(s)
+        /// </summary>
+        /// <param name="length"></param>
+        public GUIDGenerator(int length) : this()
+        {
+            Length = length;
+        }
+
+        /// <summary>
+        /// Generate a new 
+        /// </summary>
+        /// <returns></returns>
+        public string Generate()
+        {
+            if(Length < 0)
             {
-                throw new ArgumentException($"{nameof(length)} must be greater than 0 (was: {length})!");
+                throw new ArgumentException($"{nameof(Length)} must be greater than 0 (was: {Length})!");
             }
             var result = Guid.NewGuid().ToString();
-            if(result.Length < length)
+            if(result.Length < Length)
             {
-                throw new ArgumentException($"{nameof(length)} must be smaller than {result.Length} (was: {length})!");
+                throw new ArgumentException($"{nameof(Length)} must be smaller than {result.Length} (was: {Length})!");
             }
-            return result.Substring(0, length);
+            return result.Substring(0, Length);
         }
     }
 }

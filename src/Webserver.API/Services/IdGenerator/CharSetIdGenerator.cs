@@ -30,6 +30,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// Time to Sleep After Request Id Generation
         /// </summary>
         public TimeSpan DeterminedThreadSleepTime { get; }
+        /// <summary>
+        /// Length for the request(s) generated
+        /// </summary>
+        public int Length { get; set; }
+
+        /// <summary>
+        /// Default value for Length (8)
+        /// </summary>
+        public int DefaultLength { get { return 8; } }
 
         /// <summary>
         /// Class to Generate a random string of the given length - by default containing the characters: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
@@ -37,21 +46,46 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         public CharSetIdGenerator()
         {
             CharSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            Length = DefaultLength;
             DeterminedThreadSleepTime = DetermineThreadSleepTime();
             ThreadSleepTime = DeterminedThreadSleepTime;
         }
+        /// <summary>
+        /// Class to Generate a random string of the given length
+        /// </summary>
+        /// <param name="charSet">Character Set used for the Id Generation</param>
+        public CharSetIdGenerator(string charSet) : this()
+        {
+            CharSet = charSet;
+        }
 
+        /// <summary>
+        /// Class to Generate a random string of the given length
+        /// </summary>
+        /// <param name="charSet">Character Set used for the Id Generation</param>
+        /// <param name="length">Length for the request ids to generate</param>
+        public CharSetIdGenerator(string charSet, int length) : this()
+        {
+            CharSet = charSet;
+            Length = length;
+        }
+
+        /// <summary>
+        /// Function to determine the ThreadSleepTime for your processor
+        /// </summary>
+        /// <returns>the timespan your processor "needs to sleep" in between requests so that a new 
+        /// "random" request id will be generated</returns>
         public TimeSpan DetermineThreadSleepTime()
         {
             List<TimeSpan> MillisecondsDetermined = new List<TimeSpan>();
             for(int i = 0; i < 3; i++)
             {
                 DateTime start = DateTime.Now;
-                var generated = Generate(8);
-                var secGenerated = Generate(8);
+                var generated = Generate();
+                var secGenerated = Generate();
                 while (secGenerated == generated)
                 {
-                    secGenerated = Generate(8);
+                    secGenerated = Generate();
                 }
                 var end = DateTime.Now;
                 MillisecondsDetermined.Add(end - start);
@@ -66,28 +100,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             }
             return result;
         }
-        /// <summary>
-        /// Class to Generate a random string of the given length
-        /// </summary>
-        /// <param name="charSet"></param>
-        public CharSetIdGenerator(string charSet)
-        {
-            CharSet = charSet;
-        }
+
         /// <summary>
         /// Get A Random String with the length given, Random (optional)
         /// containing characters of CharSet
         /// </summary>
         /// <param name="length">length of the string you want</param>
         /// <returns>random string with given length</returns>
-        public string Generate(int length)
+        public string Generate()
         {
-            if (length < 0)
+            if (Length < 0)
             {
-                throw new ArgumentException(nameof(length) + " must be greater than 0!");
+                throw new ArgumentException(nameof(Length) + " must be greater than 0!");
             }
             var random = new Random();
-            var result = new string(Enumerable.Repeat(CharSet, length)
+            var result = new string(Enumerable.Repeat(CharSet, Length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
             Thread.Sleep(ThreadSleepTime);
             return result;

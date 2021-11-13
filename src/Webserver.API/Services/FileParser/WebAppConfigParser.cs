@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Services.Deployer;
+using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.FileParser
+namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
 {
     /// <summary>
     /// Used to Parse a Directory that contains the WebApp Configuration (Html Files) e.g. a user wants to have on the plc

@@ -2283,6 +2283,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
         public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests)
         {
+            if((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
+            {
+                throw new ArgumentException($"{nameof(apiRequests)} contains multiple requests with the same Id!");
+            }
             foreach(var apiRequest in apiRequests)
             {
                 if (apiRequest.Params != null)

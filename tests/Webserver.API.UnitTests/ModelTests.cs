@@ -7,6 +7,7 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Extensions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
+using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -248,31 +249,7 @@ namespace Webserver.API.UnitTests
             }
         }
 
-        [Test]
-        public void ApiWebAppDataSave()
-        {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tmp");
-            try
-            {
-                Directory.CreateDirectory(dirPath);
-                ApiWebAppData testApp = new ApiWebAppData() { Type = ApiWebAppType.User};
-                Assert.Throws<ApiInconsistentApiWebAppDataException>(() => testApp.Save());
-                testApp = new ApiWebAppData() { State = ApiWebAppState.Enabled };
-                Assert.Throws<ApiInconsistentApiWebAppDataException>(() => testApp.Save());
-                testApp.Type = ApiWebAppType.User;
-                Assert.Throws<ApiInconsistentApiWebAppDataException>(() => testApp.Save());
-                testApp.Name = "validName";
-                Assert.Throws<ApiInconsistentApiWebAppDataException>(() => testApp.Save());
-                testApp.PathToWebAppDirectory = "notvalid";
-                Assert.Throws<DirectoryNotFoundException>(() => testApp.Save());
-                testApp.PathToWebAppDirectory = dirPath;
-                testApp.Save();
-            }
-            finally
-            {
-                Directory.Delete(dirPath, true);
-            }
-        }
+        
 
 
         

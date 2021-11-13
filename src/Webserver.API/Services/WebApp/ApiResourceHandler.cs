@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.Deployer
+namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
 {
     /// <summary>
     /// The ResourceHandler implements comfort functions to Deploy a single Resource or Download a WebApp Resource

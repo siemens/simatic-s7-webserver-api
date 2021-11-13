@@ -54,7 +54,8 @@ namespace Webserver.API.UnitTests
             var start = DateTime.Now;
             Console.WriteLine($"Could successfully \"uniquelify\" requests?:{requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, timeOut)}");
             var end = DateTime.Now;
-            Assert.That((end - start - timeOut - TimeSpan.FromMilliseconds(300)) < TimeSpan.FromSeconds(0));
+            var timeTaken = (end - start - timeOut - TimeSpan.FromSeconds(1)); // timespan fromseconds => can take longer but shouldnt take way(!) longer
+            Assert.That(timeTaken < TimeSpan.FromSeconds(0));
         }
     }
 }

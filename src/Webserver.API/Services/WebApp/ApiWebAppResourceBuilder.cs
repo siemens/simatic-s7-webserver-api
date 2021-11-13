@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.Deployer
+namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
 {
     /// <summary>
     /// ApiWebAppResourceBuilder: used to create a webappresource from a given filename and webappdirectorypath - set resource protection to resourceVisibility given

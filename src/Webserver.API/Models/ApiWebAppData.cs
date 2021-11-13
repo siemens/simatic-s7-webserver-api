@@ -21,9 +21,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     /// ResourcesToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resourcename is added)
     /// FileExtensionsToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resource fileextension is added)
     /// </summary>
-    public class ApiWebAppData
+    public class ApiWebAppData : IApiWebAppData
     {
-
         /// <summary>
         /// Function to MemberwiseClone an ApiWebAppData to another Object.
         /// </summary>

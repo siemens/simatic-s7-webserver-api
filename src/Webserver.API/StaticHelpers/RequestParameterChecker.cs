@@ -176,7 +176,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         {
             if (performCheck)
             {
-                if (ticketId.Length != 28)
+                if (ticketId?.Length != 28)
                 {
                     throw new ApiInvalidParametersException($"Api Tickets cannot have a length other than 28 bytes!{ Environment.NewLine + ticketId + Environment.NewLine }provide a valid ticket!" +
                                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
@@ -193,7 +193,11 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         {
             if (performCheck)
             {
-                if (etag.Length > 128)
+                if(string.IsNullOrEmpty(etag))
+                {
+                    // maybe throw here but for now let "the plc decide"
+                }
+                else if(etag.Length > 128)
                 {
                     throw new ApiInvalidETagException($"WebApp.CreateResource shall not be called with \"etag\" { Environment.NewLine + etag } because the value is too long!-max 128 bytes(chars)" +
                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));

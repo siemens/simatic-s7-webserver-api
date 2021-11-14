@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -38,9 +39,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Responses
         /// <summary>
         /// Check Validity => RequestParameterChecker.CheckTicket(this.Result); => Does the TicketId match 28 characters length?
         /// </summary>
-        public void CheckValidity()
+        public void CheckValidity(IRequestParameterChecker requestParameterChecker)
         {
-            RequestParameterChecker.CheckTicket(this.Result, true);
+            requestParameterChecker.CheckTicket(this.Result, true);
         }
     }
 }

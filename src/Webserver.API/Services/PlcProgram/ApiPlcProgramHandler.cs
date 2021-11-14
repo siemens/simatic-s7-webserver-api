@@ -7,7 +7,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Responses;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
-using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
     public class ApiPlcProgramHandler
     {
         private readonly IApiRequestHandler ApiRequestHandler;
-        private readonly IIdGenerator IdGenerator;
+        private readonly IApiRequestFactory RequestFactory;
 
         /// <summary>
         /// Timeout for creating requests - defaults to 1 minute
@@ -34,11 +34,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// Api PlcProgram Handler
         /// </summary>
         /// <param name="asyncRequestHandler">Request Handler to send the Requests to the plc</param>
-        /// <param name="idGenerator">ID generator (for requests)</param>
-        public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IIdGenerator idGenerator)
+        /// <param name="requestFactory">Request Factory for request generation</param>
+        public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory)
         {
             this.ApiRequestHandler = asyncRequestHandler;
-            this.IdGenerator = idGenerator;
+            this.RequestFactory = requestFactory;
         }
 
         /// <summary>
@@ -95,7 +95,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn);
             }
             List<ApiRequest> requests = new List<ApiRequest>();
-            ApiRequestFactory factory = new ApiRequestFactory(IdGenerator);
             foreach (var child in toReturn.Children)
             {
                 if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
@@ -112,20 +111,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                         }
                         else
                         {
-                            requests.Add(factory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
+                            requests.Add(RequestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
                         }
                     }
                 }
                 else if (child.Children?.Count == 0)
                 {
-                    requests.Add(factory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
+                    requests.Add(RequestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
                 }
                 else
                 {
                     throw new Exception("Dont quite know how I landed here!");
                 }
             }
-            requests.MakeSureRequestIdsAreUnique(IdGenerator, TimeOutCreatingRequests);
+            requests = RequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             if (requests.Count > 0)
             {
                 var childvalues = await ApiRequestHandler.ApiBulkAsync(requests);
@@ -157,12 +156,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 throw new Exception($"No child elements present on var {toReturn.GetVarNameForMethods()}!");
             }
             List<ApiRequest> requests = new List<ApiRequest>();
-            ApiRequestFactory factory = new ApiRequestFactory(IdGenerator);
             foreach (var child in toReturn.Children)
             {
-                requests.Add(factory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
+                requests.Add(RequestFactory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
             }
-            requests.MakeSureRequestIdsAreUnique(IdGenerator, TimeOutCreatingRequests);
+            requests = RequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             return await ApiRequestHandler.ApiBulkAsync(requests);
         }
 

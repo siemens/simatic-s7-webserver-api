@@ -11,7 +11,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Responses;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Interface for AsyncApiRequestHandler

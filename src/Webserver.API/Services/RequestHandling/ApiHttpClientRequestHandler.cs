@@ -23,7 +23,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Request Handlerusing the Microsoft.Net.HttpClient to send the requests to the API
@@ -90,8 +90,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
             ResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
             return responseString;
         }
-
-
 
         /// <summary>
         /// Send an Api.Browse Request using the Request from the ApiRequestFactory

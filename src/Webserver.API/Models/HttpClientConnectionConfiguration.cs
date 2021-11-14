@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +68,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 _idGenerator = value;
                 if(ApiRequestFactory is ApiRequestFactory)
                 {
-                    ApiRequestFactory = new ApiRequestFactory(_idGenerator);
+                    ApiRequestFactory = new ApiRequestFactory(_idGenerator, RequestParameterChecker);
+                }
+            }
+        }
+
+        private IRequestParameterChecker _requestParameterChecker;
+        /// <summary>
+        /// Optional Request Parameter Checker for request generation
+        /// </summary>
+        public IRequestParameterChecker RequestParameterChecker
+        {
+            get
+            {
+                return _requestParameterChecker;
+            }
+            set
+            {
+                _requestParameterChecker = value;
+                if (ApiRequestFactory is ApiRequestFactory)
+                {
+                    ApiRequestFactory = new ApiRequestFactory(IdGenerator, _requestParameterChecker);
                 }
             }
         }
@@ -109,7 +130,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             this.TimeOut = TimeSpan.FromMinutes(10);
             this.ConnectionClose = false;
             this.IdGenerator = new GUIDGenerator();
-            this.ApiRequestFactory = new ApiRequestFactory(IdGenerator);
+            this.RequestParameterChecker = new RequestParameterChecker();
+            this.ApiRequestFactory = new ApiRequestFactory(IdGenerator, RequestParameterChecker);
             this.MediaTypeHeaderValue = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
             this.AllowAutoRedirect = false;
             this.DiscardPasswordAfterConnect = true;

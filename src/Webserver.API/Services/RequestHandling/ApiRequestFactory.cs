@@ -6,6 +6,7 @@ using Newtonsoft.Json.Converters;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
@@ -16,7 +17,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Requests
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Api Request Factory => Will perform the according ParameterChecks (RequestParameterChecker) and return the requested ApiRequest
@@ -25,6 +26,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Requests
     public class ApiRequestFactory : IApiRequestFactory
     {
         private readonly IIdGenerator RequestIdGenerator;
+
+        private readonly IRequestParameterChecker RequestParameterChecker;
 
         /// <summary>
         /// Bool to determine wether to use local checks for Request Parameters or not
@@ -40,9 +43,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Requests
         /// C'tor with optional requestGenerator parameter
         /// </summary>
         /// <param name="requestGenerator">RequestGenerator - can be customized</param>
-        public ApiRequestFactory(IIdGenerator requestGenerator)
+        public ApiRequestFactory(IIdGenerator requestGenerator, IRequestParameterChecker requestParameterChecker)
         {
             RequestIdGenerator = requestGenerator;
+            RequestParameterChecker = requestParameterChecker;
         }
 
         /// <summary>
@@ -553,6 +557,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Requests
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("WebApp.SetState", jsonRpcReq, idReq, new Dictionary<string, object>() { { "name", webAppName },
                 { "state", apiWebAppState.ToString().ToLower() } });
+        }
+
+        /// <summary>
+        /// Method to make sure all requests in the ApiBulk have a unique Id
+        /// </summary>
+        /// <param name="apiRequests">Api Requests to make sure of that the ids are unique</param>
+        /// <returns>A list of api Requests containing unique Ids</returns>
+        public virtual IEnumerable<ApiRequest> GetApiBulkRequestWithUniqueIds(IEnumerable<ApiRequest> apiRequests, TimeSpan? timeOut = null)
+        {
+            var requestsToReturn = new List<ApiRequest>(apiRequests.ToList());
+            var startTime = DateTime.Now;
+            var ignoreTimeOut = false;
+            if (timeOut == null)
+            {
+                ignoreTimeOut = true;
+            }
+            while (requestsToReturn.GroupBy(el => el.Id).Count() != requestsToReturn.Count 
+                && (((startTime + timeOut) > DateTime.Now) || ignoreTimeOut))
+            {
+                apiRequests.Where(el => apiRequests.Any(el2 => el.Id == el2.Id))
+                    .ToList().ForEach(el =>
+                    {
+                        el.Id = RequestIdGenerator.Generate();
+                    });
+            }
+            return requestsToReturn;
         }
     }
 }

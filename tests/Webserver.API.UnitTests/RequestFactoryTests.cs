@@ -24,13 +24,12 @@ namespace Webserver.API.UnitTests
         [Test]
         public void DefaultValueCheckerTrue()
         {
-            var reqFac = new ApiRequestFactory(ReqIdGenerator);
-            if(reqFac.PerformCheck == false)
+            if(ApiRequestFactory.PerformCheck == false)
             {
                 Assert.Fail("Perform Check by default is false!");
             }
-            reqFac.PerformCheck = false;
-            if(reqFac.PerformCheck)
+            ApiRequestFactory.PerformCheck = false;
+            if(ApiRequestFactory.PerformCheck)
             {
                 Assert.Fail("Perform Check cannot be edited!");
             }

@@ -11,19 +11,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Static class to check Request Parameters
     /// </summary>
-    public static class RequestParameterChecker
+    public class RequestParameterChecker : IRequestParameterChecker
     {
         /// <summary>
         /// Check ApiWebAppState => None isnt valid!
         /// </summary>
         /// <param name="apiWebAppState">Web Application State</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckState(ApiWebAppState apiWebAppState, bool performCheck)
+        public void CheckState(ApiWebAppState apiWebAppState, bool performCheck)
         {
             if(performCheck)
             {
@@ -40,7 +40,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="webAppName">Name of the Web Application</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckWebAppName(string webAppName, bool performCheck)
+        public void CheckWebAppName(string webAppName, bool performCheck)
         {
             if (performCheck)
             {
@@ -68,7 +68,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="apiPlcProgramData">PlcProgramData</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckPlcProgramWriteOrReadDataType(ApiPlcProgramDataType apiPlcProgramData, bool performCheck)
+        public void CheckPlcProgramWriteOrReadDataType(ApiPlcProgramDataType apiPlcProgramData, bool performCheck)
         {
             if (performCheck)
             {
@@ -91,7 +91,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="resourceName">Name of the resource that should be checked for the valid charset</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckResourceName(string resourceName, bool performCheck)
+        public void CheckResourceName(string resourceName, bool performCheck)
         {
             if (performCheck)
             {
@@ -119,7 +119,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="plcOperatingMode">Operating mode that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckPlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, bool performCheck)
+        public void CheckPlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, bool performCheck)
         {
             if (performCheck)
             {
@@ -135,7 +135,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="plcProgramBrowseMode">PlcProgramBrowseMode that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckPlcProgramBrowseMode(ApiPlcProgramBrowseMode plcProgramBrowseMode, bool performCheck)
+        public void CheckPlcProgramBrowseMode(ApiPlcProgramBrowseMode plcProgramBrowseMode, bool performCheck)
         {
             if (performCheck)
             {
@@ -152,7 +152,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="apiPlcProgramReadMode">PlcProgramReadMode  that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckPlcProgramReadOrWriteMode(ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode, bool performCheck)
+        public void CheckPlcProgramReadOrWriteMode(ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode, bool performCheck)
         {
             if (performCheck)
             {
@@ -172,7 +172,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="ticketId">TicketId that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckTicket(string ticketId, bool performCheck)
+        public void CheckTicket(string ticketId, bool performCheck)
         {
             if (performCheck)
             {
@@ -189,7 +189,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="etag">etag (of resource) to be checked</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckETag(string etag, bool performCheck)
+        public void CheckETag(string etag, bool performCheck)
         {
             if (performCheck)
             {
@@ -210,7 +210,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="mediaType">MediaType that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckMediaType(string mediaType, bool performCheck)
+        public void CheckMediaType(string mediaType, bool performCheck)
         {
             if (performCheck)
             {
@@ -224,7 +224,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="apiWebAppResourceVisibility">ResourceVisibility that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckVisibility(ApiWebAppResourceVisibility apiWebAppResourceVisibility, bool performCheck)
+        public void CheckVisibility(ApiWebAppResourceVisibility apiWebAppResourceVisibility, bool performCheck)
         {
             if (performCheck)
             {
@@ -239,7 +239,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="lastModified">LastModified that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public static void CheckLastModified(string lastModified, bool performCheck)
+        public void CheckLastModified(string lastModified, bool performCheck)
         {
             if (performCheck)
             {

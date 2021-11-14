@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
-using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +23,13 @@ namespace Webserver.API.UnitTests
 
         public IIdGenerator ReqIdGenerator;
 
+        public IRequestParameterChecker RequestParameterChecker;
+
         public Base()
         {
             ReqIdGenerator = new GUIDGenerator();
-            ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator);
+            RequestParameterChecker = new RequestParameterChecker();
+            ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
         }
     }
 }

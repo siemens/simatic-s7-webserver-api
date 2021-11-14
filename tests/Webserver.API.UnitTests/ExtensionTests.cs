@@ -34,7 +34,8 @@ namespace Webserver.API.UnitTests
                 var guidGen = ReqIdGenerator as GUIDGenerator;
                 Console.WriteLine($"Determined DefaultLength:{guidGen.DefaultLength}");
             }
-            Assert.That(requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, TimeSpan.FromMinutes(2)) == true);
+            requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests, TimeSpan.FromMinutes(2)).ToList();
+            Assert.That(requests.GroupBy(req => req.Id).Count() == requests.Count);
         }
 
         [Test]
@@ -52,10 +53,12 @@ namespace Webserver.API.UnitTests
             }
             TimeSpan timeOut = TimeSpan.FromMilliseconds(1);
             var start = DateTime.Now;
-            Console.WriteLine($"Could successfully \"uniquelify\" requests?:{requests.MakeSureRequestIdsAreUnique(ReqIdGenerator, timeOut)}");
+            requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests, timeOut).ToList();
             var end = DateTime.Now;
-            var timeTaken = (end - start - timeOut - TimeSpan.FromSeconds(1)); // timespan fromseconds => can take longer but shouldnt take way(!) longer
-            Assert.That(timeTaken < TimeSpan.FromSeconds(0));
+            var timeTakenMinusOneSecond = (end - start - timeOut - TimeSpan.FromSeconds(1)); // timespan fromseconds => can take longer but shouldnt take way(!) longer => accept 1 sec
+            Assert.That(timeTakenMinusOneSecond < TimeSpan.FromSeconds(0));
+            // also accept if "we were fast enough"
+            Assert.That(requests.GroupBy(req => req.Id).Count() <= requests.Count);
         }
     }
 }

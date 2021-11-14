@@ -2,8 +2,11 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Requests;
+using System;
+using System.Collections.Generic;
 
-namespace Siemens.Simatic.S7.Webserver.API.Requests
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Api Request Factory => Will perform the according ParameterChecks (RequestParameterChecker) and return the requested ApiRequest
@@ -302,6 +305,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Requests
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate(8)</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to "2.0"</param>
         ApiRequest GetApiWebAppSetStateRequest(string webAppName, ApiWebAppState apiWebAppState, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Method to make sure all requests in the ApiBulk have a unique Id
+        /// </summary>
+        /// <param name="apiRequests">Api Requests to make sure of that the ids are unique</param>
+        /// <returns>A list of api Requests containing unique Ids</returns>
+        IEnumerable<ApiRequest> GetApiBulkRequestWithUniqueIds(IEnumerable<ApiRequest> apiRequests, TimeSpan? timeOut = null);
     }
 
 }

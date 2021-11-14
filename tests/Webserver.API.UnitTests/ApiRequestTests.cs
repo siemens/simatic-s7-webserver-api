@@ -13,7 +13,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Requests;
 using Siemens.Simatic.S7.Webserver.API.Responses;
 using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
-using Siemens.Simatic.S7.Webserver.API.Services.RequestHandler;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -912,7 +912,7 @@ namespace Webserver.API.UnitTests
             {
                 throw new Exception("Parents have been modified!");
             }
-            var plcProgramHandler = new ApiPlcProgramHandler(TestHandler, ReqIdGenerator);
+            var plcProgramHandler = new ApiPlcProgramHandler(TestHandler, ApiRequestFactory);
             var dataTypesChildrenWithInfo = await plcProgramHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, dataTypesDb);
             if(dataTypesDb.Children.Count == 0)
             {

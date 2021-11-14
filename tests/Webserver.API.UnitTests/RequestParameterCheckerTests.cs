@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -19,97 +20,103 @@ namespace Webserver.API.UnitTests
         [Test]
         public void InvalidLastModifiedIsNotAccepted()
         {
-            //Assert.Throws<ApiInvalidParametersException>(() => RequestParameterChecker.CheckLastModified(DateTime.Now.ToString(), true));
+            //Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckLastModified(DateTime.Now.ToString(), true));
         }
 
         [Test]
         public void ValidLastModifiedIsAccepted()
         {
-            RequestParameterChecker.CheckLastModified("2020-08-24T07:08:06.836Z", true);
-            RequestParameterChecker.CheckLastModified("2020-08-24T07:08:06.52Z", true);
-            RequestParameterChecker.CheckLastModified("2020-08-24T07:08:06.1Z", true);
-            RequestParameterChecker.CheckLastModified("2020-08-24T07:08:06Z", true);
-            //Assert.Throws<ApiInvalidParametersException>(() => RequestParameterChecker.CheckLastModified("2020-08-24T07:08:06.12345678Z", true));
+            var requestParameterChecker = new RequestParameterChecker();
+            requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.836Z", true);
+            requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.52Z", true);
+            requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.1Z", true);
+            requestParameterChecker.CheckLastModified("2020-08-24T07:08:06Z", true);
+            //Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.12345678Z", true));
         }
 
 
         [Test]
         public void InvalidWebAppStateIsAcceptedIfCheckerShouldntCheck()
         {
-            Assert.Throws<ApiInvalidParametersException>(() => RequestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
-            RequestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
+            var requestParameterChecker = new RequestParameterChecker();
+            Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
+            requestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
         }
 
         [Test]
         public void CheckWebAppName()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             var invalidLength = "";
             Assert.Throws<ApiInvalidParametersException>(() => 
-            RequestParameterChecker.CheckWebAppName(invalidLength, true));
-            RequestParameterChecker.CheckWebAppName(invalidLength, false);
+            requestParameterChecker.CheckWebAppName(invalidLength, true));
+            requestParameterChecker.CheckWebAppName(invalidLength, false);
             for (int i = 0; i <= 100; i++)
             {
                 invalidLength += "a";
             }
             Assert.Throws<ApiInvalidApplicationNameException>(() =>
-            RequestParameterChecker.CheckWebAppName(invalidLength, true));
-            RequestParameterChecker.CheckWebAppName(invalidLength, false);
+            requestParameterChecker.CheckWebAppName(invalidLength, true));
+            requestParameterChecker.CheckWebAppName(invalidLength, false);
             var invalidChars = "$!{}/ÄÖÜ~";
             foreach(var invChar in invalidChars)
             {
                 Assert.Throws<ApiInvalidApplicationNameException>(() =>
-                RequestParameterChecker.CheckWebAppName(invChar.ToString(), true));
-                RequestParameterChecker.CheckWebAppName(invChar.ToString(), false);
+                requestParameterChecker.CheckWebAppName(invChar.ToString(), true));
+                requestParameterChecker.CheckWebAppName(invChar.ToString(), false);
             }
         }
 
         [Test]
         public void CheckResourceName()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             var invalidLength = "";
             Assert.Throws<ApiInvalidParametersException>(() =>
-            RequestParameterChecker.CheckResourceName(invalidLength, true));
-            RequestParameterChecker.CheckResourceName(invalidLength, false);
+            requestParameterChecker.CheckResourceName(invalidLength, true));
+            requestParameterChecker.CheckResourceName(invalidLength, false);
             for (int i = 0; i <= 200; i++)
             {
                 invalidLength += "a";
             }
             Assert.Throws<ApiInvalidResourceNameException>(() =>
-            RequestParameterChecker.CheckResourceName(invalidLength, true));
-            RequestParameterChecker.CheckResourceName(invalidLength, false);
+            requestParameterChecker.CheckResourceName(invalidLength, true));
+            requestParameterChecker.CheckResourceName(invalidLength, false);
             var invalidChars = "${}ÄÖÜ~";
             foreach (var invChar in invalidChars)
             {
                 Assert.Throws<ApiInvalidResourceNameException>(() =>
-                RequestParameterChecker.CheckResourceName(invChar.ToString(), true));
-                RequestParameterChecker.CheckResourceName(invChar.ToString(), false);
+                requestParameterChecker.CheckResourceName(invChar.ToString(), true));
+                requestParameterChecker.CheckResourceName(invChar.ToString(), false);
             }
         }
 
         [Test]
         public void CheckPlcProgramReadOrWriteDataType()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<ApiPlcProgramDataType> types = new List<ApiPlcProgramDataType>()
             // many more!
             { ApiPlcProgramDataType.Struct, ApiPlcProgramDataType.Cref, ApiPlcProgramDataType.Error_struct };
             foreach(var unsuppType in types)
             {
                 Assert.Throws<ApiUnsupportedAddressException>(() =>
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, true));
-                RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, false);
+            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, true));
+                requestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, false);
             }
             var type = ApiPlcProgramDataType.None;
             Assert.Throws<ApiHelperInvalidPlcProgramDataTypeException>(() =>
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, true));
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, false);
+            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, true));
+            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, false);
             var validType = ApiPlcProgramDataType.Bool;
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, true);
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, false);
+            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, true);
+            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, false);
         }
 
         [Test]
         public void CheckPlcRequestChangeOperatingMode()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<ApiPlcOperatingMode> invModes = new List<ApiPlcOperatingMode>() {
                 ApiPlcOperatingMode.Hold, ApiPlcOperatingMode.None, ApiPlcOperatingMode.Startup,
                 ApiPlcOperatingMode.Stop_fwupdate, ApiPlcOperatingMode.Unknown
@@ -117,61 +124,64 @@ namespace Webserver.API.UnitTests
             foreach (var mode in invModes)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                RequestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, true));
-                RequestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, false);
+                requestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, true));
+                requestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, false);
             }
             List<ApiPlcOperatingMode> validModes = new List<ApiPlcOperatingMode>() { ApiPlcOperatingMode.Stop, ApiPlcOperatingMode.Run };
             foreach (var mode in validModes)
             {
-                RequestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, true);
-                RequestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, false);
+                requestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, true);
+                requestParameterChecker.CheckPlcRequestChangeOperatingMode(mode, false);
             }
         }
 
         [Test]
         public void CheckPlcProgramBrowseMode()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<ApiPlcProgramBrowseMode> invModes = new List<ApiPlcProgramBrowseMode>() {
                 ApiPlcProgramBrowseMode.None
             };
             foreach (var mode in invModes)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                RequestParameterChecker.CheckPlcProgramBrowseMode(mode, true));
-                RequestParameterChecker.CheckPlcProgramBrowseMode(mode, false);
+                requestParameterChecker.CheckPlcProgramBrowseMode(mode, true));
+                requestParameterChecker.CheckPlcProgramBrowseMode(mode, false);
             }
             List<ApiPlcProgramBrowseMode> validModes = new List<ApiPlcProgramBrowseMode>() { ApiPlcProgramBrowseMode.Children, ApiPlcProgramBrowseMode.Var };
             foreach (var mode in validModes)
             {
-                RequestParameterChecker.CheckPlcProgramBrowseMode(mode, true);
-                RequestParameterChecker.CheckPlcProgramBrowseMode(mode, false);
+                requestParameterChecker.CheckPlcProgramBrowseMode(mode, true);
+                requestParameterChecker.CheckPlcProgramBrowseMode(mode, false);
             }
         }
 
         [Test]
         public void CheckPlcProgramReadOrWriteMode()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<ApiPlcProgramReadOrWriteMode> invModes = new List<ApiPlcProgramReadOrWriteMode>() {
                 ApiPlcProgramReadOrWriteMode.None
             };
             foreach (var mode in invModes)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                RequestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true));
-                RequestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
+                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true));
+                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
             }
             List<ApiPlcProgramReadOrWriteMode?> validModes = new List<ApiPlcProgramReadOrWriteMode?>()
             { ApiPlcProgramReadOrWriteMode.Raw, ApiPlcProgramReadOrWriteMode.Simple, null };
             foreach (var mode in validModes)
             {
-                RequestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true);
-                RequestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
+                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true);
+                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
             }
         }
 
         [Test]
         public void CheckTicket()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<string> invTickets = new List<string>() {
                 //29
                 "01234567890123456789012345678",
@@ -181,20 +191,21 @@ namespace Webserver.API.UnitTests
             foreach (var ticket in invTickets)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                RequestParameterChecker.CheckTicket(ticket, true));
-                RequestParameterChecker.CheckTicket(ticket, false);
+                requestParameterChecker.CheckTicket(ticket, true));
+                requestParameterChecker.CheckTicket(ticket, false);
             }
             List<string> validTickets = new List<string>() { "0123456789012345678901234567" };
             foreach (var ticket in validTickets)
             {
-                RequestParameterChecker.CheckTicket(ticket, true);
-                RequestParameterChecker.CheckTicket(ticket, false);
+                requestParameterChecker.CheckTicket(ticket, true);
+                requestParameterChecker.CheckTicket(ticket, false);
             }
         }
 
         [Test]
         public void CheckETag()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<string> invEtags = new List<string>() {
                 
             };
@@ -207,8 +218,8 @@ namespace Webserver.API.UnitTests
             foreach (var etag in invEtags)
             {
                 Assert.Throws<ApiInvalidETagException>(() =>
-                RequestParameterChecker.CheckETag(etag, true));
-                RequestParameterChecker.CheckETag(etag, false);
+                requestParameterChecker.CheckETag(etag, true));
+                requestParameterChecker.CheckETag(etag, false);
             }
             List<string> validEtags = new List<string>() { "a", "", null };
             var validTag = "";
@@ -219,29 +230,30 @@ namespace Webserver.API.UnitTests
             validEtags.Add(validTag);
             foreach (var etag in validEtags)
             {
-                RequestParameterChecker.CheckETag(etag, true);
-                RequestParameterChecker.CheckETag(etag, false);
+                requestParameterChecker.CheckETag(etag, true);
+                requestParameterChecker.CheckETag(etag, false);
             }
         }
 
         [Test]
         public void CheckVisibility()
         {
+            var requestParameterChecker = new RequestParameterChecker();
             List<ApiWebAppResourceVisibility> invVis = new List<ApiWebAppResourceVisibility>() {
                 ApiWebAppResourceVisibility.None
             };
             foreach (var vis in invVis)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                RequestParameterChecker.CheckVisibility(vis, true));
-                RequestParameterChecker.CheckVisibility(vis, false);
+                requestParameterChecker.CheckVisibility(vis, true));
+                requestParameterChecker.CheckVisibility(vis, false);
             }
             List<ApiWebAppResourceVisibility> validVis = new List<ApiWebAppResourceVisibility>()
             { ApiWebAppResourceVisibility.Protected, ApiWebAppResourceVisibility.Public };
             foreach (var vis in validVis)
             {
-                RequestParameterChecker.CheckVisibility(vis, true);
-                RequestParameterChecker.CheckVisibility(vis, false);
+                requestParameterChecker.CheckVisibility(vis, true);
+                requestParameterChecker.CheckVisibility(vis, false);
             }
         }
     }

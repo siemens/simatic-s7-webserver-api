@@ -16,7 +16,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandler
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Static class to enable a user to get an Authorized HTTPClient (or also an authorized HttpClient with a WebApplicationCookie)

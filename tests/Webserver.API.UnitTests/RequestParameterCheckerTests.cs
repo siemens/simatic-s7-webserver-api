@@ -102,6 +102,9 @@ namespace Webserver.API.UnitTests
             Assert.Throws<ApiHelperInvalidPlcProgramDataTypeException>(() =>
             RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, true));
             RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, false);
+            var validType = ApiPlcProgramDataType.Bool;
+            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, true);
+            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, false);
         }
 
         [Test]

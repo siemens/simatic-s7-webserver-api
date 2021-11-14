@@ -4,7 +4,6 @@
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Extensions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;

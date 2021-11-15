@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Requests
+namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
 {
     /// <summary>
     /// ApiRequest: Containing the required JsonRpc, Id and Method and optional Params for a Request to a PLC1500

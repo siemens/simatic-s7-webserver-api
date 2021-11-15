@@ -9,8 +9,8 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
-using Siemens.Simatic.S7.Webserver.API.Requests;
-using Siemens.Simatic.S7.Webserver.API.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -450,7 +450,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
         public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null)
         {
-            //RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(var.Datatype, true);
+            //RequestParameterChecker.CheckPlcProgramReadOrWriteDataType(var.Datatype, true);
             string varName = var.GetVarNameForMethods();
             return await PlcProgramReadAsync<T>(varName, plcProgramReadMode);
         }
@@ -489,7 +489,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
         {
             string varName = var.GetVarNameForMethods();
-            // ApiRequestFactory.CheckPlcProgramWriteOrReadDataType(var.Datatype); will also be called by GetApiPlcProgramWriteValueToBeSet!
+            // ApiRequestFactory.CheckPlcProgramReadOrWriteDataType(var.Datatype); will also be called by GetApiPlcProgramWriteValueToBeSet!
             var writeVal = ApiRequestFactory.GetApiPlcProgramWriteValueToBeSet(var.Datatype, valueToBeSet);
             return await PlcProgramWriteAsync(varName, writeVal, plcProgramWriteMode);
         }

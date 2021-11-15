@@ -4,7 +4,7 @@
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
@@ -39,8 +39,8 @@ namespace Webserver.API.UnitTests
         public void InvalidWebAppStateIsAcceptedIfCheckerShouldntCheck()
         {
             var requestParameterChecker = new RequestParameterChecker();
-            Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
-            requestParameterChecker.CheckState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
+            Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
+            requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
         }
 
         [Test]
@@ -101,16 +101,16 @@ namespace Webserver.API.UnitTests
             foreach(var unsuppType in types)
             {
                 Assert.Throws<ApiUnsupportedAddressException>(() =>
-            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, true));
-                requestParameterChecker.CheckPlcProgramWriteOrReadDataType(unsuppType, false);
+            requestParameterChecker.CheckPlcProgramReadOrWriteDataType(unsuppType, true));
+                requestParameterChecker.CheckPlcProgramReadOrWriteDataType(unsuppType, false);
             }
             var type = ApiPlcProgramDataType.None;
             Assert.Throws<ApiHelperInvalidPlcProgramDataTypeException>(() =>
-            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, true));
-            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(type, false);
+            requestParameterChecker.CheckPlcProgramReadOrWriteDataType(type, true));
+            requestParameterChecker.CheckPlcProgramReadOrWriteDataType(type, false);
             var validType = ApiPlcProgramDataType.Bool;
-            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, true);
-            requestParameterChecker.CheckPlcProgramWriteOrReadDataType(validType, false);
+            requestParameterChecker.CheckPlcProgramReadOrWriteDataType(validType, true);
+            requestParameterChecker.CheckPlcProgramReadOrWriteDataType(validType, false);
         }
 
         [Test]
@@ -245,15 +245,15 @@ namespace Webserver.API.UnitTests
             foreach (var vis in invVis)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                requestParameterChecker.CheckVisibility(vis, true));
-                requestParameterChecker.CheckVisibility(vis, false);
+                requestParameterChecker.CheckWebAppResourceVisibility(vis, true));
+                requestParameterChecker.CheckWebAppResourceVisibility(vis, false);
             }
             List<ApiWebAppResourceVisibility> validVis = new List<ApiWebAppResourceVisibility>()
             { ApiWebAppResourceVisibility.Protected, ApiWebAppResourceVisibility.Public };
             foreach (var vis in validVis)
             {
-                requestParameterChecker.CheckVisibility(vis, true);
-                requestParameterChecker.CheckVisibility(vis, false);
+                requestParameterChecker.CheckWebAppResourceVisibility(vis, true);
+                requestParameterChecker.CheckWebAppResourceVisibility(vis, false);
             }
         }
     }

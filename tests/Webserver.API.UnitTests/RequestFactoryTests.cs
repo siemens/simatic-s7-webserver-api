@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

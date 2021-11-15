@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
@@ -218,7 +218,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         public virtual object GetApiPlcProgramWriteValueToBeSet(ApiPlcProgramDataType apiPlcProgramData, object valueWanted, string jsonRpc = null, string id = null)
         {
-            RequestParameterChecker.CheckPlcProgramWriteOrReadDataType(apiPlcProgramData, PerformCheck);
+            RequestParameterChecker.CheckPlcProgramReadOrWriteDataType(apiPlcProgramData, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             var bytesOfDataType = apiPlcProgramData.GetBytesOfDataType();
@@ -319,7 +319,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         public virtual ApiRequest GetApiSetResourceVisibilityRequest(string webAppName, string resourceName, ApiWebAppResourceVisibility apiWebAppResourceVisibility, string jsonRpc = null, string id = null)
         {
-            RequestParameterChecker.CheckVisibility(apiWebAppResourceVisibility, PerformCheck);
+            RequestParameterChecker.CheckWebAppResourceVisibility(apiWebAppResourceVisibility, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("WebApp.SetResourceVisibility", jsonRpcReq, idReq, new Dictionary<string, object>() { { "app_name", webAppName },
@@ -379,7 +379,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             RequestParameterChecker.CheckWebAppName(webAppName, PerformCheck);
             if (apiWebAppState != null)
             {
-                RequestParameterChecker.CheckState((ApiWebAppState)apiWebAppState, PerformCheck);
+                RequestParameterChecker.CheckWebAppState((ApiWebAppState)apiWebAppState, PerformCheck);
             }
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -405,7 +405,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             RequestParameterChecker.CheckResourceName(resourceName, PerformCheck);
             if (apiWebAppResourceVisibility != null)
             {
-                RequestParameterChecker.CheckVisibility((ApiWebAppResourceVisibility)apiWebAppResourceVisibility, PerformCheck);
+                RequestParameterChecker.CheckWebAppResourceVisibility((ApiWebAppResourceVisibility)apiWebAppResourceVisibility, PerformCheck);
             }
             if(etag != null)
             {
@@ -552,7 +552,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         public virtual ApiRequest GetApiWebAppSetStateRequest(string webAppName, ApiWebAppState apiWebAppState, string jsonRpc = null, string id = null)
         {
-            RequestParameterChecker.CheckState(apiWebAppState, PerformCheck);
+            RequestParameterChecker.CheckWebAppState(apiWebAppState, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("WebApp.SetState", jsonRpcReq, idReq, new Dictionary<string, object>() { { "name", webAppName },

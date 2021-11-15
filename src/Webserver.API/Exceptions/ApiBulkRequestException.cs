@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;

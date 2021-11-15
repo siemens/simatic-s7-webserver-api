@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Models;
 
-namespace Siemens.Simatic.S7.Webserver.API.Responses
+namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
     /// <summary>
     /// Response for ApiMethods that change a resource

@@ -1,19 +1,19 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.ResponseResults;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Responses
+namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
     /// <summary>
-    /// WebApp.Browse PLC Response
+    /// ApiResponse (Jsonrpc,id) with a string
     /// </summary>
-    public class ApiWebAppBrowseResponse : ApiResultResponse<ApiWebAppBrowseResult>
+    public class ApiSingleStringResponse : ApiResultResponse<string>
     {
     }
 }

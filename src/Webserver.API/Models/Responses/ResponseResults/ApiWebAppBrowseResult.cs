@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.ResponseResults
+namespace Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults
 {
     /// <summary>
     /// ApiWebAppBrowseResult: Applications and Max Applications

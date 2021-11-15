@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Requests;
-using Siemens.Simatic.S7.Webserver.API.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {

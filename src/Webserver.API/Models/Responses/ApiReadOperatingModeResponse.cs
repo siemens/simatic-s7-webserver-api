@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Responses
+namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
     /// <summary>
     /// ApiResponse (Jsonrpc,id) with the plcOperatingMode

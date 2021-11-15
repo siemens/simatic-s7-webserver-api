@@ -10,7 +10,7 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 
-namespace Siemens.Simatic.S7.Webserver.API.Responses
+namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
     /// <summary>
     /// An Api Error Model to represent the Api Response and include the Error => Throw the according Exception depending on the ErrorCode, provide further information about the request and the response 

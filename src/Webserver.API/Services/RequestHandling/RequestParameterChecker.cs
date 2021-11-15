@@ -4,6 +4,7 @@
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Static class to check Request Parameters
+    /// Check Request Parameters before sending the request(s) to the plc
     /// </summary>
     public class RequestParameterChecker : IRequestParameterChecker
     {
@@ -23,14 +24,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiWebAppState">Web Application State</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public void CheckState(ApiWebAppState apiWebAppState, bool performCheck)
+        public void CheckWebAppState(ApiWebAppState apiWebAppState, bool performCheck)
         {
             if(performCheck)
             {
                 if (apiWebAppState == ApiWebAppState.None)
                 {
                     throw new ApiInvalidParametersException($"WebApp function shall not be called with state None:{ Environment.NewLine + apiWebAppState.ToString() }" +
-                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
         }
@@ -47,18 +48,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (webAppName.Length == 0)
                 {
                     throw new ApiInvalidParametersException($"the webapp name cannot be an empty string! :{Environment.NewLine + webAppName + Environment.NewLine}is not valid!",
-                        new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                        new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
                 if (webAppName.Length > 100)
                 {
                     throw new ApiInvalidApplicationNameException($"the max. allowed length for a webapp is 100 chars! - therefor :{Environment.NewLine + webAppName + Environment.NewLine}is not valid!",
-                        new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidApplicationName, Message = "Invalid application name" } }));
+                        new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidApplicationName, Message = "Invalid application name" } }));
                 }
                 string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.+\"";
                 if (!webAppName.All(c => validChars.Contains(c)))
                 {
                     throw new ApiInvalidApplicationNameException($"Invalid characters found in:{Environment.NewLine + webAppName + Environment.NewLine} correct chars:{Environment.NewLine + validChars}",
-                         new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidApplicationName, Message = "Invalid application name" } }));
+                         new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidApplicationName, Message = "Invalid application name" } }));
                 }
             }
         }
@@ -68,7 +69,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiPlcProgramData">PlcProgramData</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public void CheckPlcProgramWriteOrReadDataType(ApiPlcProgramDataType apiPlcProgramData, bool performCheck)
+        public void CheckPlcProgramReadOrWriteDataType(ApiPlcProgramDataType apiPlcProgramData, bool performCheck)
         {
             if (performCheck)
             {
@@ -81,7 +82,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 // unsupported: -1
                 if (bytesOfDataType == -1)
                 {
-                    throw new ApiUnsupportedAddressException(new ApiException(new Responses.ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.UnsupportedAddress, Message = "Unsupported Address" } }));
+                    throw new ApiUnsupportedAddressException(new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.UnsupportedAddress, Message = "Unsupported Address" } }));
                 }
             }
         }
@@ -98,18 +99,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (resourceName.Length == 0)
                 {
                     throw new ApiInvalidParametersException($"the resource name cannot be an empty string! :{Environment.NewLine + resourceName + Environment.NewLine}is not valid!",
-                        new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                        new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
                 if (resourceName.Length > 200)
                 {
                     throw new ApiInvalidResourceNameException($"the max. allowed length for a resource is 200 chars! - therefor :{Environment.NewLine + resourceName + Environment.NewLine}is not valid!",
-                        new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidResourceName, Message = "Invalid resource name" } }));
+                        new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidResourceName, Message = "Invalid resource name" } }));
                 }
                 string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.+()|,/.*!\"'";
                 if (!resourceName.All(c => validChars.Contains(c)))
                 {
                     throw new ApiInvalidResourceNameException($"Invalid characters found in:{Environment.NewLine + resourceName + Environment.NewLine} correct chars:{Environment.NewLine + validChars}",
-                         new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidResourceName, Message = "Invalid resource name" } }));
+                         new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidResourceName, Message = "Invalid resource name" } }));
                 }
             }
         }
@@ -126,7 +127,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (plcOperatingMode == ApiPlcOperatingMode.Run || plcOperatingMode == ApiPlcOperatingMode.Stop)
                     return;
                 throw new ApiInvalidParametersException($"Plc.RequestChangeOperatingMode shall not be called with { Environment.NewLine + plcOperatingMode.ToString().ToLower() }" +
-                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
             }
         }
 
@@ -142,7 +143,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (plcProgramBrowseMode == ApiPlcProgramBrowseMode.None)
                 {
                     throw new ApiInvalidParametersException($"PlcProgram.Browse shall not be called with { Environment.NewLine + plcProgramBrowseMode.ToString().ToLower() }" +
-                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
         }
@@ -161,7 +162,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     if (apiPlcProgramReadMode == ApiPlcProgramReadOrWriteMode.None)
                     {
                         throw new ApiInvalidParametersException($"PlcProgram.Read or Write shall not be called with { Environment.NewLine + apiPlcProgramReadMode.ToString().ToLower() }" +
-                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                     }
                 }
             }
@@ -179,7 +180,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (ticketId?.Length != 28)
                 {
                     throw new ApiInvalidParametersException($"Api Tickets cannot have a length other than 28 bytes!{ Environment.NewLine + ticketId + Environment.NewLine }provide a valid ticket!" +
-                                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
         }
@@ -200,7 +201,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 else if(etag.Length > 128)
                 {
                     throw new ApiInvalidETagException($"WebApp.CreateResource shall not be called with \"etag\" { Environment.NewLine + etag } because the value is too long!-max 128 bytes(chars)" +
-                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
         }
@@ -224,13 +225,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiWebAppResourceVisibility">ResourceVisibility that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public void CheckVisibility(ApiWebAppResourceVisibility apiWebAppResourceVisibility, bool performCheck)
+        public void CheckWebAppResourceVisibility(ApiWebAppResourceVisibility apiWebAppResourceVisibility, bool performCheck)
         {
             if (performCheck)
             {
                 if (apiWebAppResourceVisibility == ApiWebAppResourceVisibility.None)
                     throw new ApiInvalidParametersException($"WebApp.CreateResource shall not be called with { Environment.NewLine + apiWebAppResourceVisibility.ToString().ToLower() }" +
-                $"{Environment.NewLine}Probably Api would send: ", new ApiException(new Responses.ApiErrorModel() { Error = new Models.ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
             }
         }
 

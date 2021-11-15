@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;

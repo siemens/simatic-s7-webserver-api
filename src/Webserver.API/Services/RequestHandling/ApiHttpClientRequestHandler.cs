@@ -52,6 +52,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 
         private readonly IApiRequestFactory ApiRequestFactory;
 
+        private readonly IApiResponseChecker ApiResponseChecker;
+
         /// <summary>
         /// The ApiHttpClientRequestHandler will Send Post Requests,
         /// before sending the Request it'll remove those Parameters that have the value null for their keys 
@@ -59,10 +61,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker)
         {
             this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this.ApiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
+            this.ApiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
         }
 
         /// <summary>
@@ -85,9 +88,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
             var response = await HttpClient.PostAsync(JsonRpcApi, request_body);
-            ResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            ApiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
             var responseString = await response.Content.ReadAsStringAsync();
-            ResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+            ApiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
             return responseString;
         }
 
@@ -2300,7 +2303,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
             var response = await HttpClient.PostAsync(JsonRpcApi, request_body);
-            ResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            ApiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
             var responseString = await response.Content.ReadAsStringAsync();
             ApiBulkResponse bulkResponse = new ApiBulkResponse();
             var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)

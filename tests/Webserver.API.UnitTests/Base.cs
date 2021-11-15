@@ -23,13 +23,16 @@ namespace Webserver.API.UnitTests
 
         public IIdGenerator ReqIdGenerator;
 
-        public IRequestParameterChecker RequestParameterChecker;
+        public IApiRequestParameterChecker RequestParameterChecker;
+
+        public IApiResponseChecker ApiResponseChecker;
 
         public Base()
         {
             ReqIdGenerator = new GUIDGenerator();
-            RequestParameterChecker = new RequestParameterChecker();
+            RequestParameterChecker = new ApiRequestParameterChecker();
             ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
+            ApiResponseChecker = new ApiResponseChecker();
         }
     }
 }

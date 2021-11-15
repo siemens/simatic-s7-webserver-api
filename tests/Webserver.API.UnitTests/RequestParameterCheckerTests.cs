@@ -26,7 +26,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ValidLastModifiedIsAccepted()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.836Z", true);
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.52Z", true);
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.1Z", true);
@@ -38,7 +38,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void InvalidWebAppStateIsAcceptedIfCheckerShouldntCheck()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
             requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
         }
@@ -46,7 +46,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckWebAppName()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             var invalidLength = "";
             Assert.Throws<ApiInvalidParametersException>(() => 
             requestParameterChecker.CheckWebAppName(invalidLength, true));
@@ -70,7 +70,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckResourceName()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             var invalidLength = "";
             Assert.Throws<ApiInvalidParametersException>(() =>
             requestParameterChecker.CheckResourceName(invalidLength, true));
@@ -94,7 +94,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckPlcProgramReadOrWriteDataType()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<ApiPlcProgramDataType> types = new List<ApiPlcProgramDataType>()
             // many more!
             { ApiPlcProgramDataType.Struct, ApiPlcProgramDataType.Cref, ApiPlcProgramDataType.Error_struct };
@@ -116,7 +116,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckPlcRequestChangeOperatingMode()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<ApiPlcOperatingMode> invModes = new List<ApiPlcOperatingMode>() {
                 ApiPlcOperatingMode.Hold, ApiPlcOperatingMode.None, ApiPlcOperatingMode.Startup,
                 ApiPlcOperatingMode.Stop_fwupdate, ApiPlcOperatingMode.Unknown
@@ -138,7 +138,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckPlcProgramBrowseMode()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<ApiPlcProgramBrowseMode> invModes = new List<ApiPlcProgramBrowseMode>() {
                 ApiPlcProgramBrowseMode.None
             };
@@ -159,7 +159,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckPlcProgramReadOrWriteMode()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<ApiPlcProgramReadOrWriteMode> invModes = new List<ApiPlcProgramReadOrWriteMode>() {
                 ApiPlcProgramReadOrWriteMode.None
             };
@@ -181,7 +181,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckTicket()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<string> invTickets = new List<string>() {
                 //29
                 "01234567890123456789012345678",
@@ -205,7 +205,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckETag()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<string> invEtags = new List<string>() {
                 
             };
@@ -238,7 +238,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CheckVisibility()
         {
-            var requestParameterChecker = new RequestParameterChecker();
+            var requestParameterChecker = new ApiRequestParameterChecker();
             List<ApiWebAppResourceVisibility> invVis = new List<ApiWebAppResourceVisibility>() {
                 ApiWebAppResourceVisibility.None
             };

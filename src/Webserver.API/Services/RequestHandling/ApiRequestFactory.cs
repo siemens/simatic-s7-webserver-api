@@ -27,7 +27,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     {
         private readonly IIdGenerator RequestIdGenerator;
 
-        private readonly IRequestParameterChecker RequestParameterChecker;
+        private readonly IApiRequestParameterChecker RequestParameterChecker;
 
         /// <summary>
         /// Bool to determine wether to use local checks for Request Parameters or not
@@ -43,7 +43,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// C'tor with optional requestGenerator parameter
         /// </summary>
         /// <param name="requestGenerator">RequestGenerator - can be customized</param>
-        public ApiRequestFactory(IIdGenerator requestGenerator, IRequestParameterChecker requestParameterChecker)
+        public ApiRequestFactory(IIdGenerator requestGenerator, IApiRequestParameterChecker requestParameterChecker)
         {
             RequestIdGenerator = requestGenerator;
             RequestParameterChecker = requestParameterChecker;

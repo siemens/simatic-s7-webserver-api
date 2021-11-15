@@ -8,7 +8,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     /// <summary>
     /// Check Request Parameters before sending the request(s) to the plc
     /// </summary>
-    public interface IRequestParameterChecker
+    public interface IApiRequestParameterChecker
     {
         /// <summary>
         /// an etag has got a max. amount of characters of 128

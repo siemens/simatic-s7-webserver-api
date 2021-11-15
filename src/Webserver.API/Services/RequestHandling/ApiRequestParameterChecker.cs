@@ -17,7 +17,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     /// <summary>
     /// Check Request Parameters before sending the request(s) to the plc
     /// </summary>
-    public class RequestParameterChecker : IRequestParameterChecker
+    public class ApiRequestParameterChecker : IApiRequestParameterChecker
     {
         /// <summary>
         /// Check ApiWebAppState => None isnt valid!

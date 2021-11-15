@@ -11,19 +11,19 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
+namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Static class to check the WebApi responses for errors to throw according Exceptions with Error Messages
+    /// Check the WebApi responses for errors to throw according Exceptions with Error Messages
     /// </summary>
-    public static class ResponseChecker
+    public class ApiResponseChecker : IApiResponseChecker
     {
         /// <summary>
         /// If the StatusCode is not okay or created throw an InvalidHttpRequestException
         /// </summary>
         /// <param name="message">HttpResponseMessage by PLC</param>
         /// <param name="apiRequestString">requeststring of the ApiRequest sent</param>
-        public static void CheckHttpResponseForErrors(HttpResponseMessage message, string apiRequestString)
+        public void CheckHttpResponseForErrors(HttpResponseMessage message, string apiRequestString)
         {
             if (message.StatusCode != System.Net.HttpStatusCode.OK)
             {
@@ -49,7 +49,7 @@ namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
         /// </summary>
         /// <param name="responseString">responseString got from PLC</param>
         /// <param name="apiRequestString">requeststring of the ApiRequest sent</param>
-        public static void CheckResponseStringForErros(string responseString, string apiRequestString)
+        public void CheckResponseStringForErros(string responseString, string apiRequestString)
         {
             // apiErrorModel will be null in case no Error is to be thrown!
             ApiErrorModel apiErrorModel = JsonConvert.DeserializeObject<ApiErrorModel>(responseString);

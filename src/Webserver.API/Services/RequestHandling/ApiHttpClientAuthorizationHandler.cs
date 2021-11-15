@@ -65,9 +65,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 
             // send the request
             var response = await httpClient.PostAsync("api/jsonrpc", request_body);
-            ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
+            ClientConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
-            ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
+            ClientConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
             var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
             if (apiLoginResponse.Id != apiLoginRequest.Id)
             {
@@ -133,9 +133,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 
             // send the request and check for errors
             var response = await httpClient.PostAsync("api/jsonrpc", request_body);
-            ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
+            ClientConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
-            ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
+            ClientConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
             var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
             if (apiLoginResponse.Id != apiLoginRequest.Id)
             {

@@ -39,7 +39,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         /// <summary>
         /// Check Validity => RequestParameterChecker.CheckTicket(this.Result); => Does the TicketId match 28 characters length?
         /// </summary>
-        public void CheckValidity(IRequestParameterChecker requestParameterChecker)
+        public void CheckValidity(IApiRequestParameterChecker requestParameterChecker)
         {
             requestParameterChecker.CheckTicket(this.Result, true);
         }

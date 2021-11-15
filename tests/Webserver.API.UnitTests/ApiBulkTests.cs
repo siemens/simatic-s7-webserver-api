@@ -26,7 +26,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
 
             var requests = new List<ApiRequest>();
             for(int i = 0; i < 100; i++)
@@ -47,7 +47,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var requests = new List<ApiRequest>();
             for (int i = 0; i < 100; i++)
             {

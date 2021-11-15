@@ -73,11 +73,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
         }
 
-        private IRequestParameterChecker _requestParameterChecker;
+        private IApiRequestParameterChecker _requestParameterChecker;
         /// <summary>
         /// Optional Request Parameter Checker for request generation
         /// </summary>
-        public IRequestParameterChecker RequestParameterChecker
+        public IApiRequestParameterChecker RequestParameterChecker
         {
             get
             {
@@ -92,6 +92,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 }
             }
         }
+
+        /// <summary>
+        /// Optional (plc-webapi) Response Checker 
+        /// </summary>
+        public IApiResponseChecker ResponseChecker { get; set; }
 
         /// <summary>
         /// Optional
@@ -130,8 +135,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             this.TimeOut = TimeSpan.FromMinutes(10);
             this.ConnectionClose = false;
             this.IdGenerator = new GUIDGenerator();
-            this.RequestParameterChecker = new RequestParameterChecker();
+            this.RequestParameterChecker = new ApiRequestParameterChecker();
             this.ApiRequestFactory = new ApiRequestFactory(IdGenerator, RequestParameterChecker);
+            this.ResponseChecker = new ApiResponseChecker();
             this.MediaTypeHeaderValue = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
             this.AllowAutoRedirect = false;
             this.DiscardPasswordAfterConnect = true;

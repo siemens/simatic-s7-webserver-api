@@ -42,15 +42,9 @@ Further examples of usage are also provided in the UnitTests of the component.
 # ApiHttpClientRequestHandler
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Requests;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
-...
 var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", "");
 var client = await ApiHttpClientAuthorizationHandler.GetAuthorizedHTPPClientAsync(connectionConfiguration);
-var requestFactory = new ApiRequestFactory();
-var requestHandler = new ApiHttpClientRequestHandler(client, requestFactory);
+var requestHandler = new ApiHttpClientRequestHandler(client, connectionConfiguration.ApiRequestFactory);
 var apiBrowseResponse = await requestHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {
@@ -70,14 +64,6 @@ Of course you can also implement a check for the sender and so on.
 For the PLC WebApps Further Comfort can be accomplished by using the ApiWebAppData and ApiWebAppResource implementations:
 Generally you are free to configure everything on your own:
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
-using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using System.IO;
-using System.Linq;
-...
 public static DirectoryInfo CurrentExeDir
 {
     get
@@ -107,12 +93,6 @@ but further comfort can be accomplished with:
 ## AsyncWebAppDeployer, WebAppConfigParser
 You can use Implementations to comfortably deploy the apps to the plc with a Deployer and FileParser for your WebAppDirectory:
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Deployer;
-using Siemens.Simatic.S7.Webserver.API.FileParser;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-...
 var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
 app = parser.Parse();
 var deployer = new AsyncWebAppDeployer(requestHandler);
@@ -125,13 +105,10 @@ foreach(var resource in apiWebAppBroseResourcesResponse.Result.Resources)
 ```
 The Parser and Deployer also use a set of comfort functions - in case you want to know or take a look they are using:
 ```cs
-...
-// Extension methods on IAsyncRequestHandler and AsyncRequestHandler: DeployResource (static async Task) - also contains DownloadResource
-using Siemens.Simatic.S7.Webserver.API.Extensions;
-// contains static ApiWebAppResourceBuilder.BuildResourceFromFile to get the resource information from the windows file - 
-// which also usees MimeMapping.MimeUtility.GetMimeMapping to get the according MimeType
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
-...
+namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp{
+public class ApiResourceHandler {}
+public class ApiWebAppResourceBuilder {}
+}
 ```
 **Hint**: It is possible to add another parameter to the new WebAppConfigParser(*,*,bool ignoreBOMDifference = false):
 This is the case because uploading files using javascript on a webpage has shown that the BOM (Byte Order Mark) is not transmitted!

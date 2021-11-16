@@ -80,10 +80,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public List<ApiPlcProgramData> BuildChildrenFromArrayDimensions(List<ApiPlcProgramDataArrayIndexer> arrayDimensions)
         {
             List<ApiPlcProgramData> result = new List<ApiPlcProgramData>();
-            if (!this.Datatype.IsSupportedByPlcProgramReadOrWrite())
-            {
-                throw new NotImplementedException("Currently Support is not implemented!");
-            }
             var amountOfElements = GetAmountOfElements(arrayDimensions);
             Queue<ApiPlcProgramDataArrayIndexer> queue = new Queue<ApiPlcProgramDataArrayIndexer>();
             foreach (var arrayDimension in arrayDimensions)
@@ -100,6 +96,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 toAdd.Children = this.Children;
                 // dont! toAdd.ArrayElements = this.ArrayElements;
                 result.Add(toAdd);
+            }
+            if(amountOfElements != result.Count)
+            {
+                throw new Exception($"Array Element count: {result.Count} does not match calculated count:{amountOfElements}");
             }
             return result;
         }

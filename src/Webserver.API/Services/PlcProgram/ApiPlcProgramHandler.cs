@@ -77,6 +77,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         }
 
         /// <summary>
+        /// If plcProgramBrowseMode == ApiPlcProgramBrowseMode.Children: ELSE "normal PlcProgramBrowse implementation"
+        /// PlcProgramBrowse that will add the Elements from the response to the children of given var, also adds the parents of var to the list of parents of the children and also var as parent
+        /// </summary>
+        /// <param name="plcProgramBrowseMode">Mode for PlcProgramBrowse function</param>
+        /// <param name="var">the db/structure of which the children should be browsed</param>
+        /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
+        public ApiPlcProgramBrowseResponse PlcProgramBrowseSetChildrenAndParents(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var)
+        => PlcProgramBrowseSetChildrenAndParentsAsync(plcProgramBrowseMode, var).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Method to comfortably read all Children of a struct using a Bulk Request
         /// </summary>
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
@@ -141,6 +151,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         }
 
         /// <summary>
+        /// Method to comfortably read all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
+        /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <param name="threadSleepTimeInMilliseconds">Time in milliseconds for the Thread to sleep in between creating Requests (=> so that new Ids will be generated)</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        public ApiPlcProgramData PlcProgramReadStructByChildValues(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple)
+            => PlcProgramReadStructByChildValuesAsync(structToRead, childrenReadMode).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Method to comfortably write all Children of a struct using a Bulk Request
         /// </summary>
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
@@ -163,5 +183,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             return await ApiRequestHandler.ApiBulkAsync(requests);
         }
 
+        /// <summary>
+        /// Method to comfortably write all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
+        /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
+        /// <param name="threadSleepTimeInMilliseconds">Time in milliseconds for the Thread to sleep in between creating Requests (=> so that new Ids will be generated)</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        public ApiBulkResponse PlcProgramWriteStructByChildValues(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple)
+            => PlcProgramWriteStructByChildValuesAsync(structToWrite, childrenWriteMode).GetAwaiter().GetResult();
     }
 }

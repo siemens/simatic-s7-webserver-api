@@ -27,11 +27,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <summary>
         /// The ResourceHandler implements comfort functions to Deploy a single Resource or Download a WebApp Resource
         /// </summary>
-        /// <param name="asyncRequestHandler"></param>
+        /// <param name="apiRequestHandler"></param>
         /// <param name="apiWebAppResourceBuilder"></param>
-        public ApiResourceHandler(IApiRequestHandler asyncRequestHandler, IApiWebAppResourceBuilder apiWebAppResourceBuilder)
+        public ApiResourceHandler(IApiRequestHandler apiRequestHandler, IApiWebAppResourceBuilder apiWebAppResourceBuilder)
         {
-            this.ApiRequestHandler = asyncRequestHandler;
+            this.ApiRequestHandler = apiRequestHandler;
             this.ApiWebAppResourceBuilder = apiWebAppResourceBuilder;
         }
 

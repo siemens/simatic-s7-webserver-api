@@ -29,26 +29,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// of the HttpClient => Will be used to Authenticate for all further API Mehtod calls
         /// HINT: Will set the ConnectionClose to false
         /// </summary>
-        /// <param name="ClientConfiguration">
-        /// ClientConfiguration containing mandatory (and maybe further) Properties:
+        /// <param name="connectionConfiguration">
+        /// connectionConfiguration containing mandatory (and maybe further) Properties:
         /// Property BaseAddressip address of the string or DNS Name
         /// Property Username username for login
         /// Property Password password for login
         /// Property ApiRequestFactory">Request factory to get request from
         /// </param>
         /// <returns></returns>
-        public static async Task<HttpClient> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration ClientConfiguration)
+        public static async Task<HttpClient> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration connectionConfiguration)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
-                AllowAutoRedirect = ClientConfiguration.AllowAutoRedirect
+                AllowAutoRedirect = connectionConfiguration.AllowAutoRedirect
             };
             HttpClient httpClient = new HttpClient(httpClientHandler);
-            httpClient.DefaultRequestHeaders.ConnectionClose = ClientConfiguration.ConnectionClose;
-            httpClient.BaseAddress = new Uri("https://" + ClientConfiguration.BaseAddress);
-            httpClient.Timeout = ClientConfiguration.TimeOut;
-            var reqFact = ClientConfiguration.ApiRequestFactory;
-            var apiLoginRequest = reqFact.GetApiLoginRequest(ClientConfiguration.Username, ClientConfiguration.Password);
+            httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
+            httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
+            httpClient.Timeout = connectionConfiguration.TimeOut;
+            var reqFact = connectionConfiguration.ApiRequestFactory;
+            var apiLoginRequest = reqFact.GetApiLoginRequest(connectionConfiguration.Username, connectionConfiguration.Password);
             if (apiLoginRequest.Params != null)
             {
                 apiLoginRequest.Params = apiLoginRequest.Params
@@ -60,14 +60,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.UTF8.GetBytes(apiLoginRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = ClientConfiguration.MediaTypeHeaderValue 
+            request_body.Headers.ContentType = connectionConfiguration.MediaTypeHeaderValue 
                 ?? new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
             // send the request
             var response = await httpClient.PostAsync("api/jsonrpc", request_body);
-            ClientConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
+            connectionConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
-            ClientConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
+            connectionConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
             var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
             if (apiLoginResponse.Id != apiLoginRequest.Id)
             {
@@ -81,13 +81,30 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             //add the authorization token to the httpclients request headers so all methods afterwards can be performed with the auth token
             httpClient.DefaultRequestHeaders.Add("X-Auth-Token", apiLoginResponse.Result.Token);
 
-            if(ClientConfiguration.DiscardPasswordAfterConnect)
+            if(connectionConfiguration.DiscardPasswordAfterConnect)
             {
-                ClientConfiguration.Password = "";
+                connectionConfiguration.Password = "";
             }
             // return the authorized httpclient
             return httpClient;
         }
+
+        /// <summary>
+        /// use this static function to get an HTTPClient that is authenticated to the API of the baseAddress given (DNS/IP) 
+        /// Will send an ApiLogin Request to the given address' plcs Api (/api/jsonrpc) and set the token if the login was successful to the headers 
+        /// of the HttpClient => Will be used to Authenticate for all further API Mehtod calls
+        /// HINT: Will set the ConnectionClose to false
+        /// </summary>
+        /// <param name="connectionConfiguration">
+        /// connectionConfiguration containing mandatory (and maybe further) Properties:
+        /// Property BaseAddressip address of the string or DNS Name
+        /// Property Username username for login
+        /// Property Password password for login
+        /// Property ApiRequestFactory">Request factory to get request from
+        /// </param>
+        /// <returns></returns>
+        public static HttpClient GetAuthorizedHTPPClient(HttpClientConnectionConfiguration connectionConfiguration)
+            => GetAuthorizedHTPPClientAsync(connectionConfiguration).GetAwaiter().GetResult();
 
         /// <summary>
         /// use this static function to get an HTTPClient that is authenticated to the API of the baseAddress given (DNS/IP) WITH the webapp cookie 
@@ -96,8 +113,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// HttpClient => Will be used to Authenticate for all further API Mehtod calls
         /// HINT: Will set the ConnectionClose to false
         /// </summary>
-        /// <param name="ClientConfiguration">
-        /// ClientConfiguration containing mandatory (and maybe further) Properties:
+        /// <param name="connectionConfiguration">
+        /// connectionConfiguration containing mandatory (and maybe further) Properties:
         /// Property BaseAddressip address of the string or DNS Name
         /// Property Username username for login
         /// Property Password password for login
@@ -105,18 +122,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </param>
         /// <param name="include_web_application_cookie">include web application cookie - if you need it you can get the web application cookie value for access of userdef. webapp pages</param>
         /// <returns></returns>
-        public static async Task<HttpClientAndWebAppCookie> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration ClientConfiguration, bool include_web_application_cookie)
+        public static async Task<HttpClientAndWebAppCookie> GetAuthorizedHTPPClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
-                AllowAutoRedirect = ClientConfiguration.AllowAutoRedirect
+                AllowAutoRedirect = connectionConfiguration.AllowAutoRedirect
             };
             HttpClient httpClient = new HttpClient(httpClientHandler);
-            httpClient.DefaultRequestHeaders.ConnectionClose = ClientConfiguration.ConnectionClose;
-            httpClient.BaseAddress = new Uri("https://" + ClientConfiguration.BaseAddress);
-            httpClient.Timeout = ClientConfiguration.TimeOut;
-            var reqFact = ClientConfiguration.ApiRequestFactory;
-            var apiLoginRequest = reqFact.GetApiLoginRequest(ClientConfiguration.Username, ClientConfiguration.Password, include_web_application_cookie);
+            httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
+            httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
+            httpClient.Timeout = connectionConfiguration.TimeOut;
+            var reqFact = connectionConfiguration.ApiRequestFactory;
+            var apiLoginRequest = reqFact.GetApiLoginRequest(connectionConfiguration.Username, connectionConfiguration.Password, include_web_application_cookie);
             if (apiLoginRequest.Params != null)
             {
                 apiLoginRequest.Params = apiLoginRequest.Params
@@ -128,14 +145,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.UTF8.GetBytes(apiLoginRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = ClientConfiguration.MediaTypeHeaderValue 
+            request_body.Headers.ContentType = connectionConfiguration.MediaTypeHeaderValue 
                 ?? new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
             // send the request and check for errors
             var response = await httpClient.PostAsync("api/jsonrpc", request_body);
-            ClientConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
+            connectionConfiguration.ResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
-            ClientConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
+            connectionConfiguration.ResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
             var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
             if (apiLoginResponse.Id != apiLoginRequest.Id)
             {
@@ -149,13 +166,31 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             //add the authorization token to the httpclients request headers so all methods afterwards can be performed with the auth token
             httpClient.DefaultRequestHeaders.Add("X-Auth-Token", apiLoginResponse.Result.Token);
             
-            if (ClientConfiguration.DiscardPasswordAfterConnect)
+            if (connectionConfiguration.DiscardPasswordAfterConnect)
             {
-                ClientConfiguration.Password = "";
+                connectionConfiguration.Password = "";
             }
             // return the authorized httpclient with the webapplicationcookie
             return new HttpClientAndWebAppCookie(httpClient, apiLoginResponse.Result.Web_application_cookie);
         }
 
+        /// <summary>
+        /// use this static function to get an HTTPClient that is authenticated to the API of the baseAddress given (DNS/IP) WITH the webapp cookie 
+        /// in case you need it 
+        /// Will send an ApiLogin Request to the given address' plcs Api (/api/jsonrpc) and set the token if the login was successful to the headers of the 
+        /// HttpClient => Will be used to Authenticate for all further API Mehtod calls
+        /// HINT: Will set the ConnectionClose to false
+        /// </summary>
+        /// <param name="connectionConfiguration">
+        /// connectionConfiguration containing mandatory (and maybe further) Properties:
+        /// Property BaseAddressip address of the string or DNS Name
+        /// Property Username username for login
+        /// Property Password password for login
+        /// Property ApiRequestFactory">Request factory to get request from
+        /// </param>
+        /// <param name="include_web_application_cookie">include web application cookie - if you need it you can get the web application cookie value for access of userdef. webapp pages</param>
+        /// <returns></returns>
+        public static HttpClientAndWebAppCookie GetAuthorizedHTPPClient(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
+            => GetAuthorizedHTPPClientAsync(connectionConfiguration, include_web_application_cookie).GetAwaiter().GetResult();
     }
 }

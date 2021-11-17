@@ -12,7 +12,7 @@ namespace Webserver.API.UnitTests
     {
 
         [Test]
-        public void ThrowOnLength()
+        public void IDGenerator_LengthTooLong_Throws()
         {
             var reqIdGen = new GUIDGenerator();
             var reqIdGen2 = new GUIDGenerator(reqIdGen.DefaultLength + 1);

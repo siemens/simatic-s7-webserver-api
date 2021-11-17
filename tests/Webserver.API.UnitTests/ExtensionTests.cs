@@ -16,7 +16,7 @@ namespace Webserver.API.UnitTests
     {
 
         [Test]
-        public void MakeSureNoIdIsContainedTwice()
+        public void MakeSureNoIdIsContainedTwice_EnoughTime_Works()
         {
             var requests = new List<ApiRequest>();
             for(int i = 0; i< 500;i++)
@@ -38,7 +38,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public void MakeSureNoIdIsContainedTwice_TooSlow()
+        public void MakeSureNoIdIsContainedTwice_NotEnoughTime_DoesntRunWayTooLong()
         {
             var requests = new List<ApiRequest>();
             for (int i = 0; i < 1000000; i++)

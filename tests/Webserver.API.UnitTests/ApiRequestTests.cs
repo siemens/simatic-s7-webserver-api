@@ -29,7 +29,7 @@ namespace Webserver.API.UnitTests
     {
         
         [Test]
-        public async Task T001_ApiBrowseRequest()
+        public async Task T001_ApiBrowseRequest_ExpectedMethods()
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)

@@ -18,12 +18,6 @@ namespace Webserver.API.UnitTests
     class ApiWebAppDataSaverTests : Base
     {
         [Test]
-        public void SaveThrowsIfDirectoryDoesNotExistForSetting()
-        {
-            
-        }
-
-        [Test]
         public void ApiWebAppDataSave()
         {
             string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tmp");

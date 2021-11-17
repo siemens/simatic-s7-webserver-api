@@ -17,13 +17,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
     /// </summary>
     public class ApiWebAppDataSaver
     {
-        private readonly IApiWebAppDataSaveSetting ApiWebAppSaveSetting;
+        private readonly ApiWebAppDataSaveSetting ApiWebAppSaveSetting;
 
         /// <summary>
         /// Create ApiWebAppDataSaver with the apiWebAppSaveSetting
         /// </summary>
         /// <param name="apiWebAppSaveSetting">Settings to apply</param>
-        public ApiWebAppDataSaver(IApiWebAppDataSaveSetting apiWebAppSaveSetting)
+        public ApiWebAppDataSaver(ApiWebAppDataSaveSetting apiWebAppSaveSetting)
         {
             if (apiWebAppSaveSetting == null)
             {

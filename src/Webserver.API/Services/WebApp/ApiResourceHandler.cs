@@ -58,10 +58,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             {
                 await ApiRequestHandler.UploadTicketAsync(ticketId, path);
             }
-            catch (ApiTicketingEndpointUploadException ex)
+            catch (ApiTicketingEndpointUploadException)
             {
                 await ApiRequestHandler.ApiCloseTicketAsync(ticketId);
-                throw ex;
+                throw;
             }
             try
             {
@@ -133,6 +133,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <returns>task/void</returns>
         public async Task DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null)
         {
+            if(pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
+            {
+                throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
+            }
             //Downloads: 374DE290-123F-4565-9164-39C4925E467B
             string usedPathToDownloadDirectory = pathToDownloadDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop).Replace("Desktop", "Downloads");
             string usedFilename = fileName ?? resource.Name;

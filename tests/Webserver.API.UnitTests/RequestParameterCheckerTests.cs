@@ -21,6 +21,7 @@ namespace Webserver.API.UnitTests
         public void InvalidLastModifiedIsNotAccepted()
         {
             //Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckLastModified(DateTime.Now.ToString(), true));
+            //Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.12345678Z", true));
         }
 
         [Test]
@@ -31,7 +32,6 @@ namespace Webserver.API.UnitTests
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.52Z", true);
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.1Z", true);
             requestParameterChecker.CheckLastModified("2020-08-24T07:08:06Z", true);
-            //Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckLastModified("2020-08-24T07:08:06.12345678Z", true));
         }
 
 
@@ -39,8 +39,8 @@ namespace Webserver.API.UnitTests
         public void InvalidWebAppStateIsAcceptedIfCheckerShouldntCheck()
         {
             var requestParameterChecker = new ApiRequestParameterChecker();
-            Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, true));
-            requestParameterChecker.CheckWebAppState(Siemens.Simatic.S7.Webserver.API.Enums.ApiWebAppState.None, false);
+            Assert.Throws<ApiInvalidParametersException>(() => requestParameterChecker.CheckWebAppState(ApiWebAppState.None, true));
+            requestParameterChecker.CheckWebAppState(ApiWebAppState.None, false);
         }
 
         [Test]

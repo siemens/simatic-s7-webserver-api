@@ -104,7 +104,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             return result;
         }
         /// <summary>
-        /// 
+        /// Build the Array Dimension string for all children from the given ArrayDimensions
         /// </summary>
         /// <param name="arrayDimensions"></param>
         /// <returns></returns>
@@ -117,8 +117,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// Build a List of string containing the array dimension Fields
         /// </summary>
-        /// <param name="arrayDimensions"></param>
-        /// <param name="currentReturnString"></param>
+        /// <param name="arrayDimensions">Array Dimensions for which the String should be built</param>
+        /// <param name="currentReturnString">The function works recursively so the "progress" will be stored in this parameter</param>
         /// <returns></returns>
         private List<string> BuildArrayDimensionString(Queue<ApiPlcProgramDataArrayIndexer> arrayDimensions, List<string> currentReturnString)
         {
@@ -226,14 +226,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public string GetNameWithQuotes()
         {
-            if (IsArrayElement)
-            {
-                return "\"" + Name.Substring(0, (Name.LastIndexOf('['))) + "\"" + Name.Substring(Name.LastIndexOf("["));
-            }
-            else
-            {
-                return "\"" + Name + "\"";
-            }
+            return IsArrayElement ?
+                             $"\"{Name.Substring(0, (Name.LastIndexOf('[')))}\"{Name.Substring(Name.LastIndexOf("["))}" :
+                             $"\"{Name}\"";
         }
 
         /// <summary>

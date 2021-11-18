@@ -67,7 +67,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             set
             {
-                _arrayDimensions = value;
+                _arrayDimensions = value ?? throw new ArgumentNullException(nameof(Array_dimensions));
                 this.ArrayElements = BuildChildrenFromArrayDimensions(_arrayDimensions);
             }
         }

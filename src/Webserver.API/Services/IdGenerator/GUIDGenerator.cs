@@ -58,5 +58,34 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             }
             return result.Substring(0, Length);
         }
+
+        /// <summary>
+        /// (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only) Equal!;
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj) => Equals(obj as GUIDGenerator);
+
+        /// <summary>
+        /// Equals => ()
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public bool Equals(GUIDGenerator obj)
+        {
+            if (obj is null)
+                return false;
+            var toReturn = this.Length == obj.Length;
+            return toReturn;
+        }
+
+        /// <summary>
+        /// GetHasCode => Length.GetHashCode()
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return -2130075011 + Length.GetHashCode();
+        }
     }
 }

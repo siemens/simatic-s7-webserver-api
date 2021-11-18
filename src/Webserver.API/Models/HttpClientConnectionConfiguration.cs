@@ -142,5 +142,59 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             this.AllowAutoRedirect = false;
             this.DiscardPasswordAfterConnect = true;
         }
+
+        /// <summary>
+        /// (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only) Equal!;
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj) => Equals(obj as HttpClientConnectionConfiguration);
+
+        /// <summary>
+        /// Equals => ()
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public bool Equals(HttpClientConnectionConfiguration obj)
+        {
+            if (obj is null)
+                return false;
+            var toReturn = this.BaseAddress == obj.BaseAddress;
+            toReturn &= this.Username == obj.Username;
+            toReturn &= this.Password == obj.Password;
+            toReturn &= this.ConnectionClose == obj.ConnectionClose;
+            toReturn &= this.AllowAutoRedirect == obj.AllowAutoRedirect;
+            toReturn &= this.DiscardPasswordAfterConnect == obj.DiscardPasswordAfterConnect;
+            toReturn &= this.IdGenerator.Equals(obj.IdGenerator);
+            toReturn &= this.RequestParameterChecker.Equals(obj.RequestParameterChecker);
+            toReturn &= this.ApiRequestFactory.Equals(obj.ApiRequestFactory);
+            toReturn &= this.ResponseChecker.Equals(obj.ResponseChecker);
+            toReturn &= this.ApiRequestFactory.Equals(obj.ApiRequestFactory);
+            toReturn &= this.TimeOut.Equals(obj.TimeOut);
+            toReturn &= this.MediaTypeHeaderValue.Equals(obj.MediaTypeHeaderValue);
+            return toReturn;
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the connectionConfiguration</returns>
+        public override int GetHashCode()
+        {
+            var hashCode = 939475008;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(BaseAddress);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Username);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Password);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MediaTypeHeaderValue>.Default.GetHashCode(MediaTypeHeaderValue);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestFactory>.Default.GetHashCode(ApiRequestFactory);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IIdGenerator>.Default.GetHashCode(IdGenerator);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestParameterChecker>.Default.GetHashCode(RequestParameterChecker);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IApiResponseChecker>.Default.GetHashCode(ResponseChecker);
+            hashCode = hashCode * -1521134295 + ConnectionClose.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<TimeSpan>.Default.GetHashCode(TimeOut);
+            hashCode = hashCode * -1521134295 + AllowAutoRedirect.GetHashCode();
+            hashCode = hashCode * -1521134295 + DiscardPasswordAfterConnect.GetHashCode();
+            return hashCode;
+        }
     }
 }

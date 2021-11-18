@@ -273,20 +273,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-            if (obj is ApiPlcProgramData)
-            {
-                return Equals(obj as ApiPlcProgramData);
-            }
-            return false;
-
-
-        }
+        public override bool Equals(object obj) => Equals(obj as ApiPlcProgramData);
 
         /// <summary>
         /// Equals => (Name,Has_children,Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only, Value, Children)
@@ -295,6 +282,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public bool Equals(ApiPlcProgramData obj)
         {
+            if (obj is null)
+                return false;
             var toReturn = this.Name == obj.Name;
             toReturn &= this.Has_children == obj.Has_children;
             toReturn &= this.Db_number == obj.Db_number;

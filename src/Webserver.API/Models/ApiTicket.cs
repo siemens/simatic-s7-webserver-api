@@ -82,6 +82,36 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         public object Data { get; set; }
 
+        /// <summary>
+        /// Check wether properties match
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>true if properties match</returns>
+        public override bool Equals(object obj)
+        {
+            var ticket = obj as ApiTicket;
+            return ticket != null &&
+                   Id == ticket.Id &&
+                   State == ticket.State &&
+                   Date_created == ticket.Date_created &&
+                   Provider == ticket.Provider &&
+                   EqualityComparer<object>.Default.Equals(Data, ticket.Data);
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the ApiTicket</returns>
+        public override int GetHashCode()
+        {
+            var hashCode = -577061235;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Id);
+            hashCode = hashCode * -1521134295 + State.GetHashCode();
+            hashCode = hashCode * -1521134295 + Date_created.GetHashCode();
+            hashCode = hashCode * -1521134295 + Provider.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Data);
+            return hashCode;
+        }
     }
 
 }

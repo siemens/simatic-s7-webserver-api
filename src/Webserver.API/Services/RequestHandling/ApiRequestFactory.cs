@@ -599,5 +599,38 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest(method, jsonRpcReq, idReq, requestParams);
         }
+
+        /// <summary>
+        /// Call Equals with obj as ApiRequestFactory - check for Properties
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>wether the two are equal or not</returns>
+        public override bool Equals(object obj) => Equals(obj as ApiRequestFactory);
+
+        /// <summary>
+        /// check for Properties
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>wether the two are equal or not</returns>
+        public bool Equals(ApiRequestFactory obj)
+        {
+            var toReturn = this.PerformCheck == obj.PerformCheck;
+            toReturn &= this.RequestIdGenerator.Equals(obj.RequestIdGenerator);
+            toReturn &= this.RequestParameterChecker.Equals(obj.RequestParameterChecker);
+            return toReturn;
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the ApiTicket</returns>
+        public override int GetHashCode()
+        {
+            var hashCode = 570990538;
+            hashCode = hashCode * -1521134295 + EqualityComparer<IIdGenerator>.Default.GetHashCode(RequestIdGenerator);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestParameterChecker>.Default.GetHashCode(RequestParameterChecker);
+            hashCode = hashCode * -1521134295 + PerformCheck.GetHashCode();
+            return hashCode;
+        }
     }
 }

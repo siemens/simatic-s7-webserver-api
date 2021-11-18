@@ -253,5 +253,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 ;
             }
         }
+
+        /// <summary>
+        /// Override equals - will always be true since there are no Properties to compare
+        /// </summary>
+        /// <param name="obj">obj to compare to</param>
+        /// <returns>true if the obj is an ApiRequestParameterChecker</returns>
+        public override bool Equals(object obj) => Equals(obj as ApiRequestParameterChecker);
+        public bool Equals(ApiRequestParameterChecker obj)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// base.GetHashCode()
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

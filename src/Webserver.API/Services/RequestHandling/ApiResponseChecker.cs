@@ -58,5 +58,31 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 apiErrorModel.ThrowAccordingException(apiRequestString, responseString);
             }
         }
+
+        /// <summary>
+        /// True if obj is ApiResponseChecker (no Properties)
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>True if obj is ApiResponseChecker (no Properties)</returns>
+        public override bool Equals(object obj) => Equals(obj as ApiResponseChecker);
+
+        /// <summary>
+        /// returns true
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>true</returns>
+        public bool Equals(ApiResponseChecker obj)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the ApiResponseChecker</returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

@@ -44,7 +44,7 @@ To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the 
 ```cs
 var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", "");
 var client = await ApiHttpClientAuthorizationHandler.GetAuthorizedHTPPClientAsync(connectionConfiguration);
-var requestHandler = new ApiHttpClientRequestHandler(client, connectionConfiguration.ApiRequestFactory);
+var requestHandler = new ApiHttpClientRequestHandler(client, connectionConfiguration.ApiRequestFactory, connectionConfiguration.ResponseChecker);
 var apiBrowseResponse = await requestHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {

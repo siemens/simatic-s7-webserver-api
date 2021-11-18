@@ -31,95 +31,42 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Mandatory
         /// PLC base Address/DNS name
         /// </summary>
-        public string BaseAddress { get; set; }
+        public readonly string BaseAddress;
+
         /// <summary>
         /// Mandatory
         /// Plc User Management username to login with
         /// </summary>
-        public string Username { get; set; }
+        public readonly string Username;
+
         /// <summary>
         /// Mandatory
         /// Plc User Management password for Username
         /// </summary>
-        public string Password { get; set; }
-
-        /// <summary>
-        /// Optional
-        /// defaults to application/json
-        /// </summary>
-        public MediaTypeHeaderValue MediaTypeHeaderValue { get; set; }
-
-        /// <summary>
-        /// Optional
-        /// Api request Factory
-        /// </summary>
-        public IApiRequestFactory ApiRequestFactory { get; set; }
-
-        private IIdGenerator _idGenerator;
-        /// <summary>
-        /// Optional Id Generator for request ID generation
-        /// </summary>
-        public IIdGenerator IdGenerator { get
-            {
-                return _idGenerator;
-            }
-            set
-            {
-                _idGenerator = value;
-                if(ApiRequestFactory is ApiRequestFactory)
-                {
-                    ApiRequestFactory = new ApiRequestFactory(_idGenerator, RequestParameterChecker);
-                }
-            }
-        }
-
-        private IApiRequestParameterChecker _requestParameterChecker;
-        /// <summary>
-        /// Optional Request Parameter Checker for request generation
-        /// </summary>
-        public IApiRequestParameterChecker RequestParameterChecker
-        {
-            get
-            {
-                return _requestParameterChecker;
-            }
-            set
-            {
-                _requestParameterChecker = value;
-                if (ApiRequestFactory is ApiRequestFactory)
-                {
-                    ApiRequestFactory = new ApiRequestFactory(IdGenerator, _requestParameterChecker);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Optional (plc-webapi) Response Checker 
-        /// </summary>
-        public IApiResponseChecker ResponseChecker { get; set; }
+        public string Password { get; private set; }
 
         /// <summary>
         /// Optional
         /// defaults to false
         /// </summary>
-        public bool ConnectionClose { get; set; }
+        public readonly bool ConnectionClose;
 
         /// <summary>
         /// Optional 
         /// defaults to ten minutes
         /// </summary>
-        public TimeSpan TimeOut { get; set; }
+        public readonly TimeSpan TimeOut;
 
         /// <summary>
         /// Optional
         /// defaults to false
         /// </summary>
-        public bool AllowAutoRedirect { get; set; }
+        public readonly bool AllowAutoRedirect;
 
         /// <summary>
         /// Optional defaults to true
         /// </summary>
-        public bool DiscardPasswordAfterConnect { get; set; }
+        public readonly bool DiscardPasswordAfterConnect;
 
         /// <summary>
         /// c'tor
@@ -127,20 +74,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="baseAddress">PLC base Address/DNS name</param>
         /// <param name="username">Plc User Management username to login with</param>
         /// <param name="password">Plc User Management password for Username</param>
-        public HttpClientConnectionConfiguration(string baseAddress, string username, string password)
+        public HttpClientConnectionConfiguration(string baseAddress, string username, string password, 
+            TimeSpan timeOut, bool connectionClose, bool allowAutoRedirect, bool discardPasswordAfterConnect)
         {
             this.BaseAddress = baseAddress;
             this.Username = username;
             this.Password = password;
-            this.TimeOut = TimeSpan.FromMinutes(10);
-            this.ConnectionClose = false;
-            this.IdGenerator = new GUIDGenerator();
-            this.RequestParameterChecker = new ApiRequestParameterChecker();
-            this.ApiRequestFactory = new ApiRequestFactory(IdGenerator, RequestParameterChecker);
-            this.ResponseChecker = new ApiResponseChecker();
-            this.MediaTypeHeaderValue = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            this.AllowAutoRedirect = false;
-            this.DiscardPasswordAfterConnect = true;
+            this.TimeOut = timeOut;
+            this.ConnectionClose = connectionClose;
+            this.AllowAutoRedirect = allowAutoRedirect;
+            this.DiscardPasswordAfterConnect = discardPasswordAfterConnect;
+        }
+
+        /// <summary>
+        /// Method to discard password
+        /// </summary>
+        public void DiscardPassword()
+        {
+            this.Password = null;
         }
 
         /// <summary>
@@ -165,13 +116,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             toReturn &= this.ConnectionClose == obj.ConnectionClose;
             toReturn &= this.AllowAutoRedirect == obj.AllowAutoRedirect;
             toReturn &= this.DiscardPasswordAfterConnect == obj.DiscardPasswordAfterConnect;
-            toReturn &= this.IdGenerator.Equals(obj.IdGenerator);
-            toReturn &= this.RequestParameterChecker.Equals(obj.RequestParameterChecker);
-            toReturn &= this.ApiRequestFactory.Equals(obj.ApiRequestFactory);
-            toReturn &= this.ResponseChecker.Equals(obj.ResponseChecker);
-            toReturn &= this.ApiRequestFactory.Equals(obj.ApiRequestFactory);
             toReturn &= this.TimeOut.Equals(obj.TimeOut);
-            toReturn &= this.MediaTypeHeaderValue.Equals(obj.MediaTypeHeaderValue);
             return toReturn;
         }
 
@@ -185,11 +130,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(BaseAddress);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Username);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Password);
-            hashCode = hashCode * -1521134295 + EqualityComparer<MediaTypeHeaderValue>.Default.GetHashCode(MediaTypeHeaderValue);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestFactory>.Default.GetHashCode(ApiRequestFactory);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IIdGenerator>.Default.GetHashCode(IdGenerator);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestParameterChecker>.Default.GetHashCode(RequestParameterChecker);
-            hashCode = hashCode * -1521134295 + EqualityComparer<IApiResponseChecker>.Default.GetHashCode(ResponseChecker);
             hashCode = hashCode * -1521134295 + ConnectionClose.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<TimeSpan>.Default.GetHashCode(TimeOut);
             hashCode = hashCode * -1521134295 + AllowAutoRedirect.GetHashCode();

@@ -30,6 +30,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     /// </summary>
     public class ApiHttpClientRequestHandler : IApiRequestHandler
     {
+        private readonly HttpClient _httpClient;
+        private readonly IApiRequestFactory _apiRequestFactory;
+        private readonly IApiResponseChecker _apiResponseChecker;
+
         /// <summary>
         /// Should prob not be changed!
         /// appilication/json for requests to the jsonrpc api endpoint
@@ -48,11 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         public string JsonRpcApi => "api/jsonrpc";
 
-        private readonly HttpClient HttpClient;
-
-        private readonly IApiRequestFactory ApiRequestFactory;
-
-        private readonly IApiResponseChecker ApiResponseChecker;
+        
 
         /// <summary>
         /// The ApiHttpClientRequestHandler will Send Post Requests,
@@ -63,9 +63,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequestFactory"></param>
         public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker)
         {
-            this.HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            this.ApiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
-            this.ApiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
+            this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
         }
 
         /// <summary>
@@ -87,10 +87,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await HttpClient.PostAsync(JsonRpcApi, request_body);
-            ApiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
+            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
             var responseString = await response.Content.ReadAsStringAsync();
-            ApiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+            _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
             return responseString;
         }
 
@@ -100,7 +100,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
         public async Task<ApiArrayOfApiClassResponse> ApiBrowseAsync()
         {
-            var req = ApiRequestFactory.GetApiBrowseRequest();
+            var req = _apiRequestFactory.GetApiBrowseRequest();
             var responseString = await SendPostRequestAsync(req);
             var arrOfApiClassResponse = JsonConvert.DeserializeObject<ApiArrayOfApiClassResponse>(responseString);
             if (arrOfApiClassResponse.Result.Count == 0)
@@ -121,7 +121,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
         public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null)
         {
-            var req = ApiRequestFactory.GetApiBrowseTicketsRequest(ticketId);
+            var req = _apiRequestFactory.GetApiBrowseTicketsRequest(ticketId);
             var responseString = await SendPostRequestAsync(req);
             var arrOfApiClassResponse = JsonConvert.DeserializeObject<ApiBrowseTicketsResponse>(responseString);
             return arrOfApiClassResponse;
@@ -153,7 +153,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>True to indicate Success</returns>
         public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(string ticketId)
         {
-            var req = ApiRequestFactory.GetApiCloseTicketRequest(ticketId);
+            var req = _apiRequestFactory.GetApiCloseTicketRequest(ticketId);
             var responseString = await SendPostRequestAsync(req);
             var apiTrueOnSuccessResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(responseString);
             return apiTrueOnSuccessResponse;
@@ -186,7 +186,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiSingleStringResponse that contians the URL to the certificate</returns>
         public async Task<ApiSingleStringResponse> ApiGetCertificateUrlAsync()
         {
-            var req = ApiRequestFactory.GetApiGetCertificateUrlRequest();
+            var req = _apiRequestFactory.GetApiGetCertificateUrlRequest();
             string response = await SendPostRequestAsync(req);
             if (!response.Contains("/MiniWebCA_Cer.crt"))
                 Console.WriteLine("unexpected response: " + response + " for Api.GetCertificateUrl!");
@@ -204,7 +204,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Array of ApiClass (in this case permissions)</returns>
         public async Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync()
         {
-            var req = ApiRequestFactory.GetApiGetPermissionsRequest();
+            var req = _apiRequestFactory.GetApiGetPermissionsRequest();
             string response = await SendPostRequestAsync(req);
             return JsonConvert.DeserializeObject<ApiArrayOfApiClassResponse>(response);
         }
@@ -220,7 +220,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>True to indicate success</returns>
         public async Task<ApiTrueOnSuccessResponse> ApiLogoutAsync()
         {
-            var req = ApiRequestFactory.GetApiLogoutRequest();
+            var req = _apiRequestFactory.GetApiLogoutRequest();
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -237,7 +237,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiSingleStringResponse - an Id that'll stay the same for the users session</returns>
         public async Task<ApiSingleStringResponse> ApiPingAsync()
         {
-            var req = ApiRequestFactory.GetApiPingRequest();
+            var req = _apiRequestFactory.GetApiPingRequest();
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
             return responseObj;
@@ -254,7 +254,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>a double that contains the value for the current ApiVersion</returns>
         public async Task<ApiDoubleResponse> ApiVersionAsync()
         {
-            var req = ApiRequestFactory.GetApiVersionRequest(); 
+            var req = _apiRequestFactory.GetApiVersionRequest(); 
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiDoubleResponse>(response);
             return responseObj;
@@ -271,7 +271,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>The current Plc OperatingMode</returns>
         public async Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync()
         {
-            var req = ApiRequestFactory.GetApiPlcReadOperatingModeRequest();
+            var req = _apiRequestFactory.GetApiPlcReadOperatingModeRequest();
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiReadOperatingModeResponse>(response);
             return responseObj;
@@ -290,7 +290,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
         public async Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode)
         {
-            var req = ApiRequestFactory.GetApiPlcRequestChangeOperatingModeRequest(plcOperatingMode);
+            var req = _apiRequestFactory.GetApiPlcRequestChangeOperatingModeRequest(plcOperatingMode);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -323,7 +323,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, string var = null)
         {
-            var req = ApiRequestFactory.GetApiPlcProgramBrowseRequest(plcProgramBrowseMode, var);
+            var req = _apiRequestFactory.GetApiPlcProgramBrowseRequest(plcProgramBrowseMode, var);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiPlcProgramBrowseResponse>(response);
             return responseObj;
@@ -408,7 +408,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null)
         {
-            var req = ApiRequestFactory.GetApiPlcProgramReadRequest(var, plcProgramReadMode);
+            var req = _apiRequestFactory.GetApiPlcProgramReadRequest(var, plcProgramReadMode);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiResultResponse<T>>(response);
             return responseObj;
@@ -493,7 +493,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             string varName = var.GetVarNameForMethods();
             // ApiRequestFactory.CheckPlcProgramReadOrWriteDataType(var.Datatype); will also be called by GetApiPlcProgramWriteValueToBeSet!
-            var writeVal = ApiRequestFactory.GetApiPlcProgramWriteValueToBeSet(var.Datatype, valueToBeSet);
+            var writeVal = _apiRequestFactory.GetApiPlcProgramWriteValueToBeSet(var.Datatype, valueToBeSet);
             return await PlcProgramWriteAsync(varName, writeVal, plcProgramWriteMode);
         }
         /// <summary>
@@ -522,7 +522,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
         public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
         {
-            var req = ApiRequestFactory.GetApiPlcProgramWriteRequest(var, valueToBeSet, plcProgramWriteMode); 
+            var req = _apiRequestFactory.GetApiPlcProgramWriteRequest(var, valueToBeSet, plcProgramWriteMode); 
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -566,7 +566,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Applications: Array of ApiWebAppdata containing one element: the webappdata that has been requested</returns>
         public async Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(string webAppName = null)
         {
-            var req = ApiRequestFactory.GetApiWebAppBrowseRequest(webAppName);
+            var req = _apiRequestFactory.GetApiWebAppBrowseRequest(webAppName);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiWebAppBrowseResponse>(response);
             return responseObj;
@@ -591,7 +591,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
         public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, string resourceName = null)
         {
-            var req = ApiRequestFactory.GetApiWebAppBrowseResourcesRequest(webAppName, resourceName);
+            var req = _apiRequestFactory.GetApiWebAppBrowseResourcesRequest(webAppName, resourceName);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiWebAppBrowseResourcesResponse>(response);
             return responseObj;
@@ -693,7 +693,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>true to indicate success</returns>
         public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(string webAppName, ApiWebAppState? apiWebAppState = null)
         {
-            var req = ApiRequestFactory.GetApiWebAppCreateRequest(webAppName, apiWebAppState); 
+            var req = _apiRequestFactory.GetApiWebAppCreateRequest(webAppName, apiWebAppState); 
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -736,7 +736,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, string resourceName, string media_type,
             string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
         {
-            var req = ApiRequestFactory.GetApiWebAppCreateResourceRequest(webAppName, resourceName, media_type,
+            var req = _apiRequestFactory.GetApiWebAppCreateResourceRequest(webAppName, resourceName, media_type,
                 last_modified, apiWebAppResourceVisibility, etag); 
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
@@ -847,7 +847,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>true to indicate success</returns>
         public async Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(string webAppName)
         {
-            var req = ApiRequestFactory.GetApiWebAppDeleteRequest(webAppName);
+            var req = _apiRequestFactory.GetApiWebAppDeleteRequest(webAppName);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -883,7 +883,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>true to indicate success</returns>
         public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, string resourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppDeleteResourceRequest(webAppName, resourceName);
+            var req = _apiRequestFactory.GetApiWebAppDeleteResourceRequest(webAppName, resourceName);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -958,7 +958,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, string resourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppDownloadResourceRequest(webAppName, resourceName);
+            var req = _apiRequestFactory.GetApiWebAppDownloadResourceRequest(webAppName, resourceName);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
@@ -1034,7 +1034,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// name which equals the newname</returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(string webAppName, string newWebAppName)
         {
-            var req = ApiRequestFactory.GetApiWebAppRenameRequest(webAppName, newWebAppName);
+            var req = _apiRequestFactory.GetApiWebAppRenameRequest(webAppName, newWebAppName);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1087,7 +1087,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, string resourceName, 
             string newResourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppRenameResourceRequest(webAppName, resourceName, newResourceName);
+            var req = _apiRequestFactory.GetApiWebAppRenameResourceRequest(webAppName, resourceName, newResourceName);
             string response = await SendPostRequestAsync(req);
             ApiTrueWithResourceResponse responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1197,7 +1197,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(string webAppName, string resourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppSetDefaultPageRequest(webAppName, resourceName ?? "");
+            var req = _apiRequestFactory.GetApiWebAppSetDefaultPageRequest(webAppName, resourceName ?? "");
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1303,7 +1303,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(string webAppName, string resourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppSetNotAuthorizedPageRequest(webAppName, resourceName ?? "");
+            var req = _apiRequestFactory.GetApiWebAppSetNotAuthorizedPageRequest(webAppName, resourceName ?? "");
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1407,7 +1407,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, string resourceName)
         {
-            var req = ApiRequestFactory.GetApiWebAppSetNotFoundPageRequest(webAppName, resourceName??"");
+            var req = _apiRequestFactory.GetApiWebAppSetNotFoundPageRequest(webAppName, resourceName??"");
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1513,7 +1513,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(string webAppName, ApiWebAppState apiWebAppState)
         {
-            var req = ApiRequestFactory.GetApiWebAppSetStateRequest(webAppName, apiWebAppState);
+            var req = _apiRequestFactory.GetApiWebAppSetStateRequest(webAppName, apiWebAppState);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1575,7 +1575,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, string resourceName, 
             string newETagValue)
         {
-            var req = ApiRequestFactory.GetApiSetResourceETagRequest(webAppName, resourceName, newETagValue ?? "");
+            var req = _apiRequestFactory.GetApiSetResourceETagRequest(webAppName, resourceName, newETagValue ?? "");
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1705,7 +1705,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, string resourceName, 
             string newMediaType)
         {
-            var req = ApiRequestFactory.GetApiSetResourceMediaTypeRequest(webAppName, resourceName, newMediaType);
+            var req = _apiRequestFactory.GetApiSetResourceMediaTypeRequest(webAppName, resourceName, newMediaType);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1828,7 +1828,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName, 
             string newModificationTime)
         {
-            var req = ApiRequestFactory.GetApiSetResourceModificationTimeRequest(webAppName, resourceName, newModificationTime);
+            var req = _apiRequestFactory.GetApiSetResourceModificationTimeRequest(webAppName, resourceName, newModificationTime);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -2070,7 +2070,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, string resourceName, 
             ApiWebAppResourceVisibility newResourceVisibility)
         {
-            var req = ApiRequestFactory.GetApiSetResourceVisibilityRequest(webAppName, resourceName, newResourceVisibility);
+            var req = _apiRequestFactory.GetApiSetResourceVisibilityRequest(webAppName, resourceName, newResourceVisibility);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -2188,7 +2188,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             var request_body = new ByteArrayContent(new byte[0]);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-            var response = await HttpClient.PostAsync($"/api/ticket?id={ticketId}", request_body);
+            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsByteArrayAsync();
         }
@@ -2211,7 +2211,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             data.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             try
             {
-                var response = await HttpClient.PostAsync($"/api/ticket?id={ticketId}", data);
+                var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data);
                 response.EnsureSuccessStatusCode();
             }
             catch(Exception e)
@@ -2262,7 +2262,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null)
         {
-            var req = ApiRequestFactory.GetApiLoginRequest(userName, password, includeWebApplicationCookie);
+            var req = _apiRequestFactory.GetApiLoginRequest(userName, password, includeWebApplicationCookie);
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiLoginResponse();
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
@@ -2302,8 +2302,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await HttpClient.PostAsync(JsonRpcApi, request_body);
-            ApiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
+            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
             var responseString = await response.Content.ReadAsStringAsync();
             ApiBulkResponse bulkResponse = new ApiBulkResponse();
             var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)

@@ -21,8 +21,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
     /// </summary>
     public class ApiPlcProgramHandler
     {
-        private readonly IApiRequestHandler ApiRequestHandler;
-        private readonly IApiRequestFactory RequestFactory;
+        private readonly IApiRequestHandler _apiRequestHandler;
+        private readonly IApiRequestFactory _requestFactory;
 
         /// <summary>
         /// Timeout for creating requests - defaults to 1 minute
@@ -36,8 +36,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="requestFactory">Request Factory for request generation</param>
         public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory)
         {
-            this.ApiRequestHandler = asyncRequestHandler;
-            this.RequestFactory = requestFactory;
+            this._apiRequestHandler = asyncRequestHandler;
+            this._requestFactory = requestFactory;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
         public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var)
         {
-            var response = await ApiRequestHandler.PlcProgramBrowseAsync(plcProgramBrowseMode, var);
+            var response = await _apiRequestHandler.PlcProgramBrowseAsync(plcProgramBrowseMode, var);
             if (plcProgramBrowseMode == ApiPlcProgramBrowseMode.Children)
             {
                 response.Result.ForEach(el =>
@@ -120,23 +120,23 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                         }
                         else
                         {
-                            requests.Add(RequestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
+                            requests.Add(_requestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
                         }
                     }
                 }
                 else if (child.Children?.Count == 0)
                 {
-                    requests.Add(RequestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
+                    requests.Add(_requestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
                 }
                 else
                 {
                     throw new Exception("Dont quite know how I landed here!");
                 }
             }
-            requests = RequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+            requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             if (requests.Count > 0)
             {
-                var childvalues = await ApiRequestHandler.ApiBulkAsync(requests);
+                var childvalues = await _apiRequestHandler.ApiBulkAsync(requests);
                 foreach (var childval in childvalues.SuccessfulResponses)
                 {
                     var accordingRequest = requests.First(el => el.Id == childval.Id);
@@ -177,10 +177,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             List<ApiRequest> requests = new List<ApiRequest>();
             foreach (var child in toReturn.Children)
             {
-                requests.Add(RequestFactory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
+                requests.Add(_requestFactory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
             }
-            requests = RequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
-            return await ApiRequestHandler.ApiBulkAsync(requests);
+            requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+            return await _apiRequestHandler.ApiBulkAsync(requests);
         }
 
         /// <summary>

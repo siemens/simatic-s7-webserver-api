@@ -83,10 +83,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Method used to determine wether the file is an HTML file or not
         /// </summary>
         /// <returns>resource.Media_type == "text/html"</returns>
-        public bool IsHtmlFile()
-        {
-            return (this.Media_type == "text/html");
-        }
+        public bool IsHtmlFile() => this.Media_type.Equals("text/html");
 
         /// <summary>
         /// Depending on the configured IgnoreBOMDifference =>

@@ -710,7 +710,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
             }
-            httpClientConnectionConfiguration = new HttpClientConnectionConfiguration(null,null,null);
+            httpClientConnectionConfiguration = new HttpClientConnectionConfiguration(null, null, null, TimeSpan.Zero, false, false, false);
             if (httpClientConnectionConfiguration.Equals(null))
             {
                 Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
@@ -723,17 +723,17 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
             }
-            var httpClientConnectionConfiguration2 = new HttpClientConnectionConfiguration(null, null, null);
+            var httpClientConnectionConfiguration2 = new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false);
             Assert.That(httpClientConnectionConfiguration2.Equals(httpClientConnectionConfiguration));
             List<HttpClientConnectionConfiguration> httpClientConnections = new List<HttpClientConnectionConfiguration>()
             {
-                new HttpClientConnectionConfiguration(null, null, null),
-                new HttpClientConnectionConfiguration(null, null, null)
+                new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false),
+                new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false)
             };
             List<HttpClientConnectionConfiguration> httpClientConnections2 = new List<HttpClientConnectionConfiguration>()
             {
-                new HttpClientConnectionConfiguration(null, null, null),
-                new HttpClientConnectionConfiguration(null, null, null)
+                new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false),
+                new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false)
             };
             Assert.That(httpClientConnections.SequenceEqual(httpClientConnections2));
         }

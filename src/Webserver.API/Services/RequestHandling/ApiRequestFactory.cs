@@ -584,5 +584,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             return requestsToReturn;
         }
+
+        /// <summary>
+        /// In case you want to "build up" an ApiRequest on your own
+        /// </summary>
+        /// <param name="method">Api method to be called</param>
+        /// <param name="parameters">Api method parameters to be provided</param>
+        /// <param name="jsonRpc">jsonrpc version (defaults to 2.0)</param>
+        /// <param name="id">request id (defaults to a new generated id)</param>
+        /// <returns>An ApiRequest to be sent to the plc</returns>
+        public virtual ApiRequest GetApiRequest(string method, Dictionary<string, object> requestParams = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest(method, jsonRpcReq, idReq, requestParams);
+        }
     }
 }

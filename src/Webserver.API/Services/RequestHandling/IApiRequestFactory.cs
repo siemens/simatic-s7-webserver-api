@@ -10,10 +10,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
     /// Api Request Factory => Will perform the according ParameterChecks (RequestParameterChecker) and return the requested ApiRequest
-    /// Will per default provide a Request with jsonrpc 2.0 and an id with 8 random chars, unless set differently
+    /// Will per default provide a Request with jsonrpc 2.0 and an id generated with the given generator, unless set differently
     /// </summary>
     public interface IApiRequestFactory
     {
+        /// <summary>
+        /// In case you want to "build up" an ApiRequest on your own
+        /// </summary>
+        /// <param name="method">Api method to be called</param>
+        /// <param name="parameters">Api method parameters to be provided</param>
+        /// <param name="jsonRpc">jsonrpc version (defaults to 2.0)</param>
+        /// <param name="id">request id (defaults to a new generated id)</param>
+        /// <returns>An ApiRequest to be sent to the plc</returns>
+        ApiRequest GetApiRequest(string method, Dictionary<string, object> parameters = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an Api.Browse Request without parameters. 
         /// </summary>

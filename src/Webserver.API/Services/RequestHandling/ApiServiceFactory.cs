@@ -37,7 +37,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             _apiWebAppResourceBuilder = new ApiWebAppResourceBuilder();
         }
 
-        
+        /// <summary>
+        /// Create an ApiStandardServiceFactory with (optionally) customized Implementations of the interfaces
+        /// </summary>
+        /// <param name="idGenerator">Request Id generator</param>
+        /// <param name="apiRequestParameterChecker">parameter checker for the requestfactory</param>
+        /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler,...</param>
+        /// <param name="apiRequestFactory">request factory for request generation</param>
+        /// <param name="apiWebAppResourceBuilder">resource builder for resource handler, deployer,...</param>
+        public ApiStandardServiceFactory(IIdGenerator idGenerator, IApiRequestParameterChecker apiRequestParameterChecker, 
+            IApiResponseChecker apiResponseChecker, IApiRequestFactory apiRequestFactory, IApiWebAppResourceBuilder apiWebAppResourceBuilder)
+        {
+            _idGenerator = idGenerator;
+            _apiRequestParameterChecker = apiRequestParameterChecker;
+            _apiResponseChecker = apiResponseChecker;
+            _apiRequestFactory = apiRequestFactory;
+            _apiWebAppResourceBuilder = apiWebAppResourceBuilder;
+        }
+
+
+
         /// <summary>
         /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
         /// </summary>

@@ -43,7 +43,7 @@ Further examples of usage are also provided in the UnitTests of the component.
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
 ApiStandardServiceFactory serviceFactory = new ApiStandardServiceFactory();
-var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.2.3", "Everybody", "");
+var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.1.1", "Everybody", "");
 var apiBrowseResponse = await reqHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {

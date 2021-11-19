@@ -19,7 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
     /// <summary>
     /// Class used for the automated deployment of WebApps to a PLC (1500)
     /// </summary>
-    public class ApiWebAppDeployer
+    public class ApiWebAppDeployer : IApiWebAppDeployer
     {
         private readonly IApiRequestHandler ApiRequestHandler;
         private readonly IApiResourceHandler ApiResourceHandler;
@@ -42,9 +42,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// ApplicationResources
         /// PathToWebAppDirectory
         /// </summary>
-        /// <param name="webApp"></param>
-        /// <returns></returns>
-        private async Task DeployAsync(ApiWebAppData webApp)
+        /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        public void Deploy(ApiWebAppData webApp) => DeployAsync(webApp).GetAwaiter().GetResult();
+        /// <summary>
+        /// make very sure the given webapp contains all the data:
+        /// Name
+        /// ApplicationResources
+        /// PathToWebAppDirectory
+        /// </summary>
+        /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        public async Task DeployAsync(ApiWebAppData webApp)
         {
             var res = await ApiRequestHandler.WebAppCreateAsync(webApp.Name);
             foreach (var r in webApp.ApplicationResources)
@@ -78,11 +85,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// and therefor delete all the resources that are
         /// currently on the plc!
         /// </summary>
-        /// <param name="webApp">webappdata - e.g. from parsed webappdirectory</param>
+        /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
-        /// <returns></returns>
+        public void DeployOrUpdate(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1) => DeployOrUpdateAsync(webApp, amountOfTriesForResourceDeployment).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// make very sure the given webapp contains all the data:
+        /// Name
+        /// ApplicationResources
+        /// PathToWebAppDirectory
+        /// TAKE CARE: 
+        /// If you insert a webapp e.g. that you read from webapp.browse it will not contain the Applicationresources - during delta compare
+        /// the function will recognise that there are no resources on the webapp that you want to have on the plc 
+        /// and therefor delete all the resources that are
+        /// currently on the plc!
+        /// </summary>
+        /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        /// <param name="amountOfTriesForResourceDeployment">optional parameter:
+        /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
+        /// </param>
         public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1)
         {
             var webApps = await ApiRequestHandler.WebAppBrowseAsync();
@@ -188,32 +211,5 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
         }
 
-        /// <summary>
-        /// make very sure the given webapp contains all the data:
-        /// Name
-        /// ApplicationResources
-        /// PathToWebAppDirectory
-        /// </summary>
-        /// <param name="webApp"></param>
-        /// <returns></returns>
-        public void Deploy(ApiWebAppData webApp) => DeployAsync(webApp).GetAwaiter().GetResult();
-
-        /// <summary>
-        /// make very sure the given webapp contains all the data:
-        /// Name
-        /// ApplicationResources
-        /// PathToWebAppDirectory
-        /// TAKE CARE: 
-        /// If you insert a webapp e.g. that you read from webapp.browse it will not contain the Applicationresources - during delta compare
-        /// the function will recognise that there are no resources on the webapp that you want to have on the plc 
-        /// and therefor delete all the resources that are
-        /// currently on the plc!
-        /// </summary>
-        /// <param name="webApp">webappdata - e.g. from parsed webappdirectory</param>
-        /// <param name="amountOfTriesForResourceDeployment">optional parameter:
-        /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
-        /// </param>
-        /// <returns></returns>
-        public void DeployOrUpdate(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1) => DeployOrUpdateAsync(webApp, amountOfTriesForResourceDeployment).GetAwaiter().GetResult();
     }
 }

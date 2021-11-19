@@ -17,7 +17,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     /// <summary>
     /// Factory to create services with standard implementation
     /// </summary>
-    public class ApiStandardServiceFactory
+    public class ApiStandardServiceFactory : IApiServiceFactory
     {
         private readonly IIdGenerator _idGenerator;
         private readonly IApiRequestParameterChecker _apiRequestParameterChecker;
@@ -38,29 +38,71 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         
-
+        /// <summary>
+        /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public async Task<HttpClient> GetHttpClientAsync(string baseAddress, string username, string password)
         {
             return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password));
         }
 
+        /// <summary>
+        /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public HttpClient GetHttpClient(string baseAddress, string username, string password)
             => GetHttpClientAsync(baseAddress, username, password).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Get a <see cref="HttpClientConnectionConfiguration"/> using standard values for timeout, connectionclose, 
+        /// allowAutoRedirect and discardpasswortafterconnect
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>A HttpClientConnectionConfiguration with standard values</returns>
         public HttpClientConnectionConfiguration GetConnectionConfiguration(string baseAddress, string username, string password)
         {
             return new HttpClientConnectionConfiguration(baseAddress, username, password,
                 TimeSpan.FromMinutes(10), false, false, true);
         }
 
+        /// <summary>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, bool include_web_application_cookie)
         {
             return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie);
         }
 
+        /// <summary>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         public HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, bool include_web_application_cookie)
             => GetHttpClientAsync(baseAddress, username, password, include_web_application_cookie).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
@@ -114,9 +156,23 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new HttpClientAndWebAppCookie(httpClient, apiLoginResponse.Result.Web_application_cookie);
         }
 
+        /// <summary>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         public HttpClientAndWebAppCookie GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
             => GetHttpClientAsync(connectionConfiguration, include_web_application_cookie).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration)
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
@@ -167,29 +223,84 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return httpClient;
         }
 
+        /// <summary>
+        /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public HttpClient GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration)
             => GetHttpClientAsync(connectionConfiguration).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password)
         {
             var httpClient = await GetHttpClientAsync(baseAddress, username, password);
             return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
         }
 
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public IApiRequestHandler GetApiHttpClientRequestHandler(string baseAddress, string username, string password)
             => GetApiHttpClientRequestHandlerAsync(baseAddress, username, password).GetAwaiter().GetResult();
 
-        public ApiPlcProgramHandler GetPlcProgramHandler(IApiRequestHandler requestHandler)
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration)
+        {
+            var httpClient = await GetHttpClientAsync(connectionConfiguration);
+            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
+        }
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration)
+            => GetApiHttpClientRequestHandlerAsync(connectionConfiguration).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Get A apiPlcProgramHandler with the given requestHandler and the set apiRequestFactory
+        /// </summary>
+        /// <param name="requestHandler">Request Handler the plcProgramHandler shall use</param>
+        /// <returns>an <see cref="ApiPlcProgramHandler"/></returns>
+        public IApiPlcProgramHandler GetPlcProgramHandler(IApiRequestHandler requestHandler)
         {
             return new ApiPlcProgramHandler(requestHandler, _apiRequestFactory);
         }
 
-        public ApiResourceHandler GetApiResourceHandler(IApiRequestHandler requestHandler)
+        /// <summary>
+        /// Get A resourceHandler with the given requestHandler and the set apiResourceBuilder
+        /// </summary>
+        /// <param name="requestHandler">Request Handler the Resource Handler shall use</param>
+        /// <returns>an <see cref="ApiResourceHandler"/></returns>
+        public IApiResourceHandler GetApiResourceHandler(IApiRequestHandler requestHandler)
         {
             return new ApiResourceHandler(requestHandler, _apiWebAppResourceBuilder);
         }
 
-        public ApiWebAppDeployer GetApiWebAppDeployer(IApiRequestHandler requestHandler)
+        /// <summary>
+        /// Get A apiWebAppDeployer with the given requestHandler and an apiResourceHandler <see cref="GetApiResourceHandler(IApiRequestHandler)"/>
+        /// </summary>
+        /// <param name="requestHandler">Request Handler the deployer and resourceHandler shall use</param>
+        /// <returns>an <see cref="ApiWebAppDeployer"/></returns>
+        public IApiWebAppDeployer GetApiWebAppDeployer(IApiRequestHandler requestHandler)
         {
             return new ApiWebAppDeployer(requestHandler, GetApiResourceHandler(requestHandler));
         }

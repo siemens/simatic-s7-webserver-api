@@ -19,15 +19,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
     /// <summary>
     /// Api PlcProgram Handler
     /// </summary>
-    public class ApiPlcProgramHandler
+    public class ApiPlcProgramHandler : IApiPlcProgramHandler
     {
         private readonly IApiRequestHandler _apiRequestHandler;
         private readonly IApiRequestFactory _requestFactory;
-
-        /// <summary>
-        /// Timeout for creating requests - defaults to 1 minute
-        /// </summary>
-        public TimeSpan? TimeOutCreatingRequests;
 
         /// <summary>
         /// Api PlcProgram Handler

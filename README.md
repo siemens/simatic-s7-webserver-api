@@ -42,10 +42,9 @@ Further examples of usage are also provided in the UnitTests of the component.
 # ApiHttpClientRequestHandler
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
-var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", "");
-var client = await ApiHttpClientAuthorizationHandler.GetAuthorizedHTPPClientAsync(connectionConfiguration);
-var requestHandler = new ApiHttpClientRequestHandler(client, connectionConfiguration.ApiRequestFactory, connectionConfiguration.ResponseChecker);
-var apiBrowseResponse = await requestHandler.ApiBrowseAsync();
+ApiStandardServiceFactory serviceFactory = new ApiStandardServiceFactory();
+var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.2.3", "Everybody", "");
+var apiBrowseResponse = await reqHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {
     Console.WriteLine(method.Name);
@@ -95,7 +94,7 @@ You can use Implementations to comfortably deploy the apps to the plc with a Dep
 ```cs
 var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
 app = parser.Parse();
-var deployer = new AsyncWebAppDeployer(requestHandler);
+var deployer = serviceFactory.GetApiWebAppDeployer(reqHandler);
 await deployer.DeployOrUpdateAsync(app);
 var apiWebAppBroseResourcesResponse = await requestHandler.WebAppBrowseResourcesAsync("customerExample");
 foreach(var resource in apiWebAppBroseResourcesResponse.Result.Resources)

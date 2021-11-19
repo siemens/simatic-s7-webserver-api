@@ -104,7 +104,7 @@ foreach(var resource in apiWebAppBroseResourcesResponse.Result.Resources)
 ```
 The Parser and Deployer also use a set of comfort functions - in case you want to know or take a look they are using:
 ```cs
-namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp{
+namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp {
 public class ApiResourceHandler {}
 public class ApiWebAppResourceBuilder {}
 }
@@ -180,14 +180,16 @@ Console.WriteLine(myBool.Value);
 Use the following table to find the correct client version for each Plc version (server)
 
 ## SIMATIC S71500:
-Plc Version | WebApi Wrapper Version
+Plc Version | Client Library Version
 ------------------|---------------
-2.9.x              | 1.0.0
+2.9.x              | 1.0.x
+2.9.x              | 2.0.x
 
 ## SIMATIC S71200:
-Plc Version | WebApi Wrapper Version
+Plc Version | Client Library Version
 ------------------|---------------
-4.5.x             | 1.0.0
+4.5.x             | 1.0.x
+4.5.x             | 2.0.x
 
 **Hint**: The current (first) Wrapper Version supports more API calls than the current S71200 does - the S71200 will likely(!) support the API calls of the wrapper with the next version.
 

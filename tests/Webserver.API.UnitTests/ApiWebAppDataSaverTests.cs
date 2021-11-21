@@ -48,7 +48,8 @@ namespace Webserver.API.UnitTests
                     NullValueHandling = NullValueHandling.Ignore,
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 };
-                saveSetting = new ApiWebAppDataSaveSetting(null, "WebAppCOnfig", true, false, jsonSerSetting);
+                saveSetting = new ApiWebAppDataSaveSetting(null, "WebAppConfig", true, false, jsonSerSetting);
+                saver = new ApiWebAppDataSaver(saveSetting);
                 Assert.Throws<DirectoryNotFoundException>(() => saver.Save(testApp));
                 testApp.PathToWebAppDirectory = dirPath;
                 // works again

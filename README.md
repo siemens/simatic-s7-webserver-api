@@ -18,9 +18,6 @@ This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and a
   - [SIMATIC S71500:](#simatic-s71500)
   - [SIMATIC S71200:](#simatic-s71200)
 - [Limitations](#limitations)
-  - [Arrays](#arrays)
-  - [Reading Structs by Children containing Arrays](#reading-structs-by-children-containing-arrays)
-  - [.NetCore Apps](#netcore-apps)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S71500:](#simatic-s71500-1)
   - [SIMATIC S71200:](#simatic-s71200-1)
@@ -42,7 +39,7 @@ Further examples of usage are also provided in the UnitTests of the component.
 # ApiHttpClientRequestHandler
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
-ApiStandardServiceFactory serviceFactory = new ApiStandardServiceFactory();
+var serviceFactory = new ApiStandardServiceFactory();
 var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.1.1", "Everybody", "");
 var apiBrowseResponse = await reqHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
@@ -196,19 +193,7 @@ Plc Version | Client Library Version
 
 # Limitations
 
-Currently some Features are not implemented yet.
-
-## Arrays
-
-Only the Array_Dimensions are set for an ApiPlcProgramData, the Children are not set by it yet - we are currently debating possible implementations on this.
-
-## Reading Structs by Children containing Arrays
-
-By above reason this is not implemented.
-
-## .NetCore Apps
-
-Having tried the RequestHandler in a .netcore app has shown that the requests didn't work as expected - we currently don't know why this is an issue.
+Currently some Features are not implemented yet. Check out the [Issues](https://github.com/siemens/simatic-s7-webserver-api/issues) to get further information about open issues.
 
 # Further Information about PLC (Webserver)
 

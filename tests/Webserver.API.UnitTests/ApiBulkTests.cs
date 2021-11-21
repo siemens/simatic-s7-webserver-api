@@ -38,7 +38,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public async Task ApiBulk_RequestsUniqueIds_works()
+        public async Task ApiBulk_Send100RequestsWithUniqueIds_Returns100SucessfulResponses()
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)

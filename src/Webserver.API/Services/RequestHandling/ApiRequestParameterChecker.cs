@@ -236,6 +236,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
+        /// Currently don't check - last use:
         /// regex used: Regex regex = new Regex(@"\d{4}(-\d{2})(-\d{2})T(\d{2}):(\d{2}):(\d{2})(\.[0-9]{1,3})*Z"); string has to match!
         /// </summary>
         /// <param name="lastModified">LastModified that should be checked for being valid</param>

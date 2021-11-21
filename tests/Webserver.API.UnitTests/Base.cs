@@ -6,6 +6,7 @@ using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -27,6 +28,14 @@ namespace Webserver.API.UnitTests
 
         public IApiResponseChecker ApiResponseChecker;
 
+        public static DirectoryInfo CurrentExeDir
+        {
+            get
+            {
+                string dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                return (new FileInfo(dllPath)).Directory;
+            }
+        }
         public Base()
         {
             ReqIdGenerator = new GUIDGenerator();

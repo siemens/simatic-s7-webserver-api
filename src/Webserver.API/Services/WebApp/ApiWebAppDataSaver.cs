@@ -25,11 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="apiWebAppSaveSetting">Settings to apply</param>
         public ApiWebAppDataSaver(ApiWebAppDataSaveSetting apiWebAppSaveSetting)
         {
-            if (apiWebAppSaveSetting == null)
-            {
-                throw new ArgumentNullException(nameof(apiWebAppSaveSetting));
-            }
-            ApiWebAppSaveSetting = apiWebAppSaveSetting;
+            ApiWebAppSaveSetting = apiWebAppSaveSetting ?? throw new ArgumentNullException(nameof(apiWebAppSaveSetting));
         }
 
         /// <summary>
@@ -62,11 +58,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 {
                     Directory.CreateDirectory(dirToSaveTo);
                 }
-            }
-            else
-            {
-                var dirInfo = new DirectoryInfo(dirToSaveTo);
-
             }
             var configString = JsonConvert.SerializeObject(apiWebApp,
                         ApiWebAppSaveSetting.JsonSerializerSetting);

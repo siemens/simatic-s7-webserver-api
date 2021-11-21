@@ -17,7 +17,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
         void CheckETag(string etag, bool performCheck);
         /// <summary>
-        /// regex used: Regex regex = new Regex(@"\d{4}(-\d{2})(-\d{2})T(\d{2}):(\d{2}):(\d{2})(\.[0-9]{1,3})*Z"); string has to match!
+        /// Check the Last modified string on its regex
         /// </summary>
         /// <param name="lastModified">LastModified that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>

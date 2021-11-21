@@ -19,12 +19,12 @@ using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
-    public class FileParserTests
+    public class FileParserTests : Base
     {
         [Test]
         public void InvalidApplicationsExceptionThrown()
         {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"tmp");
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
                 if (!Directory.Exists(dirPath))
@@ -74,7 +74,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ValidApplicationAsExpected()
         {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tmp");
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
                 if(!Directory.Exists(dirPath))

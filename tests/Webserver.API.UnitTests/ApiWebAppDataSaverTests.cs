@@ -20,7 +20,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiWebAppDataSave()
         {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tmp");
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
                 Directory.CreateDirectory(dirPath);

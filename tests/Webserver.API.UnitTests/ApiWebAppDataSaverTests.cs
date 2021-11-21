@@ -42,17 +42,17 @@ namespace Webserver.API.UnitTests
                 Assert.That(Directory.Exists(testApp.PathToWebAppDirectory));
                 Assert.That(File.Exists(Path.Combine(testApp.PathToWebAppDirectory, saveSetting.ConfigurationName + ".json")));
                 Directory.Delete(testApp.PathToWebAppDirectory, true);
-                // later change of savesetting has impact
                 var jsonSerSetting = new JsonSerializerSettings()
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 };
+                // new savesetting to not save directory if it does not exist will throw exception
                 saveSetting = new ApiWebAppDataSaveSetting(null, "WebAppConfig", true, false, jsonSerSetting);
                 saver = new ApiWebAppDataSaver(saveSetting);
                 Assert.Throws<DirectoryNotFoundException>(() => saver.Save(testApp));
                 testApp.PathToWebAppDirectory = dirPath;
-                // works again
+                // works again if the directory does already exist!
                 saver.Save(testApp);
                 Assert.That(File.Exists(Path.Combine(testApp.PathToWebAppDirectory, saveSetting.ConfigurationName + ".json")));
             }

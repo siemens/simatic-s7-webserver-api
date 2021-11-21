@@ -19,30 +19,30 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// Defaults to null and if this value is null => ApiWebAppData.PathToWebAppDirectory
         /// </summary>
-        public string DirectoryPath { get; set; }
+        public readonly string DirectoryPath;
         /// <summary>
         /// Defaults to "WebAppConfig" - will be the name of the .json File created by ApiWebAppDataSaver
         /// </summary>
-        public string ConfigurationName { get; set; }
-        
+        public readonly string ConfigurationName;
+
         /// <summary>
         /// Defaults to "true" - will be used to control, wether the "basic" checks for the webapp(data) are performed 
         /// so that it is "saveable"
         /// </summary>
-        public bool CheckConsistency { get; set; }
+        public readonly bool CheckConsistency;
 
         /// <summary>
         /// Defaults to "true" - will be used to determine wether a directory will be created for saving in case 
         /// it does not yet exist and is provided via DirectoryPath
         /// </summary>
-        public bool CreateDirectoryIfNotExists { get; set; }
+        public readonly bool CreateDirectoryIfNotExists;
 
         /// <summary>
         /// JsonSerializerSetting defaults to 
         /// NullValueHandling = NullValueHandling.Ignore,
         /// ContractResolver = new CamelCasePropertyNamesContractResolver()
         /// </summary>
-        public JsonSerializerSettings JsonSerializerSetting { get; set; }
+        public readonly JsonSerializerSettings JsonSerializerSetting;
 
         /// <summary>
         /// Default c'tor for ApiWebAppDataSaveSetting - Check properties' summary for defaults.
@@ -58,6 +58,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
+        }
+
+        /// <summary>
+        /// C'tor to configure the savesetting on your own
+        /// </summary>
+        /// <param name="directoryPath">Path where the ApiWebAppData should be saved to</param>
+        /// <param name="configurationName">name for the file to be saved</param>
+        /// <param name="checkConsistency">will be used to control, wether the "basic" checks for the webapp(data) are performed </param>
+        /// <param name="createDirectoryIfNotExists">will be used to determine wether a directory will be created 
+        /// for saving in case it does not yet exist and is provided via DirectoryPath</param>
+        /// <param name="jsonSerializerSetting">Setting for the Serialization</param>
+        public ApiWebAppDataSaveSetting(string directoryPath, string configurationName, 
+            bool checkConsistency, bool createDirectoryIfNotExists, JsonSerializerSettings jsonSerializerSetting)
+        {
+            DirectoryPath = directoryPath;
+            ConfigurationName = configurationName;
+            CheckConsistency = checkConsistency;
+            CreateDirectoryIfNotExists = createDirectoryIfNotExists;
+            JsonSerializerSetting = jsonSerializerSetting;
         }
     }
 }

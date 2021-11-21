@@ -147,7 +147,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// 
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramReadMode">
-        /// this parameter is optional and defaults to "simple":
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///
@@ -162,10 +161,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a PlcProgram.Read Request 
         /// </summary>
         /// <param name="var">Name of the variable to be read
-        /// 
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramReadMode">
-        /// this parameter is optional and defaults to "simple":
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///
@@ -921,7 +918,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// 
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramReadMode">
-        /// this parameter is optional and defaults to "simple":
+        
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///
@@ -939,7 +936,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// 
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramReadMode">
-        /// this parameter is optional and defaults to "simple":
+        
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///

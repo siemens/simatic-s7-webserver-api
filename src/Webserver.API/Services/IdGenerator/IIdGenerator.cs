@@ -11,10 +11,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
     public interface IIdGenerator
     {
         /// <summary>
-        /// Length for the request(s) generated
-        /// </summary>
-        int Length { get; set; }
-        /// <summary>
         /// Get A Random String with the length given, Random (optional)
         /// containing characters: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
         /// </summary>

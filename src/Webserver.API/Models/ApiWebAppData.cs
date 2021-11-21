@@ -17,9 +17,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     /// ApplicationResources: Containing all the resources that are currently on that ApiWebAppData - those whose name matches the protected resources will be protected according to users rights (cookie)
     /// ProtectedResources: List of all resource names that shall be protected 
     /// PathToWebAppDirectory: Path to the Directory containing all the WebAppResources and the WebAppConfiguration File
-    /// DirectoriesToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources inside that directory to be uploaded (not if directoryname is added)
-    /// ResourcesToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resourcename is added)
-    /// FileExtensionsToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resource fileextension is added)
+    /// DirectoriesToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources inside that directory to be uploaded (not if directoryname is added)
+    /// ResourcesToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources to be uploaded (not if resourcename is added)
+    /// FileExtensionsToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources to be uploaded (not if resource fileextension is added)
     /// </summary>
     public class ApiWebAppData : IApiWebAppData
     {
@@ -116,15 +116,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public string PathToWebAppDirectory { get; set; }
 
         /// <summary>
-        /// DirectoriesToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources inside that directory to be uploaded (not if directoryname is added)
+        /// DirectoriesToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources inside that directory to be uploaded (not if directoryname is added)
         /// </summary>
         public List<string> DirectoriesToIgnoreForUpload;
         /// <summary>
-        /// ResourcesToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resourcename is added)
+        /// ResourcesToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources to be uploaded (not if resourcename is added)
         /// </summary>
         public List<string> ResourcesToIgnoreForUpload;
         /// <summary>
-        /// FileExtensionsToIgnoreForUpload: Used e.g. in the WebAppConfigParser to determine if the user wants resources to be uploaded (not if resource fileextension is added)
+        /// FileExtensionsToIgnoreForUpload: Used e.g. in the ApiWebAppConfigParser to determine if the user wants resources to be uploaded (not if resource fileextension is added)
         /// </summary>
         public List<string> FileExtensionsToIgnoreForUpload;
 

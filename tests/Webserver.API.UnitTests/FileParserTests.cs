@@ -44,7 +44,7 @@ namespace Webserver.API.UnitTests
                 {
                     sw.Write(serializedAppString);
                 };
-                WebAppConfigParser parser = new WebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
+                ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
                     var invalidApp = parser.Parse();
@@ -90,7 +90,7 @@ namespace Webserver.API.UnitTests
                 var serializedAppString = JsonConvert.SerializeObject(TypeApp);
                 string fileName = "webappconfig.json";
                 string filePath = Path.Combine(dirPath, fileName);
-                WebAppConfigParser parser = new WebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
+                ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
                     sw.Write(serializedAppString);

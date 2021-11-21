@@ -19,29 +19,29 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <summary>
         /// Character Set used for the Id Generation
         /// </summary>
-        public string CharSet { get; set; }
+        public readonly string CharSet;
 
         /// <summary>
         /// Time to Sleep After Request Id Generation
         /// </summary>
-        public TimeSpan ThreadSleepTime { get; set; }
+        public readonly TimeSpan ThreadSleepTime;
 
         /// <summary>
         /// Time to Sleep After Request Id Generation
         /// </summary>
-        public TimeSpan DeterminedThreadSleepTime { get; }
+        public readonly TimeSpan DeterminedThreadSleepTime;
         /// <summary>
         /// Length for the request(s) generated
         /// </summary>
-        public int Length { get; set; }
+        public readonly int Length;
 
         /// <summary>
-        /// Default value for Length (8)
+        /// Default value for Length (36)
         /// </summary>
-        public int DefaultLength { get { return 8; } }
+        public int DefaultLength { get { return 36; } }
 
         /// <summary>
-        /// Class to Generate a random string of the given length - by default containing the characters: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+        /// Create a charsetgenerator with default values
         /// </summary>
         public CharSetIdGenerator()
         {
@@ -50,25 +50,34 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             DeterminedThreadSleepTime = DetermineThreadSleepTime();
             ThreadSleepTime = DeterminedThreadSleepTime;
         }
-        /// <summary>
-        /// Class to Generate a random string of the given length
-        /// </summary>
-        /// <param name="charSet">Character Set used for the Id Generation</param>
-        public CharSetIdGenerator(string charSet) : this()
-        {
-            CharSet = charSet;
-        }
+
 
         /// <summary>
-        /// Class to Generate a random string of the given length
+        /// Create a charsetgenerator with userdefined values
         /// </summary>
-        /// <param name="charSet">Character Set used for the Id Generation</param>
-        /// <param name="length">Length for the request ids to generate</param>
+        /// <param name="charSet">charset to be used</param>
+        /// <param name="length">Length of the Id to be generated</param>
         public CharSetIdGenerator(string charSet, int length) : this()
         {
             CharSet = charSet;
             Length = length;
         }
+
+        /// <summary>
+        /// Create a charsetgenerator with userdefined values
+        /// </summary>
+        /// <param name="charSet">charset to be used</param>
+        /// <param name="threadSleepTime">time to sleep after generate calls</param>
+        /// <param name="length">Length of the Id to be generated</param>
+        public CharSetIdGenerator(string charSet, TimeSpan threadSleepTime, 
+            int length) : this()
+        {
+            CharSet = charSet;
+            ThreadSleepTime = threadSleepTime;
+            Length = length;
+        }
+
+
 
         /// <summary>
         /// Function to determine the ThreadSleepTime for your processor

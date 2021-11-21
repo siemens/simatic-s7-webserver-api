@@ -16,12 +16,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <summary>
         /// Length for the id(s) generated
         /// </summary>
-        public int Length { get; set; }
+        public readonly int Length;
 
         /// <summary>
         /// Default value for Length
         /// </summary>
-        public int DefaultLength { get; }
+        public readonly int DefaultLength;
 
         /// <summary>
         /// GUID Generator: use Guid implementation to create (request) id(s)

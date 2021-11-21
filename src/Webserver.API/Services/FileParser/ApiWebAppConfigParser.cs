@@ -19,7 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
     /// <summary>
     /// Used to Parse a Directory that contains the WebApp Configuration (Html Files) e.g. a user wants to have on the plc
     /// </summary>
-    public class WebAppConfigParser
+    public class ApiWebAppConfigParser
     {
         /// <summary>
         /// Important to set the PathToWebAppDirectory in case you want to use a deployer for example!(since the resources have to be built by it)
@@ -45,12 +45,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
         /// <param name="webAppConfigFileName">Important to set the PathToWebAppDirectory in case you want to use a deployer for example!(since the resources have to be built by it)</param>
         /// <param name="ignoreBOMDifference"> a boolean that will be set for every resource that will be parsed! For details look at ApiwebAppResources ignoreBOMDifference
         /// for no value given IgnoreBOMDifference will default to false</param>
-        public WebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, IApiWebAppResourceBuilder webAppResourceBuilder, bool ignoreBOMDifference = false)
+        public ApiWebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, IApiWebAppResourceBuilder webAppResourceBuilder, bool ignoreBOMDifference = false)
         {
             this.PathToWebAppDirectory = pathToWebAppDirectory;
             this.WebAppConfigFileName = webAppConfigFileName;
             this.IgnoreBOMDifference = ignoreBOMDifference;
-            ApiWebAppResourceBuilder = webAppResourceBuilder;
+            this.ApiWebAppResourceBuilder = webAppResourceBuilder;
         }
 
 

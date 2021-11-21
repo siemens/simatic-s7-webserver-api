@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
@@ -41,7 +43,12 @@ namespace Webserver.API.UnitTests
                 Assert.That(File.Exists(Path.Combine(testApp.PathToWebAppDirectory, saveSetting.ConfigurationName + ".json")));
                 Directory.Delete(testApp.PathToWebAppDirectory, true);
                 // later change of savesetting has impact
-                saveSetting.CreateDirectoryIfNotExists = false;
+                var jsonSerSetting = new JsonSerializerSettings()
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                };
+                saveSetting = new ApiWebAppDataSaveSetting(null, "WebAppCOnfig", true, false, jsonSerSetting);
                 Assert.Throws<DirectoryNotFoundException>(() => saver.Save(testApp));
                 testApp.PathToWebAppDirectory = dirPath;
                 // works again

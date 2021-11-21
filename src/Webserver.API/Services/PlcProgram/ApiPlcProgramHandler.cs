@@ -125,7 +125,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 }
                 else
                 {
-                    throw new Exception("Dont quite know how I landed here!");
+                    throw new Exception("The current PlcProgramData Element does not have children, " +
+                        "neither it has ArrayElements but still it is not supported by plcprogram " +
+                        "read or write! should not be the case... please open an issue on https://github.com/siemens/simatic-s7-webserver-api/issues.");
                 }
             }
             requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();

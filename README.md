@@ -18,6 +18,7 @@ This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and a
   - [SIMATIC S71500:](#simatic-s71500)
   - [SIMATIC S71200:](#simatic-s71200)
 - [Limitations](#limitations)
+- [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S71500:](#simatic-s71500-1)
   - [SIMATIC S71200:](#simatic-s71200-1)
@@ -194,6 +195,20 @@ Plc Version | Client Library Version
 # Limitations
 
 Currently some Features are not implemented yet. Check out the [Issues](https://github.com/siemens/simatic-s7-webserver-api/issues) to get further information about open issues.
+
+# OPC UA or Web API?
+
+To be honest, I'm not sure that a hard comparison between OPC UA and the Web API is that useful. 
+
+Both flavors of open interoperability to other systems are fully supported and continuously developed by Siemens. Some features are supported by either one or the other, and for the features that are supported by both, it's ultimately up to your preferences. 
+
+**OPC UA** is a widely known and supported **industry standard** developed and maintained by the **OPC Foundation** that was created for a variety of **Plug&Play** communication use cases. Quite in the sense of a strategic orientation of a cross vendor **interoperability**. The focus here is set on data exchange in the most interoperable and efficient way (subscriptions, companion specifications, …). This also includes **plc-to-plc-communication** via OPC Client and Server. 
+
+The focus of the **Web API** rather is **maintenance**, **problem finding** and offering the possibility to implement small and medium-sized **Web Applications**. This API is based on standardized **JSON-RPC** via **HTTPS** communication with a Simatic-specific data model.  
+
+Unfortunately a general performance expectation is hard to calculate as this is highly dependent on use cases, requirements, the given environment and the used system.
+
+For feature-specific details and evaluation of what best suits your use case, please also take a look into the manuals of OPC UA or the Webserver.
 
 # Further Information about PLC (Webserver)
 

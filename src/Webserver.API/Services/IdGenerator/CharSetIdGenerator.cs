@@ -60,10 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         public CharSetIdGenerator(string charSet, int length) : this()
         {
             CharSet = charSet ?? throw new ArgumentNullException(nameof(charSet));
-            if (length <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length));
-            }
+            CheckLength(length);
             Length = length;
         }
 
@@ -76,9 +73,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         public CharSetIdGenerator(string charSet, TimeSpan threadSleepTime, 
             int length) : this()
         {
-            CharSet = charSet;
+            CharSet = charSet ?? throw new ArgumentNullException(nameof(charSet));
             ThreadSleepTime = threadSleepTime;
+            CheckLength(length);
             Length = length;
+        }
+
+        private void CheckLength(int length)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
         }
 
 
@@ -122,10 +128,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <returns>random string with given length</returns>
         public string Generate()
         {
-            if (Length < 0)
-            {
-                throw new ArgumentException(nameof(Length) + " must be greater than 0!");
-            }
             var random = new Random();
             var result = new string(Enumerable.Repeat(CharSet, Length)
               .Select(s => s[random.Next(s.Length)]).ToArray());

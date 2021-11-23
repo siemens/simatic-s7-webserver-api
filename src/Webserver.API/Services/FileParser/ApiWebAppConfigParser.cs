@@ -47,10 +47,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
         /// for no value given IgnoreBOMDifference will default to false</param>
         public ApiWebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, IApiWebAppResourceBuilder webAppResourceBuilder, bool ignoreBOMDifference = false)
         {
-            this.PathToWebAppDirectory = pathToWebAppDirectory;
-            this.WebAppConfigFileName = webAppConfigFileName;
+            this.PathToWebAppDirectory = pathToWebAppDirectory ?? throw new ArgumentNullException(nameof(pathToWebAppDirectory));
+            this.WebAppConfigFileName = webAppConfigFileName ?? throw new ArgumentNullException(nameof(webAppConfigFileName));
+            this.ApiWebAppResourceBuilder = webAppResourceBuilder ?? throw new ArgumentNullException(nameof(webAppResourceBuilder));
             this.IgnoreBOMDifference = ignoreBOMDifference;
-            this.ApiWebAppResourceBuilder = webAppResourceBuilder;
         }
 
 

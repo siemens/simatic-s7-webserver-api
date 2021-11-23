@@ -38,6 +38,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <param name="length"></param>
         public GUIDGenerator(int length) : this()
         {
+            if(length <= 0 || length > DefaultLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
             Length = length;
         }
 

@@ -59,7 +59,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <param name="length">Length of the Id to be generated</param>
         public CharSetIdGenerator(string charSet, int length) : this()
         {
-            CharSet = charSet;
+            CharSet = charSet ?? throw new ArgumentNullException(nameof(charSet));
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
             Length = length;
         }
 

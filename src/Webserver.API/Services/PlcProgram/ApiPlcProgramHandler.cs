@@ -31,8 +31,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="requestFactory">Request Factory for request generation</param>
         public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory)
         {
-            this._apiRequestHandler = asyncRequestHandler;
-            this._requestFactory = requestFactory;
+            this._apiRequestHandler = asyncRequestHandler ?? throw new ArgumentNullException(nameof(asyncRequestHandler));
+            this._requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
         }
 
         /// <summary>

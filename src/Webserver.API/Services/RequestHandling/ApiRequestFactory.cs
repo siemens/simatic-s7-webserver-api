@@ -45,8 +45,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="requestGenerator">RequestGenerator - can be customized</param>
         public ApiRequestFactory(IIdGenerator requestGenerator, IApiRequestParameterChecker requestParameterChecker)
         {
-            RequestIdGenerator = requestGenerator;
-            RequestParameterChecker = requestParameterChecker;
+            RequestIdGenerator = requestGenerator ?? throw new ArgumentNullException(nameof(requestGenerator));
+            RequestParameterChecker = requestParameterChecker ?? throw new ArgumentNullException(nameof(requestParameterChecker));
         }
 
         /// <summary>

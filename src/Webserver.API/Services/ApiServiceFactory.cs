@@ -49,11 +49,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public ApiStandardServiceFactory(IIdGenerator idGenerator, IApiRequestParameterChecker apiRequestParameterChecker, 
             IApiResponseChecker apiResponseChecker, IApiRequestFactory apiRequestFactory, IApiWebAppResourceBuilder apiWebAppResourceBuilder)
         {
-            _idGenerator = idGenerator;
-            _apiRequestParameterChecker = apiRequestParameterChecker;
-            _apiResponseChecker = apiResponseChecker;
-            _apiRequestFactory = apiRequestFactory;
-            _apiWebAppResourceBuilder = apiWebAppResourceBuilder;
+            _idGenerator = idGenerator ?? throw new ArgumentNullException(nameof(idGenerator));
+            _apiRequestParameterChecker = apiRequestParameterChecker ?? throw new ArgumentNullException(nameof(apiRequestParameterChecker));
+            _apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            _apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
+            _apiWebAppResourceBuilder = apiWebAppResourceBuilder ?? throw new ArgumentNullException(nameof(apiWebAppResourceBuilder));
         }
 
 

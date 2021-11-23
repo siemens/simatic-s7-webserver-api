@@ -80,6 +80,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         public static Type GetAccordingDataType(this ApiPlcProgramDataType plcProgramDataType)
         {
             int intVal = (int)plcProgramDataType;
+            if(intVal >= 3 && intVal <= 4)
+                return typeof(byte);
+            if(intVal >= 6 && intVal <= 7)
+                return typeof(char);
             if (intVal >= 8 && intVal <= 18)
                 return typeof(short);
             if (intVal >= 19 && intVal <= 44)
@@ -92,18 +96,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
                 return typeof(long);
             if (intVal >= 62 && intVal <= 64)
                 return typeof(ulong);
+            if(intVal >= 65 && intVal <= 66)
+                return typeof(string);
             switch (plcProgramDataType)
             {
                 case ApiPlcProgramDataType.Bool:
                     return typeof(bool);
-                case ApiPlcProgramDataType.Byte:
-                case ApiPlcProgramDataType.Usint:
-                    return typeof(byte);
                 case ApiPlcProgramDataType.Sint:
-                    return typeof(sbyte);
-                case ApiPlcProgramDataType.Char:
-                case ApiPlcProgramDataType.Wchar:
-                    return typeof(char);
+                    return typeof(sbyte);                
                 case ApiPlcProgramDataType.S5time:
                     return typeof(ApiS5Time);
                 case ApiPlcProgramDataType.Date_and_time:
@@ -112,9 +112,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
                     return typeof(float);
                 case ApiPlcProgramDataType.Lreal:
                     return typeof(double);
-                case ApiPlcProgramDataType.String:
-                case ApiPlcProgramDataType.Wstring:
-                    return typeof(string);
                 default:
                     return typeof(object);
             }

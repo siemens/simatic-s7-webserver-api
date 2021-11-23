@@ -6,8 +6,9 @@ using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.FileParser;
+using Siemens.Simatic.S7.Webserver.API.Services.FileParser;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
@@ -18,12 +19,12 @@ using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
-    public class FileParserTests
+    public class FileParserTests : Base
     {
         [Test]
         public void InvalidApplicationsExceptionThrown()
         {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"tmp");
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
                 if (!Directory.Exists(dirPath))
@@ -43,7 +44,7 @@ namespace Webserver.API.UnitTests
                 {
                     sw.Write(serializedAppString);
                 };
-                WebAppConfigParser parser = new WebAppConfigParser(dirPath, fileName);
+                ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
                     var invalidApp = parser.Parse();
@@ -73,7 +74,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ValidApplicationAsExpected()
         {
-            string dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tmp");
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
                 if(!Directory.Exists(dirPath))
@@ -89,7 +90,7 @@ namespace Webserver.API.UnitTests
                 var serializedAppString = JsonConvert.SerializeObject(TypeApp);
                 string fileName = "webappconfig.json";
                 string filePath = Path.Combine(dirPath, fileName);
-                WebAppConfigParser parser = new WebAppConfigParser(dirPath, fileName);
+                ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
                     sw.Write(serializedAppString);

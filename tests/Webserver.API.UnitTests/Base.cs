@@ -1,10 +1,12 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -20,9 +22,26 @@ namespace Webserver.API.UnitTests
 
         public ApiRequestFactory ApiRequestFactory;
 
+        public IIdGenerator ReqIdGenerator;
+
+        public IApiRequestParameterChecker RequestParameterChecker;
+
+        public IApiResponseChecker ApiResponseChecker;
+
+        public static DirectoryInfo CurrentExeDir
+        {
+            get
+            {
+                string dllPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                return (new FileInfo(dllPath)).Directory;
+            }
+        }
         public Base()
         {
-            ApiRequestFactory = new ApiRequestFactory();
+            ReqIdGenerator = new GUIDGenerator();
+            RequestParameterChecker = new ApiRequestParameterChecker();
+            ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
+            ApiResponseChecker = new ApiResponseChecker();
         }
     }
 }

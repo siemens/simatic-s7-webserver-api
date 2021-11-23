@@ -35,5 +35,30 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             this.HttpClient = httpClient;
             this.WebApplicationCookie = webApplicationCookie;
         }
+
+        /// <summary>
+        /// Check for HttpClient and WebAppCookie
+        /// </summary>
+        /// <param name="obj">to compare</param>
+        /// <returns>wether Properties are having the same values</returns>
+        public override bool Equals(object obj)
+        {
+            var cookie = obj as HttpClientAndWebAppCookie;
+            return cookie != null &&
+                   EqualityComparer<HttpClient>.Default.Equals(HttpClient, cookie.HttpClient) &&
+                   WebApplicationCookie == cookie.WebApplicationCookie;
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the HttpClientAndWebAppCookie</returns>
+        public override int GetHashCode()
+        {
+            var hashCode = 1898870105;
+            hashCode = hashCode * -1521134295 + EqualityComparer<HttpClient>.Default.GetHashCode(HttpClient);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(WebApplicationCookie);
+            return hashCode;
+        }
     }
 }

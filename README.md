@@ -18,9 +18,7 @@ This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and a
   - [SIMATIC S71500:](#simatic-s71500)
   - [SIMATIC S71200:](#simatic-s71200)
 - [Limitations](#limitations)
-  - [Arrays](#arrays)
-  - [Reading Structs by Children containing Arrays](#reading-structs-by-children-containing-arrays)
-  - [.NetCore Apps](#netcore-apps)
+- [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S71500:](#simatic-s71500-1)
   - [SIMATIC S71200:](#simatic-s71200-1)
@@ -42,16 +40,9 @@ Further examples of usage are also provided in the UnitTests of the component.
 # ApiHttpClientRequestHandler
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Requests;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
-...
-var connectionConfiguration = new HttpClientConnectionConfiguration("192.168.1.1", "Everybody", "");
-var client = await ApiHttpClientAuthorizationHandler.GetAuthorizedHTPPClientAsync(connectionConfiguration);
-var requestFactory = new ApiRequestFactory();
-var requestHandler = new ApiHttpClientRequestHandler(client, requestFactory);
-var apiBrowseResponse = await requestHandler.ApiBrowseAsync();
+var serviceFactory = new ApiStandardServiceFactory();
+var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.1.1", "Everybody", "");
+var apiBrowseResponse = await reqHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {
     Console.WriteLine(method.Name);
@@ -70,14 +61,6 @@ Of course you can also implement a check for the sender and so on.
 For the PLC WebApps Further Comfort can be accomplished by using the ApiWebAppData and ApiWebAppResource implementations:
 Generally you are free to configure everything on your own:
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.RequestHandler;
-using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using System.IO;
-using System.Linq;
-...
 public static DirectoryInfo CurrentExeDir
 {
     get
@@ -107,15 +90,9 @@ but further comfort can be accomplished with:
 ## AsyncWebAppDeployer, WebAppConfigParser
 You can use Implementations to comfortably deploy the apps to the plc with a Deployer and FileParser for your WebAppDirectory:
 ```cs
-...
-using Siemens.Simatic.S7.Webserver.API.Deployer;
-using Siemens.Simatic.S7.Webserver.API.FileParser;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-...
 var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
 app = parser.Parse();
-var deployer = new AsyncWebAppDeployer(requestHandler);
+var deployer = serviceFactory.GetApiWebAppDeployer(reqHandler);
 await deployer.DeployOrUpdateAsync(app);
 var apiWebAppBroseResourcesResponse = await requestHandler.WebAppBrowseResourcesAsync("customerExample");
 foreach(var resource in apiWebAppBroseResourcesResponse.Result.Resources)
@@ -125,13 +102,10 @@ foreach(var resource in apiWebAppBroseResourcesResponse.Result.Resources)
 ```
 The Parser and Deployer also use a set of comfort functions - in case you want to know or take a look they are using:
 ```cs
-...
-// Extension methods on IAsyncRequestHandler and AsyncRequestHandler: DeployResource (static async Task) - also contains DownloadResource
-using Siemens.Simatic.S7.Webserver.API.Extensions;
-// contains static ApiWebAppResourceBuilder.BuildResourceFromFile to get the resource information from the windows file - 
-// which also usees MimeMapping.MimeUtility.GetMimeMapping to get the according MimeType
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
-...
+namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp {
+public class ApiResourceHandler {}
+public class ApiWebAppResourceBuilder {}
+}
 ```
 **Hint**: It is possible to add another parameter to the new WebAppConfigParser(*,*,bool ignoreBOMDifference = false):
 This is the case because uploading files using javascript on a webpage has shown that the BOM (Byte Order Mark) is not transmitted!
@@ -204,33 +178,37 @@ Console.WriteLine(myBool.Value);
 Use the following table to find the correct client version for each Plc version (server)
 
 ## SIMATIC S71500:
-Plc Version | WebApi Wrapper Version
+Plc Version | Client Library Version
 ------------------|---------------
-2.9.x              | 1.0.0
+2.9.x              | 1.0.x
+2.9.x              | 2.0.x
 
 ## SIMATIC S71200:
-Plc Version | WebApi Wrapper Version
+Plc Version | Client Library Version
 ------------------|---------------
-4.5.x             | 1.0.0
+4.5.x             | 1.0.x
+4.5.x             | 2.0.x
 
 **Hint**: The current (first) Wrapper Version supports more API calls than the current S71200 does - the S71200 will likely(!) support the API calls of the wrapper with the next version.
 
 
 # Limitations
 
-Currently some Features are not implemented yet.
+Currently some Features are not implemented yet. Check out the [Issues](https://github.com/siemens/simatic-s7-webserver-api/issues) to get further information about open issues.
 
-## Arrays
+# OPC UA or Web API?
 
-Only the Array_Dimensions are set for an ApiPlcProgramData, the Children are not set by it yet - we are currently debating possible implementations on this.
+To be honest, I'm not sure that a hard comparison between OPC UA and the Web API is that useful. 
 
-## Reading Structs by Children containing Arrays
+Both flavors of open interoperability to other systems are fully supported and continuously developed by Siemens. Some features are supported by either one or the other, and for the features that are supported by both, it's ultimately up to your preferences. 
 
-By above reason this is not implemented.
+**OPC UA** is a widely known and supported **industry standard** developed and maintained by the **OPC Foundation** that was created for a variety of **Plug&Play** communication use cases. Quite in the sense of a strategic orientation of a cross vendor **interoperability**. The focus here is set on data exchange in the most interoperable and efficient way (subscriptions, companion specifications, …). This also includes **plc-to-plc-communication** via OPC Client and Server. 
 
-## .NetCore Apps
+The focus of the **Web API** rather is **maintenance**, **problem finding** and offering the possibility to implement small and medium-sized **Web Applications**. This API is based on standardized **JSON-RPC** via **HTTPS** communication with a Simatic-specific data model.  
 
-Having tried the RequestHandler in a .netcore app has shown that the requests didn't work as expected - we currently don't know why this is an issue.
+Unfortunately a general performance expectation is hard to calculate as this is highly dependent on use cases, requirements, the given environment and the used system.
+
+For feature-specific details and evaluation of what best suits your use case, please also take a look into the manuals of OPC UA or the Webserver.
 
 # Further Information about PLC (Webserver)
 

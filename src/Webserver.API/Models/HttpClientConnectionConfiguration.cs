@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2021, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,47 +31,42 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Mandatory
         /// PLC base Address/DNS name
         /// </summary>
-        public string BaseAddress { get; set; }
+        public readonly string BaseAddress;
+
         /// <summary>
         /// Mandatory
         /// Plc User Management username to login with
         /// </summary>
-        public string Username { get; set; }
+        public readonly string Username;
+
         /// <summary>
         /// Mandatory
         /// Plc User Management password for Username
         /// </summary>
-        public string Password { get; set; }
-
-        /// <summary>
-        /// Optional
-        /// defaults to application/json
-        /// </summary>
-        public MediaTypeHeaderValue MediaTypeHeaderValue { get; set; }
-
-        /// <summary>
-        /// Optional
-        /// Api request Factory
-        /// </summary>
-        public IApiRequestFactory ApiRequestFactory { get; set; }
+        public string Password { get; private set; }
 
         /// <summary>
         /// Optional
         /// defaults to false
         /// </summary>
-        public bool? ConnectionClose { get; set; }
+        public readonly bool ConnectionClose;
 
         /// <summary>
         /// Optional 
         /// defaults to ten minutes
         /// </summary>
-        public TimeSpan? TimeOut { get; set; }
+        public readonly TimeSpan TimeOut;
 
         /// <summary>
         /// Optional
         /// defaults to false
         /// </summary>
-        public bool? AllowAutoRedirect { get; set; }
+        public readonly bool AllowAutoRedirect;
+
+        /// <summary>
+        /// Optional defaults to true
+        /// </summary>
+        public readonly bool DiscardPasswordAfterConnect;
 
         /// <summary>
         /// c'tor
@@ -77,16 +74,67 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="baseAddress">PLC base Address/DNS name</param>
         /// <param name="username">Plc User Management username to login with</param>
         /// <param name="password">Plc User Management password for Username</param>
-        public HttpClientConnectionConfiguration(string baseAddress, string username, string password)
+        public HttpClientConnectionConfiguration(string baseAddress, string username, string password, 
+            TimeSpan timeOut, bool connectionClose, bool allowAutoRedirect, bool discardPasswordAfterConnect)
         {
             this.BaseAddress = baseAddress;
             this.Username = username;
             this.Password = password;
-            this.TimeOut = TimeSpan.FromMinutes(10);
-            this.ConnectionClose = false;
-            this.ApiRequestFactory = new ApiRequestFactory();
-            this.MediaTypeHeaderValue = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            this.AllowAutoRedirect = false;
+            this.TimeOut = timeOut;
+            this.ConnectionClose = connectionClose;
+            this.AllowAutoRedirect = allowAutoRedirect;
+            this.DiscardPasswordAfterConnect = discardPasswordAfterConnect;
+        }
+
+        /// <summary>
+        /// Method to discard password
+        /// </summary>
+        public void DiscardPassword()
+        {
+            this.Password = null;
+        }
+
+        /// <summary>
+        /// (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only) Equal!;
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj) => Equals(obj as HttpClientConnectionConfiguration);
+
+        /// <summary>
+        /// Equals => ()
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public bool Equals(HttpClientConnectionConfiguration obj)
+        {
+            if (obj is null)
+                return false;
+            var toReturn = this.BaseAddress == obj.BaseAddress;
+            toReturn &= this.Username == obj.Username;
+            toReturn &= this.Password == obj.Password;
+            toReturn &= this.ConnectionClose == obj.ConnectionClose;
+            toReturn &= this.AllowAutoRedirect == obj.AllowAutoRedirect;
+            toReturn &= this.DiscardPasswordAfterConnect == obj.DiscardPasswordAfterConnect;
+            toReturn &= this.TimeOut.Equals(obj.TimeOut);
+            return toReturn;
+        }
+
+        /// <summary>
+        /// GetHashCode for SequenceEqual etc.
+        /// </summary>
+        /// <returns>hashcode of the connectionConfiguration</returns>
+        public override int GetHashCode()
+        {
+            var hashCode = 939475008;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(BaseAddress);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Username);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Password);
+            hashCode = hashCode * -1521134295 + ConnectionClose.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<TimeSpan>.Default.GetHashCode(TimeOut);
+            hashCode = hashCode * -1521134295 + AllowAutoRedirect.GetHashCode();
+            hashCode = hashCode * -1521134295 + DiscardPasswordAfterConnect.GetHashCode();
+            return hashCode;
         }
     }
 }

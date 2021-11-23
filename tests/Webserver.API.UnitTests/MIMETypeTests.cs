@@ -15,7 +15,7 @@ namespace Webserver.API.UnitTests
     public class MIMETypeTests
     {
         [Test]
-        public void GetMIMETypeDefaultsTo_ApplicationOctetStream()
+        public void GetMIMEType_Defaults_ApplicationOctetStream()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping("");
             if(res != "application/octet-stream")
@@ -25,7 +25,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public void GetMIMETypeHTML_textHtml()
+        public void GetMIMEType_HTML_textHtml()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping(".html");
             if (res != "text/html")
@@ -35,7 +35,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public void GetFileExtensionDefaultsTo_Txt()
+        public void GetFileExtension_DefaultsTo_Txt()
         {
             var res = MimeMapping.MimeUtility.GetExtensions("text/plain");
             if (!res.Any(ext => ext == "txt"))
@@ -45,7 +45,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public void GetFileExtensionTextHtml_htm()
+        public void GetFileExtension_TextHtml_htm()
         {
             var res = MimeMapping.MimeUtility.GetExtensions("text/html");
             // CARE - getfileext will take the first match it will find - cannot determine what the original file was!

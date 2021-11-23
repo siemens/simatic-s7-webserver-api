@@ -80,6 +80,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public bool? IgnoreBOMDifference { get; set; }
 
         /// <summary>
+        /// Method used to determine wether the file is an HTML file or not
+        /// </summary>
+        /// <returns>resource.Media_type == "text/html"</returns>
+        public bool IsHtmlFile() => this.Media_type.Equals("text/html");
+
+        /// <summary>
         /// Depending on the configured IgnoreBOMDifference =>
         /// Compare resources Name,Size,Media_Type,Visibility, LastModified and Etag wether the resources are Equal or not
         /// IF IgnoreBOMDifference is set

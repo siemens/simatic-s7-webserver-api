@@ -15,8 +15,9 @@ namespace Webserver.API.UnitTests
         public void IDGenerator_LengthTooLong_Throws()
         {
             var reqIdGen = new GUIDGenerator();
-            var reqIdGen2 = new GUIDGenerator(reqIdGen.DefaultLength + 1);
-            Assert.Throws<InvalidOperationException>(() =>  reqIdGen2.Generate());
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new GUIDGenerator(reqIdGen.DefaultLength + 1);
+                });
         }
     }
 }

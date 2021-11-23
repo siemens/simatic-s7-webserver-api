@@ -15,7 +15,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <!--<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>-->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PackageIcon>product-simatic-s7-1500-256-256.png</PackageIcon>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>

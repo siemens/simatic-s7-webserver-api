@@ -4,6 +4,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
+using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
+namespace Siemens.Simatic.S7.Webserver.API.Services
 {
     /// <summary>
     /// Factory to create services with standard implementation

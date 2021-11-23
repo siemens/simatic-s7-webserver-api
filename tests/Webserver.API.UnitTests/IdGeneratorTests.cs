@@ -12,12 +12,36 @@ namespace Webserver.API.UnitTests
     {
 
         [Test]
-        public void IDGenerator_LengthTooLong_Throws()
+        public void GUIDGenerator_InvalidLength_ThrowsArgumentOutOfRangeException()
         {
             var reqIdGen = new GUIDGenerator();
             Assert.Throws<ArgumentOutOfRangeException>(() => {
                 var reqIdGen2 = new GUIDGenerator(reqIdGen.DefaultLength + 1);
                 });
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new GUIDGenerator(0);
+            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new GUIDGenerator(-3);
+            });
+        }
+
+        [Test]
+        public void CharSetIdGenerator_InvalidLengthOrCharSet_ThrowsArgumentOutOfRangeException()
+        {
+            var reqIdGen = new CharSetIdGenerator();
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new CharSetIdGenerator(null, 1);
+            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new CharSetIdGenerator("", 1);
+            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new CharSetIdGenerator("a", 0);
+            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                var reqIdGen2 = new CharSetIdGenerator("a", -10);
+            });
         }
     }
 }

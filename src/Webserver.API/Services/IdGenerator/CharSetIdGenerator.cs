@@ -50,8 +50,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             DeterminedThreadSleepTime = DetermineThreadSleepTime();
             ThreadSleepTime = DeterminedThreadSleepTime;
         }
-
-
+        
         /// <summary>
         /// Create a charsetgenerator with userdefined values
         /// </summary>
@@ -59,7 +58,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <param name="length">Length of the Id to be generated</param>
         public CharSetIdGenerator(string charSet, int length) : this()
         {
-            CharSet = charSet ?? throw new ArgumentNullException(nameof(charSet));
+            CheckCharSet(charSet);
+            CharSet = charSet;
             CheckLength(length);
             Length = length;
         }
@@ -73,10 +73,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         public CharSetIdGenerator(string charSet, TimeSpan threadSleepTime, 
             int length) : this()
         {
-            CharSet = charSet ?? throw new ArgumentNullException(nameof(charSet));
             ThreadSleepTime = threadSleepTime;
+            CheckCharSet(charSet);
+            CharSet = charSet;
             CheckLength(length);
             Length = length;
+        }
+
+        private void CheckCharSet(string charSet)
+        {
+            if (string.IsNullOrEmpty(charSet))
+            {
+                throw new ArgumentOutOfRangeException(nameof(charSet));
+            }
         }
 
         private void CheckLength(int length)

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net48;net6.0</TargetFrameworks>
     <AssemblyName>Siemens.Simatic.S7.Webserver.API</AssemblyName>
     <RootNamespace>Siemens.Simatic.S7.Webserver.API</RootNamespace>
     <Platforms>AnyCPU</Platforms>
@@ -31,6 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\docs\screens\product-simatic-s7-1500-256-256.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.113" />
   </ItemGroup>  
 
 </Project>

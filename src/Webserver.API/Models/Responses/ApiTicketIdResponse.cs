@@ -31,16 +31,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         /// <param name="singleStringResponse"></param>
         public ApiTicketIdResponse(ApiSingleStringResponse singleStringResponse) : base()
         {
-            // This is to prevent obsolete in NET6.0 >
-#if NET6_0_OR_GREATER
-            this.Id = singleStringResponse.Id;
-            this.JsonRpc = singleStringResponse.JsonRpc;
-            this.Result = singleStringResponse.Result;
-#else
             this.Id = string.Copy(singleStringResponse.Id);
             this.JsonRpc = string.Copy(singleStringResponse.JsonRpc);
             this.Result = string.Copy(singleStringResponse.Result);
-#endif
         }
     }
 }

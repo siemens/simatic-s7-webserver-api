@@ -1,3 +1,7 @@
+// Copyright (c) 2021, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+
 #if NET6_0_OR_GREATER
 using System;
 using System.Net.Http;

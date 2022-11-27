@@ -53,7 +53,10 @@ foreach(var method in apiBrowseResponse.Result)
 ...
 using System.Net;
 ...
+// For .net48
 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+// For .net6.0 and greater
+Siemens.Simatic.S7.Webserver.API.Services.ServerCertificateCallback.CertificateCallback = (sender, cert, chain, sslPolicyErrors) => true;
 ```
 Of course you can also implement a check for the sender and so on.
 # WebApps

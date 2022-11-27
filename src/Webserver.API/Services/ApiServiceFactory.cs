@@ -206,7 +206,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             {
                 AllowAutoRedirect = connectionConfiguration.AllowAutoRedirect
             };
-
 #if NET6_0_OR_GREATER
             // Ignoring SSL errors in net6.0 and greater
             if (ServerCertificateCallback.CertificateCallback != null)
@@ -214,7 +213,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
                 httpClientHandler.ServerCertificateCustomValidationCallback = ServerCertificateCallback.CertificateCallback;
             }
 #endif
-
             HttpClient httpClient = new HttpClient(httpClientHandler);
             httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
             httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);

@@ -180,7 +180,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     }
                 }
             }
-            return resources;
+            return resources.OrderBy(el => el.Type).ThenBy(el => el.Size).ToList();
         }
     }
 }

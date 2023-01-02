@@ -199,7 +199,7 @@ namespace Webserver.API.UnitTests
                 Assert.AreEqual(fileInfo.Name, fileRes.Name);
                 Assert.AreEqual(filePath, Path.Combine(fileRes.PathToLocalDirectory, fileRes.Name));
                 Assert.AreEqual(1, fileRes.Parents.Count);
-                Assert.IsNull(fileRes.Resources);
+                Assert.AreEqual(0, fileRes.Resources.Count);
 
                 var subRes = dirRes.Resources;
                 Assert.AreEqual(2, subRes.Count);
@@ -213,12 +213,12 @@ namespace Webserver.API.UnitTests
                 Assert.AreEqual(fileInfo2.Name, fileRes2.Name);
                 Assert.AreEqual(filePath2, Path.Combine(fileRes2.PathToLocalDirectory, fileRes2.Name));
                 Assert.AreEqual(2, fileRes2.Parents.Count);
-                Assert.IsNull(fileRes2.Resources);
+                Assert.AreEqual(0, fileRes2.Resources.Count);
 
                 var fileRes3 = dirRes2.Resources.First();
                 Assert.AreEqual(fileInfo3.Name, fileRes3.Name);
                 Assert.AreEqual(filePath3, Path.Combine(fileRes3.PathToLocalDirectory, fileRes3.Name));
-                Assert.IsNull(fileRes3.Resources);
+                Assert.AreEqual(0, fileRes3.Resources.Count);
                 Assert.AreEqual(3, fileRes3.Parents.Count);
             }
             finally

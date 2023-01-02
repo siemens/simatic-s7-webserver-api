@@ -39,7 +39,7 @@ This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and a
 This package provides an easy way to use the functionalities of the S7 Webserver API without taking care of the HTTP requests.
 
 In the area of the requesthandling following comfort is in place:
-* IDGenerator: Create IDs (with a parameterizable length) for the requests 
+* GUIDGenerator: Create IDs (with a parameterizable length) for the requests 
 * ApiRequestFactory: Create ApiRequests comfortably by providing the parameters for the according request
 * ApiRequestParameterChecker: Check the parameters on their validity before sending them to the plc (reduce traffic, enhance testability)
 * ApiResponseChecker: Pre-checking of Responses by the plc, throw exceptions that tell the user about the origin of an issue.
@@ -53,6 +53,13 @@ So generally all available methods of the S7 Web API can be called easily withou
     * ApiWebAppResourceBuilder: Create an ApiWebAppResource from a file (html, js, ...)
 * PlcProgram
     * ApiPlcProgramHandler: Implementation to comfortably read/write all children of a struct via Bulk requests (under construction)
+* Files and Directories
+    * ApiFileResourceBuilder: Build an ApiFileResource from the path to a local resource (e.g. windows file)
+    * ApiDirectoryBuilder: Build a directory containing multiple files from a given ApiDirectoryBuilderConfiguration
+    * ApiFileHandler: Take care of Upload/Download of a file
+    * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory
+* Backups
+    * ApiBackupHandler: Download/Restoring a backup
 
 ## Functionality
 The Functionalities come together in the [ApiHttpClientRequestHandler](#apihttpclientrequesthandler) that implements the IAsyncApiRequesthandler (and also in any implementation of the IApiRequestHandler - not given by example). 

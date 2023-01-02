@@ -43,7 +43,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             ApiRequestHandler = apiRequestHandler;
         }
 
-        private async Task<ApiTicket> CheckTicket(string ticketId, bool performCheck)
+        private async Task<ApiTicket> CheckTicketAsync(string ticketId, bool performCheck)
         {
             if (performCheck)
             {
@@ -87,7 +87,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 {
                     throw new Exception("The downloaded file has no content.");
                 }
-                var ticket = await CheckTicket(ticketId, CheckAfterDownload);
+                var ticket = await CheckTicketAsync(ticketId, CheckAfterDownload);
                 ticket.File_Downloaded = new FileInfo(filePath);
                 return ticket;
             }
@@ -444,7 +444,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             try
             {
                 await ApiRequestHandler.UploadTicketAsync(ticketId, filePath);
-                return await CheckTicket(ticketId, CheckAfterUpload);
+                return await CheckTicketAsync(ticketId, CheckAfterUpload);
             }
             finally
             {

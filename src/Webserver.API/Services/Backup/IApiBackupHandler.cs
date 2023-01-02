@@ -36,7 +36,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="restoreFilePath">path to the file to be restored</param>
         /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
         /// <returns>Task/void</returns>
-        string RestoreBackup(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null);
+        void RestoreBackup(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null);
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
@@ -45,6 +45,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="restoreFilePath">path to the file to be restored</param>
         /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
         /// <returns>Task/void</returns>
-        Task<string> RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null);
+        Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null);
     }
 }

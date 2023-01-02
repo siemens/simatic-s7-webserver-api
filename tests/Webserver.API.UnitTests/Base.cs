@@ -42,7 +42,7 @@ namespace Webserver.API.UnitTests
         {
             ReqIdGenerator = new GUIDGenerator();
             RequestParameterChecker = new ApiRequestParameterChecker();
-            ApiRequestFactory = new ApiStandardRequestFactory(ReqIdGenerator, RequestParameterChecker);
+            ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
             ApiResponseChecker = new ApiResponseChecker();
         }
     }

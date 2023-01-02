@@ -21,10 +21,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MimeMapping" Version="1.0.1.50" />
-    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="Moq" Version="4.18.4" />
     <PackageReference Include="nunit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
     <PackageReference Include="System.Web.Http.Common" Version="4.0.20126.16343" />
   </ItemGroup>
@@ -32,6 +32,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Webserver.API\Webserver.API.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.119" />
   </ItemGroup>
 
 </Project>

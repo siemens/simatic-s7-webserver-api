@@ -57,9 +57,9 @@ So generally all available methods of the S7 Web API can be called easily withou
     * ApiFileResourceBuilder: Build an ApiFileResource from the path to a local resource (e.g. windows file)
     * ApiDirectoryBuilder: Build a directory containing multiple files from a given ApiDirectoryBuilderConfiguration
     * ApiFileHandler: Take care of Upload/Download of a file
-    * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory
+    * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory (todo: download + deltadownload)
 * Backups
-    * ApiBackupHandler: Download/Restoring a backup
+    * ApiBackupHandler: Download/Restore a backup
 
 ## Functionality
 The Functionalities come together in the [ApiHttpClientRequestHandler](#apihttpclientrequesthandler) that implements the IAsyncApiRequesthandler (and also in any implementation of the IApiRequestHandler - not given by example). 
@@ -251,8 +251,7 @@ Plc Version | Client Library Version
 4.5.x             | 2.0.x
 4.6.x             | 2.1.x
 
-**Hint**: The current (first) Wrapper Version supports more API calls than the current S7-1200 does - the S7-1200 will likely(!) support the API calls of the wrapper with the next version.
-
+**Hint**: This Library supports more API calls than the current S7-1200 does - the S7-1200 will likely(!) support the API calls of last version of the s7-1500 but this does NOT necessarily have to be the case - for details please always check the manual for the according version.
 
 # Limitations
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Globals">
-  <Platforms>x64</Platforms>
+    <Platforms>x64;AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,18 +9,6 @@
     <IsPackable>false</IsPackable>
     <AssemblyName>Webserver.API.UnitTests</AssemblyName>
     <RootNamespace>Webserver.API.UnitTests</RootNamespace>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutputPath>..\..\bin\Release</OutputPath>
-    <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutputPath>..\..\bin\Debug</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

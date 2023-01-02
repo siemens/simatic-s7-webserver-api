@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
@@ -262,7 +262,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// Call GetNameWithQuotes for debugging comfort!
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Name with quotes</returns>
         public override string ToString()
         {
             return GetNameWithQuotes();
@@ -307,7 +307,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only).GetHashCode();
         /// </summary>
-        /// <returns></returns>
+        /// <returns>HashCode</returns>
         public override int GetHashCode()
         {
             return (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only, Value, Children).GetHashCode();

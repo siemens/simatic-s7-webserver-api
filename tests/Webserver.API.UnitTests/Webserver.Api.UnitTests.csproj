@@ -1,19 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Globals">
-  <Platforms>x64;AnyCPU;x86</Platforms>
+  <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
+    <TargetFramework>net48</TargetFramework>
     <IsPackable>false</IsPackable>
     <AssemblyName>Webserver.API.UnitTests</AssemblyName>
     <RootNamespace>Webserver.API.UnitTests</RootNamespace>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutputPath>..\..\bin\Release</OutputPath>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutputPath>..\..\bin\Debug</OutputPath>
+  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="3.2.0">
+    <PackageReference Include="coverlet.collector" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -21,12 +32,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MimeMapping" Version="1.0.1.50" />
-    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="MimeMapping" Version="1.0.1.37" />
+    <PackageReference Include="Moq" Version="4.18.1" />
     <PackageReference Include="nunit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="4.0.0" />
     <PackageReference Include="System.Web.Http.Common" Version="4.0.20126.16343" />
   </ItemGroup>
 

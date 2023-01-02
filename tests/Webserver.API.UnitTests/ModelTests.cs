@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
@@ -269,17 +269,17 @@ namespace Webserver.API.UnitTests
             }
             myDate.Month = 12;
             myDate.Day = 31;
-            myDate.Year = 2021;
+            myDate.Year = 2022;
             myDate.Hour = 23;
             myDate.Minute = 59;
             myDate.Second = 59.999;
-            var compare = new DateTime(2021, 12, 31, 23, 59, 59).AddMilliseconds(999);
+            var compare = new DateTime(2022, 12, 31, 23, 59, 59).AddMilliseconds(999);
             var myDT = myDate.GetDateTime();
             if (myDT != compare)
             {
                 Assert.Fail($"Unexpectedly dates dont match: {myDate} and {ApiDateAndTime.MinValue}");
             }
-            var anotherDt = new ApiDateAndTime(new DateTime(2021, 12, 31, 23, 59, 59).AddMilliseconds(999));
+            var anotherDt = new ApiDateAndTime(new DateTime(2022, 12, 31, 23, 59, 59).AddMilliseconds(999));
             if(!anotherDt.Equals(myDate))
             {
                 Assert.Fail($"Unexpectedly dates dont match: {myDate} and {anotherDt}");

@@ -1,26 +1,17 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Api Request Factory => Will perform the according ParameterChecks (RequestParameterChecker) and return the requested ApiRequest
+    /// Api Request Factory => Will perform the according ParameterChecks (RequestParameterChecker) and return the requested IApiRequest
     /// Will per default provide a Request with jsonrpc 2.0 and an id with 8 random chars, unless set differently
     /// </summary>
     public class ApiRequestFactory : IApiRequestFactory
@@ -37,12 +28,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// JsonRpc Version
         /// </summary>
-        public const string JsonRpcVersion =  "2.0";
+        public const string JsonRpcVersion = "2.0";
 
         /// <summary>
         /// C'tor with optional requestGenerator parameter
         /// </summary>
         /// <param name="requestGenerator">RequestGenerator - can be customized</param>
+        /// <param name="requestParameterChecker">parameter checker for the requestfactory</param>
         public ApiRequestFactory(IIdGenerator requestGenerator, IApiRequestParameterChecker requestParameterChecker)
         {
             RequestIdGenerator = requestGenerator ?? throw new ArgumentNullException(nameof(requestGenerator));
@@ -55,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiBrowseRequest without parameters. </returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiBrowseRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiBrowseRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -69,15 +61,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// return ApiBrowseTickets request with parameter "id" : ticketid</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiBrowseTicketsRequest(string ticketId = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiBrowseTicketsRequest(string ticketId = null, string jsonRpc = null, string id = null)
         {
-            if(!string.IsNullOrEmpty(ticketId))
+            if (!string.IsNullOrEmpty(ticketId))
             {
                 RequestParameterChecker.CheckTicket(ticketId, PerformCheck);
             }
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            return new ApiRequest("Api.BrowseTickets", jsonRpcReq, idReq, string.IsNullOrEmpty(ticketId)?null:
+            return new ApiRequest("Api.BrowseTickets", jsonRpcReq, idReq, string.IsNullOrEmpty(ticketId) ? null :
                 new Dictionary<string, object>() { { "id", ticketId } });
         }
         /// <summary>
@@ -87,7 +79,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.CloseTicket Request - if a (valid - 28chars) ticketid is provided - return Api.CloseTicket request with parameter "id" : ticketid</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiCloseTicketRequest(string ticketId, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiCloseTicketRequest(string ticketId, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckTicket(ticketId, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -100,7 +92,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.GetCertificateUrl Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiGetCertificateUrlRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiGetCertificateUrlRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -115,7 +107,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiLoginRequest with the given "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiLoginRequest(string userName, string password, bool? include_web_application_cookie = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiLoginRequest(string userName, string password, bool? include_web_application_cookie = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -129,7 +121,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.Logout Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiLogoutRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiLogoutRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -141,7 +133,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.GetPermissions Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiGetPermissionsRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiGetPermissionsRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -153,7 +145,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.Ping Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPingRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPingRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -167,7 +159,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgram.Browse Request with parameter "mode": apiPlcProgramBrowseMode, "var" : var (might be null) - defaults to ""</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPlcProgramBrowseRequest(ApiPlcProgramBrowseMode apiPlcProgramBrowseMode, string var = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcProgramBrowseRequest(ApiPlcProgramBrowseMode apiPlcProgramBrowseMode, string var = null, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckPlcProgramBrowseMode(apiPlcProgramBrowseMode, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -183,7 +175,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgram.Read Request with parameter "var" : var, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPlcProgramReadRequest(string var, ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcProgramReadRequest(string var, ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode = null, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckPlcProgramReadOrWriteMode(apiPlcProgramReadMode, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -200,7 +192,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgram.Write Request with parameter "var" : var, "value":valueToBeSet, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPlcProgramWriteRequest(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? apiPlcProgramWriteMode = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcProgramWriteRequest(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? apiPlcProgramWriteMode = null, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckPlcProgramReadOrWriteMode(apiPlcProgramWriteMode, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -233,7 +225,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Plc.ReadOperatingMode Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPlcReadOperatingModeRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcReadOperatingModeRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -246,7 +238,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckPlcRequestChangeOperatingMode(apiPlcOperatingMode, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -264,7 +256,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetResourceETag Request with parameter "app_name" : webAppName,"name": resourceName, "etag" : newETagValue</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiSetResourceETagRequest(string webAppName, string resourceName, string newETagValue, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiSetResourceETagRequest(string webAppName, string resourceName, string newETagValue, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckETag(newETagValue, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -282,7 +274,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetResourceMediaType Request with parameter "app_name" : webAppName,"name": resourceName, "media_type" : newMediaType</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiSetResourceMediaTypeRequest(string webAppName, string resourceName, string newMediaType, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiSetResourceMediaTypeRequest(string webAppName, string resourceName, string newMediaType, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckMediaType(newMediaType, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -300,7 +292,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetResourceModificationTime Request with parameter "app_name" : webAppName,"name": resourceName, "last_modified" : newLastModified</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiSetResourceModificationTimeRequest(string webAppName, string resourceName, string newLastModified, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiSetResourceModificationTimeRequest(string webAppName, string resourceName, string newLastModified, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckLastModified(newLastModified, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -317,7 +309,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetResourceVisibility Request with parameter "app_name" : webAppName,"name": resourceName, "visibility" : apiWebAppResourceVisibility</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiSetResourceVisibilityRequest(string webAppName, string resourceName, ApiWebAppResourceVisibility apiWebAppResourceVisibility, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiSetResourceVisibilityRequest(string webAppName, string resourceName, ApiWebAppResourceVisibility apiWebAppResourceVisibility, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckWebAppResourceVisibility(apiWebAppResourceVisibility, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -331,7 +323,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Api.Version Request without parameters</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiVersionRequest(string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiVersionRequest(string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -344,7 +336,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.Browse Request with parameter "name" : webAppName (optional, might be null)</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppBrowseRequest(string webAppName = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppBrowseRequest(string webAppName = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -358,7 +350,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.BrowseResources Request with parameter "app_name" : webAppName, "name":resourceName (optional, might be null)</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppBrowseResourcesRequest(string webAppName, string resourceName = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppBrowseResourcesRequest(string webAppName, string resourceName = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -374,7 +366,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.Create Request with parameter "name" : webAppName, "state":apiWebAppState (optional, might be null)</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppCreateRequest(string webAppName, ApiWebAppState? apiWebAppState = null, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppCreateRequest(string webAppName, ApiWebAppState? apiWebAppState = null, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckWebAppName(webAppName, PerformCheck);
             if (apiWebAppState != null)
@@ -399,7 +391,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.CreateResource Request with parameter "app_name" : webAppName, "name":resourceName, "media_type":media_type, "last_modified" : last_modified, "visibility":ApiWebAppResourceVisibility (optional, might be null), "etag":etag (optional, might be null)</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppCreateResourceRequest(string webAppName, string resourceName, string media_type, 
+        public virtual IApiRequest GetApiWebAppCreateResourceRequest(string webAppName, string resourceName, string media_type,
             string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckResourceName(resourceName, PerformCheck);
@@ -407,7 +399,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 RequestParameterChecker.CheckWebAppResourceVisibility((ApiWebAppResourceVisibility)apiWebAppResourceVisibility, PerformCheck);
             }
-            if(etag != null)
+            if (etag != null)
             {
                 RequestParameterChecker.CheckETag(etag, PerformCheck);
             }
@@ -426,7 +418,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.Delete Request with parameter "name" : webAppName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppDeleteRequest(string webAppName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppDeleteRequest(string webAppName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -440,7 +432,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.DeleteResource Request with parameter "app_name" : webAppName, "name": resourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppDeleteResourceRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppDeleteResourceRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -455,7 +447,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.DownloadResource Request with parameter "app_name" : webAppName, "name": resourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppDownloadResourceRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppDownloadResourceRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -470,7 +462,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.Rename Request with parameter "name" : webAppName, "new_name": newWebAppName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppRenameRequest(string webAppName, string newWebAppName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppRenameRequest(string webAppName, string newWebAppName, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckWebAppName(newWebAppName, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -488,7 +480,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.RenameResource Request with parameter "app_name" : webAppName, "name" : resourceName, "new_name": newResourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppRenameResourceRequest(string webAppName, string resourceName, string newResourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppRenameResourceRequest(string webAppName, string resourceName, string newResourceName, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckResourceName(newResourceName, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -504,7 +496,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetDefaultPage Request with parameter "name" : webAppName, "resource_name" : resourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppSetDefaultPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppSetDefaultPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -519,7 +511,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetNotAuthorizedPage Request with parameter "name" : webAppName, "resource_name" : resourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppSetNotAuthorizedPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppSetNotAuthorizedPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -534,7 +526,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetNotFoundPage Request with parameter "name" : webAppName, "resource_name" : resourceName</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppSetNotFoundPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppSetNotFoundPageRequest(string webAppName, string resourceName, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -550,7 +542,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>WebApp.SetState Request with parameter "name" : webAppName, "state" : apiWebAppState</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual ApiRequest GetApiWebAppSetStateRequest(string webAppName, ApiWebAppState apiWebAppState, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiWebAppSetStateRequest(string webAppName, ApiWebAppState apiWebAppState, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckWebAppState(apiWebAppState, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
@@ -562,21 +554,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Method to make sure all requests in the ApiBulk have a unique Id
         /// </summary>
-        /// <param name="apiRequests">Api Requests to make sure of that the ids are unique</param>
+        /// <param name="IApiRequests">Api Requests to make sure of that the ids are unique</param>
+        /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
         /// <returns>A list of api Requests containing unique Ids</returns>
-        public virtual IEnumerable<ApiRequest> GetApiBulkRequestWithUniqueIds(IEnumerable<ApiRequest> apiRequests, TimeSpan? timeOut = null)
+        public virtual IEnumerable<IApiRequest> GetApiBulkRequestWithUniqueIds(IEnumerable<IApiRequest> IApiRequests, TimeSpan? timeOut = null)
         {
-            var requestsToReturn = new List<ApiRequest>(apiRequests.ToList());
+            var requestsToReturn = new List<IApiRequest>(IApiRequests.ToList());
             var startTime = DateTime.Now;
             var ignoreTimeOut = false;
             if (timeOut == null)
             {
                 ignoreTimeOut = true;
             }
-            while (requestsToReturn.GroupBy(el => el.Id).Count() != requestsToReturn.Count 
+            while (requestsToReturn.GroupBy(el => el.Id).Count() != requestsToReturn.Count
                 && (((startTime + timeOut) > DateTime.Now) || ignoreTimeOut))
             {
-                apiRequests.Where(el => apiRequests.Any(el2 => el.Id == el2.Id))
+                IApiRequests.Where(el => IApiRequests.Any(el2 => el.Id == el2.Id))
                     .ToList().ForEach(el =>
                     {
                         el.Id = RequestIdGenerator.Generate();
@@ -586,14 +579,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// In case you want to "build up" an ApiRequest on your own
+        /// In case you want to "build up" an IApiRequest on your own
         /// </summary>
         /// <param name="method">Api method to be called</param>
-        /// <param name="parameters">Api method parameters to be provided</param>
+        /// <param name="requestParams">Api method parameters to be provided</param>
         /// <param name="jsonRpc">jsonrpc version (defaults to 2.0)</param>
         /// <param name="id">request id (defaults to a new generated id)</param>
-        /// <returns>An ApiRequest to be sent to the plc</returns>
-        public virtual ApiRequest GetApiRequest(string method, Dictionary<string, object> requestParams = null, string jsonRpc = null, string id = null)
+        /// <returns>An IApiRequest to be sent to the plc</returns>
+        public virtual IApiRequest GetIApiRequest(string method, Dictionary<string, object> requestParams = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -601,7 +594,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// Call Equals with obj as ApiRequestFactory - check for Properties
+        /// get an Plc.ReadSystemTime Request
+        /// </summary>
+        /// <returns>Plc.ReadSystemTime Request</returns>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        public virtual IApiRequest GetApiPlcReadSystemTimeRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.ReadSystemTime", jsonRpcReq, idReq);
+        }
+        /// <summary>
+        /// get an Plc.ReadTimeSettings Request
+        /// </summary>
+        /// <returns>Plc.ReadTimeSettings Request</returns>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        public virtual IApiRequest GetApiPlcReadTimeSettingsRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.ReadTimeSettings", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Call Equals with obj as IApiRequestFactory - check for Properties
         /// </summary>
         /// <param name="obj">to compare</param>
         /// <returns>wether the two are equal or not</returns>
@@ -631,6 +649,158 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             hashCode = hashCode * -1521134295 + EqualityComparer<IApiRequestParameterChecker>.Default.GetHashCode(RequestParameterChecker);
             hashCode = hashCode * -1521134295 + PerformCheck.GetHashCode();
             return hashCode;
+        }
+
+        /// <summary>
+        /// get an Files.Browse Request
+        /// </summary>
+        /// <returns>Files.Browse Request</returns>
+        /// <param name="resource">directory or file to be browsed</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Files.Browse Request</returns>
+        public IApiRequest GetApiFilesBrowseRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.Browse", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// get an Files.Download Request
+        /// </summary>
+        /// <param name="resource"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns>Files.Download Request</returns>
+        public IApiRequest GetApiFilesDownloadRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.Download", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// get a Files.Create Request
+        /// </summary>
+        /// <param name="resource">Path of file</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <returns>Files.Create Request</returns>
+        public IApiRequest GetApiFilesCreateRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.Create", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// get a Files.Rename Request
+        /// </summary>
+        /// <param name="resource">Current path of file/folder</param>
+        /// <param name="new_resource">New path of file/folder</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <returns>Files.Rename Request</returns>
+        public IApiRequest GetApiFilesRenameRequest(string resource, string new_resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.Rename", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource }, {"new_resource", new_resource } });
+        }
+
+        /// <summary>
+        /// get a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">Path of file</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <returns>Files.Delete Request</returns>
+        public IApiRequest GetApiFilesDeleteRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.Delete", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// get a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of directory</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <returns>Files.CreateDirectory Request</returns>
+        public IApiRequest GetApiFilesCreateDirectoryRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.CreateDirectory", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// get a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of directory</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <returns>Files.DeleteDirectory Request</returns>
+        public IApiRequest GetApiFilesDeleteDirectoryRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Files.DeleteDirectory", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
+        }
+
+
+        /// <summary>
+        /// get a Plc.CreateBackup Request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Plc.CreateBackup Request</returns>
+        public IApiRequest GetPlcCreateBackupRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.CreateBackup", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// get a Plc.RestoreBackup Request
+        /// </summary>
+        /// <param name="password">Password for authentication</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Plc.RetoreBackup Request</returns>
+        public IApiRequest GetPlcRestoreBackupRequest(string password, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            var pwd=  string.IsNullOrEmpty(password) ? string.Empty : password;
+            var reqParams = new Dictionary<string, object>() { { "password", password?.ToString() } };
+            return new ApiRequest("Plc.RestoreBackup", jsonRpcReq, idReq, reqParams);
+        }
+
+        /// <summary>
+        /// get a DataLogs.DownloadAndClear Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>DataLogs.DownloadAndClear Request</returns>
+        public IApiRequest GetApiDatalogsDownloadAndClearRequest(string resource, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("DataLogs.DownloadAndClear", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "resource", resource } });
         }
     }
 }

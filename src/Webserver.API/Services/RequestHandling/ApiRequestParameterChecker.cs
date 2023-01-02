@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -177,7 +177,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             if (performCheck)
             {
-                if (ticketId?.Length != 28)
+                if (ticketId?.Length != 28 && ticketId?.Length != 36)
                 {
                     throw new ApiInvalidParametersException($"Api Tickets cannot have a length other than 28 bytes!{ Environment.NewLine + ticketId + Environment.NewLine }provide a valid ticket!" +
                                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
@@ -261,6 +261,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="obj">obj to compare to</param>
         /// <returns>true if the obj is an ApiRequestParameterChecker</returns>
         public override bool Equals(object obj) => Equals(obj as ApiRequestParameterChecker);
+
+        /// <summary>
+        /// Always true as there are no Properties to compare
+        /// </summary>
+        /// <param name="obj">obj to compare to</param>
+        /// <returns>true if the obj is an ApiRequestParameterChecker</returns>
         public bool Equals(ApiRequestParameterChecker obj)
         {
             return true;

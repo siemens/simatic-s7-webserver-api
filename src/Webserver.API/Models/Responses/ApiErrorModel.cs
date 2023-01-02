@@ -1,14 +1,9 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Models;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
@@ -59,6 +54,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidArrayIndexException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.UnsupportedAddress:
                     throw new ApiUnsupportedAddressException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityDoesNotExist:
+                    throw new ApiEntityDoesNotExistException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityInUse:
+                    throw new ApiEntityInUseException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityAlreadyExists:
+                    throw new ApiEntityAlreadyExistsException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.NotFound:
                     throw new ApiTicketNotFoundException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.ApplicationNameAlreadyExists:

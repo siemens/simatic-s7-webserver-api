@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
@@ -74,6 +74,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="baseAddress">PLC base Address/DNS name</param>
         /// <param name="username">Plc User Management username to login with</param>
         /// <param name="password">Plc User Management password for Username</param>
+        /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
+        /// <param name="connectionClose">Defaults to false</param>
+        /// <param name="allowAutoRedirect">Defaults to false</param>
+        /// <param name="discardPasswordAfterConnect">Defaults to true</param>
         public HttpClientConnectionConfiguration(string baseAddress, string username, string password, 
             TimeSpan timeOut, bool connectionClose, bool allowAutoRedirect, bool discardPasswordAfterConnect)
         {

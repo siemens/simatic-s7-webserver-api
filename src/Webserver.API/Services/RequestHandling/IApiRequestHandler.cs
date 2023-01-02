@@ -1,8 +1,9 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,13 +47,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.BrowseTickets Request  
         /// </summary>
+        /// <param name="ticketId">ticket id (28 chars)</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId);
+        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null);
         /// <summary>
         /// Send an Api.BrowseTickets Request  
         /// </summary>
+        /// <param name="ticket">ticket to be browsed (null to browse all)</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
         Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket);
+        /// <summary>
+        /// Send an Api.BrowseTickets Request
+        /// </summary>
+        /// <param name="ticketId">ticket id (28 chars)</param>
+        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
+        ApiBrowseTicketsResponse ApiBrowseTickets(string ticketId);
+        /// <summary>
+        /// Send an Api.BrowseTickets Request  
+        /// </summary>
+        /// <param name="ticket">ticket to be browsed (null to browse all)</param>
+        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
+        ApiBrowseTicketsResponse ApiBrowseTickets(ApiTicket ticket);
         /// <summary>
         /// Send an Api.CloseTicket Request  
         /// </summary>
@@ -104,6 +119,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
         /// <returns>Bytearray given from the PLC</returns>
         Task<byte[]> DownloadTicketAsync(string ticketId);
+        /// <summary>
+        ///  Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>HTTp response </returns>
+        Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId);
         /// <summary>
         /// Send a PlcProgram.Browse Request 
         /// </summary>
@@ -212,6 +233,39 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequest">Api Request to send to the plc</param>
         /// <returns>string: response from thePLC</returns>
         Task<string> SendPostRequestAsync(IApiRequest apiRequest);
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// </summary>
+        /// <param name="apiRequest">Api Request to send to the plc</param>
+        /// <returns>string: response from thePLC</returns>
+        string SendPostRequest(IApiRequest apiRequest);
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <returns>string: response from thePLC</returns>
+        Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId);
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <returns>string: response from thePLC</returns>
+        string SendPostRequest(IApiRequestIntId apiRequestWithIntId);
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <returns>string: response from thePLC</returns>
+        Task<string> SendPostRequestAsync(string apiRequestString);
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <returns>string: response from thePLC</returns>
+        string SendPostRequest(string apiRequestString);
         /// <summary>
         /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
         /// MediaTypeHeaderValue: application/octet-stream
@@ -814,16 +868,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
         ApiArrayOfApiClassResponse ApiBrowse();
-        /// <summary>
-        /// Send an Api.BrowseTickets Request  
-        /// </summary>
-        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        ApiBrowseTicketsResponse ApiBrowseTickets(string ticketId);
-        /// <summary>
-        /// Send an Api.BrowseTickets Request  
-        /// </summary>
-        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        ApiBrowseTicketsResponse ApiBrowseTickets(ApiTicket ticket);
+        
         /// <summary>
         /// Send an Api.CloseTicket Request  
         /// </summary>
@@ -917,8 +962,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="var">Name of the variable to be read
         /// 
         /// Name der zu lesenden Variable</param>
-        /// <param name="plcProgramReadMode">
-        
+        /// <param name="plcProgramReadMode"></param>        
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///
@@ -926,7 +970,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// • "simple": liefert Variablenwerte gemäß der Darstellung
         /// "simple" in Kapitel "Unterstützte Datentypen (Seite 162)"
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
-        /// in Kapitel "Unterstützte Datentypen"</param>
+        /// in Kapitel "Unterstützte Datentypen"
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         ApiResultResponse<T> PlcProgramRead<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null);
         /// <summary>
@@ -935,8 +979,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="var">Name of the variable to be read
         /// 
         /// Name der zu lesenden Variable</param>
-        /// <param name="plcProgramReadMode">
-        
+        /// <param name="plcProgramReadMode"></param>        
         /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
         /// "raw" : will get the variable values according to the presentation of the manual "raw"
         ///
@@ -944,7 +987,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// • "simple": liefert Variablenwerte gemäß der Darstellung
         /// "simple" in Kapitel "Unterstützte Datentypen (Seite 162)"
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
-        /// in Kapitel "Unterstützte Datentypen"</param>
+        /// in Kapitel "Unterstützte Datentypen"
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null);
         /// <summary>
@@ -1570,6 +1613,274 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// State: which equals the state
         /// </returns>
         ApiTrueWithWebAppResponse WebAppSetState(string webAppName, ApiWebAppState newApiWebAppState);
+
+        /// <summary>
+        /// Send a Plc.ReadSystemTime Request
+        /// </summary>
+        /// <returns>Current Plc Utc System Time</returns>
+        Task<ApiPlcReadSystemTimeResponse> PlcReadSystemTimeAsync();
+
+        /// <summary>
+        /// Send a Plc.ReadSystemTime Request
+        /// </summary>
+        /// <returns>Current Plc Utc System Time</returns>
+        ApiPlcReadSystemTimeResponse PlcReadSystemTime();
+
+        /// <summary>
+        /// Send a Plc.ReadTimeSettings Request
+        /// </summary>
+        /// <returns>Current Plc Time Settings</returns>
+        Task<ApiPlcReadTimeSettingsResponse> PlcReadTimeSettingsAsync();
+
+        /// <summary>
+        /// Send a Plc.ReadTimeSettings Request
+        /// </summary>
+        /// <returns>Current Plc Time Settings</returns>
+        ApiPlcReadTimeSettingsResponse PlcReadTimeSettings();
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
+        /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        Task<ApiBrowseFilesResponse> FilesBrowseAsync(string resource = null);
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
+        /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        ApiBrowseFilesResponse FilesBrowse(string resource = null);
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">resource to browse.</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        Task<ApiBrowseFilesResponse> FilesBrowseAsync(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">resource to browse</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        ApiBrowseFilesResponse FilesBrowse(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.Download Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        Task<ApiTicketIdResponse> FilesDownloadAsync(string resource );
+
+
+        /// <summary>
+        /// Send a Files.Download Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        ApiTicketIdResponse FilesDownload(string resource);
+
+        /// <summary>
+        /// Send a Files.Create Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        Task<ApiTicketIdResponse> FilesCreateAsync(string resource);
+
+        /// <summary>
+        /// Send a Files.Create Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        ApiTicketIdResponse FilesCreate(string resource);
+
+
+        /// <summary>
+        /// Send a Files.Create Request
+        /// </summary>
+        /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        Task<ApiTicketIdResponse> FilesCreateAsync(FileInfo resource);
+
+        /// <summary>
+        /// Send a Files.Create Request
+        /// </summary>
+        /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
+        /// <returns>Ticket ID</returns>
+        ApiTicketIdResponse FilesCreate(FileInfo resource);
+
+        /// <summary>
+        /// Send Files.Rename request
+        /// </summary>
+        /// <param name="resource">Current path of file/folder</param>
+        /// <param name="new_resource">New path of file/folder</param>
+        /// <returns>True if the file or folder is renamed successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesRenameAsync(string resource, string new_resource);
+
+
+        /// <summary>
+        /// Send Files.Rename request
+        /// </summary>
+        /// <param name="resource">Current path of file/folder</param>
+        /// <param name="new_resource">New path of file/folder</param>
+        /// <returns>True if the file or folder is renamed successfully</returns>
+        ApiTrueOnSuccessResponse FilesRename(string resource, string new_resource);
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(string resource);
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        ApiTrueOnSuccessResponse FilesDelete(string resource);
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">the resource that shall be deleted.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">the resource that shall be deleted.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        ApiTrueOnSuccessResponse FilesDelete(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(string resource);
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        ApiTrueOnSuccessResponse FilesCreateDirectory(string resource);
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(DirectoryInfo resource);
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        ApiTrueOnSuccessResponse FilesCreateDirectory(DirectoryInfo resource);
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">The resource to create</param>
+        /// <returns>True if the directory is created successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(ApiFileResource resource);
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">The resource to create.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        ApiTrueOnSuccessResponse FilesCreateDirectory(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(string resource);
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        ApiTrueOnSuccessResponse FilesDeleteDirectory(string resource);
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">the directory to delete.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">the directory to delete.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        ApiTrueOnSuccessResponse FilesDeleteDirectory(ApiFileResource resource);
+
+        /// <summary>
+        /// Send a Datalogs.DownloadAndClear Request
+        /// </summary>
+        /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
+        /// <returns>True if the resource is downloaded and deleted successfully</returns>
+        Task<ApiTicketIdResponse> DatalogsDownloadAndClearAsync(string resource);
+
+
+        /// <summary>
+        /// Send a Datalogs.DownloadAndClear Request
+        /// </summary>
+        /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
+        /// <returns>True if the resource is downloaded and deleted successfully</returns>
+        ApiTicketIdResponse DatalogsDownloadAndClear(string resource);
+
+        /// <summary>
+        /// Send a Plc.CreateBackup request
+        /// </summary>
+        /// <returns>ticket id</returns>
+        Task<ApiTicketIdResponse> PlcCreateBackupAsync();
+
+
+        /// <summary>
+        /// Send a Plc.CreateBackup request
+        /// </summary>
+        /// <returns>ticket id</returns>
+        ApiTicketIdResponse PlcCreateBackup();
+
+        /// <summary>
+        /// Send a Plc.RestoreBackup request
+        /// </summary>
+        /// <returns>ticket id</returns>
+        Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = "");
+
+        /// <summary>
+        /// Send a Plc.RestoreBackup request
+        /// </summary>
+        /// <returns>ticket id</returns>
+        ApiTicketIdResponse PlcRestoreBackup(string password = "");
+
+        /// <summary>
+        /// Re-login to the plc, set the header again in the connected service (e.g.HttpClient)!
+        /// </summary>
+        Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null);
+
+        /// <summary>
+        /// Re-login to the plc, set the header again in the connected service (e.g.HttpClient)!
+        /// </summary>
+        ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null);
+
 
     }
 }

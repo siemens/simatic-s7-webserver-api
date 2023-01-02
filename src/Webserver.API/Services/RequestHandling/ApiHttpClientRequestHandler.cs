@@ -1,23 +1,18 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         public string JsonRpcApi => "api/jsonrpc";
 
-        
+
 
         /// <summary>
         /// The ApiHttpClientRequestHandler will Send Post Requests,
@@ -61,6 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
+        /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
         public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -76,7 +72,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>string: response from thePLC</returns>
         public async Task<string> SendPostRequestAsync(IApiRequest apiRequest)
         {
-            if(apiRequest.Params != null)
+            if (apiRequest.Params != null)
             {
                 apiRequest.Params = apiRequest.Params
                     .Where(el => el.Value != null)
@@ -84,6 +80,56 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             string apiRequestString = JsonConvert.SerializeObject(apiRequest, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArr = Encoding.GetBytes(apiRequestString);
+            return await SendPostRequestAsync(apiRequestString);
+        }
+
+
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequest">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <returns>string: response from thePLC</returns>
+        public string SendPostRequest(IApiRequest apiRequest) => SendPostRequestAsync(apiRequest).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <returns>string: response from thePLC</returns>
+        public async Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId)
+        {
+            if (apiRequestWithIntId.Params != null)
+            {
+                apiRequestWithIntId.Params = apiRequestWithIntId.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            string apiRequestString = JsonConvert.SerializeObject(apiRequestWithIntId, new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArr = Encoding.GetBytes(apiRequestString);
+            return await SendPostRequestAsync(apiRequestString);
+        }
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <returns>string: response from thePLC</returns>
+        public string SendPostRequest(IApiRequestIntId apiRequestWithIntId) => SendPostRequestAsync(apiRequestWithIntId).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <returns>string: response from thePLC</returns>
+        public async Task<string> SendPostRequestAsync(string apiRequestString)
+        {
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
@@ -93,6 +139,35 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
             return responseString;
         }
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <returns>string: response from thePLC</returns>
+        public async Task<List<string>> SendPostRequestAsyncFileName(string apiRequestString)
+        {
+            List<string> result = new List<string>();
+            byte[] byteArr = Encoding.GetBytes(apiRequestString);
+            ByteArrayContent request_body = new ByteArrayContent(byteArr);
+            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
+            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            var responseString = await response.Content.ReadAsStringAsync();
+            _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+            result.Add(responseString);
+            //result.Add(response.Content.Headers.ContentDisposition.FileName);
+            return result;
+        }
+
+        /// <summary>
+        /// only use this function if you know how to build up apiRequests on your own!
+        /// will remove those Params that have the value Null and send the request using the HttpClient.
+        /// </summary>
+        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <returns>string: response from thePLC</returns>
+        public string SendPostRequest(string apiRequestString) => SendPostRequestAsync(apiRequestString).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send an Api.Browse Request using the Request from the ApiRequestFactory
@@ -118,6 +193,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="ticketId">ticket to be browsed (null to browse all)</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
         public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null)
         {
@@ -126,23 +202,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var arrOfApiClassResponse = JsonConvert.DeserializeObject<ApiBrowseTicketsResponse>(responseString);
             return arrOfApiClassResponse;
         }
-        /// <summary>
-        /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
-        /// </summary>
-
-        public ApiBrowseTicketsResponse ApiBrowseTickets(string ticketId) => ApiBrowseTicketsAsync(ticketId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="ticketId">ticket to be browsed (null to browse all)</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket)
-        {
-            return await ApiBrowseTicketsAsync(ticket.Id);
-        }
+
+        public ApiBrowseTicketsResponse ApiBrowseTickets(string ticketId = null) => ApiBrowseTicketsAsync(ticketId).GetAwaiter().GetResult();
+
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="ticket">ticket to be browsed (null to browse all)</param>
+        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket) => await ApiBrowseTicketsAsync(ticket.Id);
+        /// <summary>
+        /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <param name="ticket">ticket to be browsed (null to browse all)</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
         public ApiBrowseTicketsResponse ApiBrowseTickets(ApiTicket ticket) => ApiBrowseTicketsAsync(ticket).GetAwaiter().GetResult();
 
@@ -158,6 +236,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var apiTrueOnSuccessResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(responseString);
             return apiTrueOnSuccessResponse;
         }
+
         /// <summary>
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -169,10 +248,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="ticket">ticket containing ticket id (28 chars)</param>
         /// <returns>True to indicate Success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket)
-        {
-            return await ApiCloseTicketAsync(ticket.Id);
-        }
+        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket) => await ApiCloseTicketAsync(ticket.Id);
+
         /// <summary>
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -223,6 +300,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var req = _apiRequestFactory.GetApiLogoutRequest();
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            _httpClient.DefaultRequestHeaders.Remove("X-Auth-Token");
             return responseObj;
         }
         /// <summary>
@@ -254,7 +332,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>a double that contains the value for the current ApiVersion</returns>
         public async Task<ApiDoubleResponse> ApiVersionAsync()
         {
-            var req = _apiRequestFactory.GetApiVersionRequest(); 
+            var req = _apiRequestFactory.GetApiVersionRequest();
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiDoubleResponse>(response);
             return responseObj;
@@ -387,7 +465,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         public ApiPlcProgramBrowseResponse PlcProgramBrowse(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var) => PlcProgramBrowseAsync(plcProgramBrowseMode, var).GetAwaiter().GetResult();
-        
+
 
         /// <summary>
         /// Send a PlcProgram.Read Request using the Request from the ApiRequestFactory
@@ -522,7 +600,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
         public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
         {
-            var req = _apiRequestFactory.GetApiPlcProgramWriteRequest(var, valueToBeSet, plcProgramWriteMode); 
+            var req = _apiRequestFactory.GetApiPlcProgramWriteRequest(var, valueToBeSet, plcProgramWriteMode);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -693,7 +771,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>true to indicate success</returns>
         public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(string webAppName, ApiWebAppState? apiWebAppState = null)
         {
-            var req = _apiRequestFactory.GetApiWebAppCreateRequest(webAppName, apiWebAppState); 
+            var req = _apiRequestFactory.GetApiWebAppCreateRequest(webAppName, apiWebAppState);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -737,7 +815,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
         {
             var req = _apiRequestFactory.GetApiWebAppCreateResourceRequest(webAppName, resourceName, media_type,
-                last_modified, apiWebAppResourceVisibility, etag); 
+                last_modified, apiWebAppResourceVisibility, etag);
             string response = await SendPostRequestAsync(req);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
@@ -765,7 +843,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiWebAppResourceVisibility">resource visibility (protect your confidential data)</param>
         /// <param name="etag">you can provide an etag as identification,... for your resource</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
-        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, string resourceName, string media_type, 
+        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, string resourceName, string media_type,
             string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
         {
             return await WebAppCreateResourceAsync(webApp.Name, resourceName, media_type, last_modified, apiWebAppResourceVisibility, etag);
@@ -795,7 +873,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, ApiWebAppResource resource)
         {
-            return await WebAppCreateResourceAsync(webAppName, resource.Name, resource.Media_type, 
+            return await WebAppCreateResourceAsync(webAppName, resource.Name, resource.Media_type,
                 resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag);
         }
         /// <summary>
@@ -824,7 +902,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource)
         {
-            return await WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type, 
+            return await WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type,
                 resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag);
         }
         /// <summary>
@@ -916,8 +994,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a WebApp.DeleteRespource Request using the Request from the ApiRequestFactory
         /// </summary>
-        /// <param name="webApp">webapp.Name of the webapp that contains the resource</param>
-        /// <param name="resourceName">Name of the resource to delete</param>
+        /// <param name="webAppName">webapp.Name of the webapp that contains the resource</param>
+        /// <param name="resource">Name of the resource to delete</param>
         /// <returns>true to indicate success</returns>
         public ApiTrueOnSuccessResponse WebAppDeleteResource(string webAppName, ApiWebAppResource resource) => WebAppDeleteResourceAsync(webAppName, resource).GetAwaiter().GetResult();
 
@@ -988,7 +1066,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resourceName">Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         public ApiTicketIdResponse WebAppDownloadResource(ApiWebAppData webApp, string resourceName) => WebAppDownloadResourceAsync(webApp, resourceName).GetAwaiter().GetResult();
-        
+
         /// <summary>
         /// Send a WebApp.DownloadResource Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -1024,7 +1102,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">resource.Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         public ApiTicketIdResponse WebAppDownloadResource(string webAppName, ApiWebAppResource resource) => WebAppDownloadResourceAsync(webAppName, resource).GetAwaiter().GetResult();
-        
+
         /// <summary>
         /// Send a WebApp.Rename Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -1038,7 +1116,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
-            if(responseObj.TrueOnSuccesResponse.Result)
+            if (responseObj.TrueOnSuccesResponse.Result)
             {
                 responseObj.NewWebApp = new ApiWebAppData() { Name = newWebAppName };
             }
@@ -1084,14 +1162,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newResourceName">New name for the resource</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, string resourceName,
             string newResourceName)
         {
             var req = _apiRequestFactory.GetApiWebAppRenameResourceRequest(webAppName, resourceName, newResourceName);
             string response = await SendPostRequestAsync(req);
             ApiTrueWithResourceResponse responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
-            if(responseObj.TrueOnSuccesResponse.Result)
+            if (responseObj.TrueOnSuccesResponse.Result)
             {
                 responseObj.NewResource = new ApiWebAppResource() { Name = newResourceName };
             }
@@ -1116,7 +1194,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newResourceName">New name for the resource</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, string resourceName,
             string newResourceName)
         {
             return await WebAppRenameResourceAsync(webApp.Name, resourceName, newResourceName);
@@ -1140,7 +1218,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newResourceName">New name for the resource</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             string newResourceName)
         {
             var basicResp = await WebAppRenameResourceAsync(webApp.Name, resource.Name, newResourceName);
@@ -1167,7 +1245,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newResourceName">New name for the resource</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, ApiWebAppResource resource,
             string newResourceName)
         {
             var basicResp = await WebAppRenameResourceAsync(webAppName, resource.Name, newResourceName);
@@ -1185,7 +1263,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// name which equals the newname</returns>
         public ApiTrueWithResourceResponse WebAppRenameResource(string webAppName, ApiWebAppResource resource, string newResourceName)
             => WebAppRenameResourceAsync(webAppName, resource, newResourceName).GetAwaiter().GetResult();
-        
+
         /// <summary>
         /// Send a WebApp.SetDefaultPage Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -1201,7 +1279,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
-            if(responseObj.TrueOnSuccesResponse.Result)
+            if (responseObj.TrueOnSuccesResponse.Result)
             {
                 responseObj.NewWebApp = new ApiWebAppData() { Name = webAppName, Default_page = (resourceName == "" ? null : resourceName) };
             }
@@ -1309,7 +1387,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
             {
-                responseObj.NewWebApp = new ApiWebAppData() { Name = webAppName, Not_authorized_page = (resourceName == ""?null:resourceName) };
+                responseObj.NewWebApp = new ApiWebAppData() { Name = webAppName, Not_authorized_page = (resourceName == "" ? null : resourceName) };
             }
             return responseObj;
         }
@@ -1407,7 +1485,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, string resourceName)
         {
-            var req = _apiRequestFactory.GetApiWebAppSetNotFoundPageRequest(webAppName, resourceName??"");
+            var req = _apiRequestFactory.GetApiWebAppSetNotFoundPageRequest(webAppName, resourceName ?? "");
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
@@ -1527,7 +1605,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a WebApp.SetState Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the state should be set for</param>
-        /// <param name="apiWebAppState">State the WebApp should have</param>
+        /// <param name="newApiWebAppState">State the WebApp should have</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:  which equals the webAppName
         /// State: which equals the state
@@ -1554,7 +1632,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a WebApp.SetState Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that state should be set for</param>
-        /// <param name="apiWebAppState">State the WebApp should have</param>
+        /// <param name="newApiWebAppState">State the WebApp should have</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// State: which equals the state
         /// </returns>
@@ -1572,7 +1650,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name: which equals the resourceName
         /// Etag: which equals the newEtagValue
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, string resourceName,
             string newETagValue)
         {
             var req = _apiRequestFactory.GetApiSetResourceETagRequest(webAppName, resourceName, newETagValue ?? "");
@@ -1610,7 +1688,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name: which equals the resourceName
         /// Etag: which equals the newEtagValue
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, string resourceName,
             string newETagValue)
         {
             return await WebAppSetResourceETagAsync(webApp.Name, resourceName, newETagValue);
@@ -1639,7 +1717,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Etag: which equals the newEtagValue
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             string newETagValue)
         {
             var basicResp = await WebAppSetResourceETagAsync(webApp.Name, resource.Name, newETagValue);
@@ -1671,7 +1749,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Etag: which equals the newEtagValue
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, ApiWebAppResource resource,
             string newETagValue)
         {
             var basicResp = await WebAppSetResourceETagAsync(webAppName, resource.Name, newETagValue);
@@ -1702,7 +1780,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:       which equals the resourceName
         /// MediaType:  which equals the newMediaType
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, string resourceName,
             string newMediaType)
         {
             var req = _apiRequestFactory.GetApiSetResourceMediaTypeRequest(webAppName, resourceName, newMediaType);
@@ -1739,7 +1817,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:       which equals the resourceName
         /// MediaType:  which equals the newMediaType
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, string resourceName,
             string newMediaType)
         {
             return await WebAppSetResourceMediaTypeAsync(webApp.Name, resourceName, newMediaType);
@@ -1766,7 +1844,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// MediaType: which equals the newMediaType
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             string newMediaType)
         {
             var basicResp = await WebAppSetResourceMediaTypeAsync(webApp.Name, resource.Name, newMediaType);
@@ -1795,7 +1873,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// MediaType: which equals the newMediaType
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, ApiWebAppResource resource,
             string newMediaType)
         {
             var basicResp = await WebAppSetResourceMediaTypeAsync(webAppName, resource.Name, newMediaType);
@@ -1825,7 +1903,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName,
             string newModificationTime)
         {
             var req = _apiRequestFactory.GetApiSetResourceModificationTimeRequest(webAppName, resourceName, newModificationTime);
@@ -1833,7 +1911,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             responseObj.NewResource = new ApiWebAppResource()
-            { Name = resourceName, Last_modified = XmlConvert.ToDateTime(newModificationTime, XmlDateTimeSerializationMode.Utc)};
+            { Name = resourceName, Last_modified = XmlConvert.ToDateTime(newModificationTime, XmlDateTimeSerializationMode.Utc) };
             return responseObj;
         }
         /// <summary>
@@ -1859,7 +1937,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, string resourceName,
             string newModificationTime)
         {
             return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName, newModificationTime);
@@ -1886,7 +1964,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             string newModificationTime)
         {
             var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name, newModificationTime);
@@ -1917,10 +1995,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName,
             DateTime newModificationTime)
         {
-            return await WebAppSetResourceModificationTimeAsync(webAppName, resourceName, 
+            return await WebAppSetResourceModificationTimeAsync(webAppName, resourceName,
                 newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
         }
         /// <summary>
@@ -1949,7 +2027,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, string resourceName,
             DateTime newModificationTime)
         {
-            return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName, 
+            return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName,
                 newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
         }
         /// <summary>
@@ -1974,10 +2052,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             DateTime newModificationTime)
         {
-            var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name, 
+            var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name,
                 newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
@@ -2005,10 +2083,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource,
             DateTime newModificationTime)
         {
-            var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name, 
+            var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name,
                 newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
@@ -2036,7 +2114,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource,
             string newModificationTime)
         {
             var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name, newModificationTime);
@@ -2067,7 +2145,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name: which equals the resourceName
         /// Visibility: which equals the newVisibility
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, string resourceName,
             ApiWebAppResourceVisibility newResourceVisibility)
         {
             var req = _apiRequestFactory.GetApiSetResourceVisibilityRequest(webAppName, resourceName, newResourceVisibility);
@@ -2076,7 +2154,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
             {
-                responseObj.NewResource = new ApiWebAppResource() { Name = resourceName, Visibility = newResourceVisibility};
+                responseObj.NewResource = new ApiWebAppResource() { Name = resourceName, Visibility = newResourceVisibility };
             }
             return responseObj;
         }
@@ -2103,7 +2181,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name: which equals the resourceName
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, string resourceName, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, string resourceName,
             ApiWebAppResourceVisibility newResourceVisibility)
         {
             return await WebAppSetResourceVisibilityAsync(webApp.Name, resourceName, newResourceVisibility);
@@ -2130,7 +2208,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, ApiWebAppResource resource,
             ApiWebAppResourceVisibility newResourceVisibility)
         {
             var basicResp = await WebAppSetResourceVisibilityAsync(webApp.Name, resource.Name, newResourceVisibility);
@@ -2159,7 +2237,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
-        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, ApiWebAppResource resource, 
+        public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, ApiWebAppResource resource,
             ApiWebAppResourceVisibility newResourceVisibility)
         {
             var basicResp = await WebAppSetResourceVisibilityAsync(webAppName, resource.Name, newResourceVisibility);
@@ -2180,24 +2258,75 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             => WebAppSetResourceVisibilityAsync(webAppName, resource, newResourceVisibility).GetAwaiter().GetResult();
 
         /// <summary>
+        ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>HTTP response</returns>
+        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId)
+        {
+            var request_body = new ByteArrayContent(new byte[0]);
+            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body);
+            response.EnsureSuccessStatusCode();
+            return response;
+        }
+
+        /// <summary>
+        ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>HTTP response</returns>
+        public HttpResponseMessage DownloadTicketAndGetResponse(string ticketId)
+            => DownloadTicketAndGetResponseAsync(ticketId).GetAwaiter().GetResult();
+
+        /// <summary>
+        ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>HTTP response</returns>
+        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(ApiTicket ticket)
+            => await DownloadTicketAndGetResponseAsync(ticket.Id);
+
+        /// <summary>
+        ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>HTTP response</returns>
+        public HttpResponseMessage DownloadTicketAndGetResponse(ApiTicket ticket)
+            => DownloadTicketAndGetResponseAsync(ticket).GetAwaiter().GetResult();
+        
+        /// <summary>
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
         /// <returns>Bytearray given from the PLC</returns>
         public async Task<byte[]> DownloadTicketAsync(string ticketId)
         {
-            var request_body = new ByteArrayContent(new byte[0]);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body);
-            response.EnsureSuccessStatusCode();
+            var response = await DownloadTicketAndGetResponseAsync(ticketId);
             return await response.Content.ReadAsByteArrayAsync();
         }
+
         /// <summary>
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
         /// <returns>Bytearray given from the PLC</returns>
         public byte[] DownloadTicket(string ticketId) => DownloadTicketAsync(ticketId).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>Bytearray given from the PLC</returns>
+        public async Task<byte[]> DownloadTicketAsync(ApiTicket ticket)
+         => await DownloadTicketAsync(ticket.Id);
+
+        /// <summary>
+        /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
+        /// </summary>
+        /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <returns>Bytearray given from the PLC</returns>
+        public byte[] DownloadTicket(ApiTicket ticket) => DownloadTicketAsync(ticket).GetAwaiter().GetResult();
 
         /// <summary>
         /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
@@ -2214,7 +2343,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data);
                 response.EnsureSuccessStatusCode();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new ApiTicketingEndpointUploadException(ticketId, e);
             }
@@ -2227,6 +2356,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
         /// <returns>Task/void</returns>
         public void UploadTicket(string ticketId, ByteArrayContent data) => UploadTicketAsync(ticketId, data).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public async Task UploadTicketAsync(ApiTicket ticket, ByteArrayContent data)
+            => await UploadTicketAsync(ticket.Id, data);
+
+        /// <summary>
+        /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public void UploadTicket(ApiTicket ticket, ByteArrayContent data) 
+            => UploadTicketAsync(ticket, data).GetAwaiter().GetResult();
 
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
@@ -2254,6 +2403,63 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public void UploadTicket(string ticketId, string pathToFile) => UploadTicketAsync(ticketId, pathToFile).GetAwaiter().GetResult();
 
         /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public async Task UploadTicketAsync(string ticketId, FileInfo pathToFile)
+            => await UploadTicketAsync(ticketId, pathToFile.FullName);
+        /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public void UploadTicket(string ticketId, FileInfo pathToFile) 
+            => UploadTicketAsync(ticketId, pathToFile).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public async Task UploadTicketAsync(ApiTicket ticket, string pathToFile)
+         => await UploadTicketAsync(ticket.Id, pathToFile);
+
+        /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public void UploadTicket(ApiTicket ticket, string pathToFile) => UploadTicketAsync(ticket, pathToFile).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public async Task UploadTicketAsync(ApiTicket ticket, FileInfo pathToFile)
+            => await UploadTicketAsync(ticket, pathToFile.FullName);
+        /// <summary>
+        /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
+        /// MediaTypeHeaderValue: application/octet-stream
+        /// </summary>
+        /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
+        /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <returns>Task/void</returns>
+        public void UploadTicket(ApiTicket ticket, FileInfo pathToFile)
+            => UploadTicketAsync(ticket, pathToFile).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Send a Api.Login Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="userName">Username to login with</param>
@@ -2266,6 +2472,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiLoginResponse();
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
+            if(!string.IsNullOrEmpty(responseObj.Result.Token))
+            {
+                if(_httpClient.DefaultRequestHeaders.Any(x => x.Key.Contains("X-Auth-Token")))
+                {
+                    _httpClient.DefaultRequestHeaders.Remove("X-Auth-Token");
+                }
+                _httpClient.DefaultRequestHeaders.Add("X-Auth-Token", responseObj.Result.Token);
+            }
             return responseObj;
         }
         /// <summary>
@@ -2284,11 +2498,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
         public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests)
         {
-            if((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
+            if ((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
             {
                 throw new ArgumentException($"{nameof(apiRequests)} contains multiple requests with the same Id!");
             }
-            foreach(var apiRequest in apiRequests)
+            foreach (var apiRequest in apiRequests)
             {
                 if (apiRequest.Params != null)
                 {
@@ -2323,9 +2537,379 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiRequests">Api Requests to be sent as Bulk</param>
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
-        public ApiBulkResponse ApiBulk(IEnumerable<IApiRequest> apiRequests)
+        public ApiBulkResponse ApiBulk(IEnumerable<IApiRequest> apiRequests) => ApiBulkAsync(apiRequests).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadSystemTime Request
+        /// </summary>
+        /// <returns>Current Plc Utc System Time</returns>
+        public async Task<ApiPlcReadSystemTimeResponse> PlcReadSystemTimeAsync()
         {
-            throw new NotImplementedException();
+            var req = _apiRequestFactory.GetApiPlcReadSystemTimeRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiPlcReadSystemTimeResponse>(response);
+            return responseObj;
         }
+
+        /// <summary>
+        /// Send a Plc.ReadSystemTime Request
+        /// </summary>
+        /// <returns>Current Plc Utc System Time</returns>
+        public ApiPlcReadSystemTimeResponse PlcReadSystemTime() => PlcReadSystemTimeAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadTimeSettings Request
+        /// </summary>
+        /// <returns>Current Plc Time Settings</returns>
+        public async Task<ApiPlcReadTimeSettingsResponse> PlcReadTimeSettingsAsync()
+        {
+            var req = _apiRequestFactory.GetApiPlcReadTimeSettingsRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiPlcReadTimeSettingsResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Plc.ReadTimeSettings Request
+        /// </summary>
+        /// <returns>Current Plc Time Settings</returns>
+        public ApiPlcReadTimeSettingsResponse PlcReadTimeSettings() => PlcReadTimeSettingsAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
+        /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(string resource = null)
+        {
+            var req = _apiRequestFactory.GetApiFilesBrowseRequest(string.IsNullOrEmpty(resource) ? "/" : resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiBrowseFilesResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
+        /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        public ApiBrowseFilesResponse FilesBrowse(string resource = null) => FilesBrowseAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">resource to browse: file/dir/...</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(ApiFileResource resource) => await FilesBrowseAsync(resource.GetVarNameForMethods());
+
+        /// <summary>
+        /// Send a Files.Browse Request
+        /// </summary>
+        /// <param name="resource">resource to browse: file/dir/...</param>
+        /// <returns>Browsed resources (files/dir/...)</returns>
+        public ApiBrowseFilesResponse FilesBrowse(ApiFileResource resource) => FilesBrowseAsync(resource).GetAwaiter().GetResult();
+
+
+        /// <summary>
+        /// Send a Files.Download Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public async Task<ApiTicketIdResponse> FilesDownloadAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesDownloadRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.Download Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public ApiTicketIdResponse FilesDownload(string resource) => FilesDownloadAsync(resource).GetAwaiter().GetResult();
+
+
+        /// <summary>
+        /// Send a Files.Create request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public async Task<ApiTicketIdResponse> FilesCreateAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesCreateRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var singleStringResp = JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
+            var responseObj = new ApiTicketIdResponse(singleStringResp);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.Create request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public ApiTicketIdResponse FilesCreate(string resource) => FilesCreateAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.Create request
+        /// </summary>
+        /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public async Task<ApiTicketIdResponse> FilesCreateAsync(FileInfo resource)
+        => await FilesCreateAsync(resource.FullName);
+
+        /// <summary>
+        /// Send a Files.Create request
+        /// </summary>
+        /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public ApiTicketIdResponse FilesCreate(FileInfo resource) => FilesCreateAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send Files.Rename request
+        /// </summary>
+        /// <param name="resource">Current path of file/folder</param>
+        /// <param name="new_resource">New path of file/folder</param>
+        /// <returns>True if the file or folder is renamed successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesRenameAsync(string resource, string new_resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesRenameRequest(resource, new_resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send Files.Rename request
+        /// </summary>
+        /// <param name="resource">Current path of file/folder</param>
+        /// <param name="new_resource">New path of file/folder</param>
+        /// <returns>True if the file or folder is renamed successfully</returns>
+        public ApiTrueOnSuccessResponse FilesRename(string resource, string new_resource) => FilesRenameAsync(resource, new_resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesDeleteRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        public ApiTrueOnSuccessResponse FilesDelete(string resource) => FilesDeleteAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesCreateDirectoryRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public ApiTrueOnSuccessResponse FilesCreateDirectory(string resource) => FilesCreateDirectoryAsync(resource).GetAwaiter().GetResult();
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">DirectoryInfo for informations about the file to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(DirectoryInfo resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesCreateDirectoryRequest(resource.FullName);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">DirectoryInfo for informations about the file to the memory card root.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public ApiTrueOnSuccessResponse FilesCreateDirectory(DirectoryInfo resource) => FilesCreateDirectoryAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">The resource to create</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(ApiFileResource resource)
+        {
+            var varNameForMethods = resource.GetVarNameForMethods();
+            return await FilesCreateDirectoryAsync(varNameForMethods);
+        }
+
+
+        /// <summary>
+        /// Send a Files.CreateDirectory Request
+        /// </summary>
+        /// <param name="resource">The resource to create.</param>
+        /// <returns>True if the directory is created successfully</returns>
+        public ApiTrueOnSuccessResponse FilesCreateDirectory(ApiFileResource resource)
+         => FilesCreateDirectoryAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiFilesDeleteDirectoryRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        public ApiTrueOnSuccessResponse FilesDeleteDirectory(string resource) => FilesDeleteDirectoryAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a DataLogs.DownloadAndClear Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public async Task<ApiTicketIdResponse> DatalogsDownloadAndClearAsync(string resource)
+        {
+            var req = _apiRequestFactory.GetApiDatalogsDownloadAndClearRequest(resource);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a DataLogs.DownloadAndClear Request
+        /// </summary>
+        /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <returns>Ticket ID.</returns>
+        public ApiTicketIdResponse DatalogsDownloadAndClear(string resource) => DatalogsDownloadAndClearAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send Plc.CreateBackup Request
+        /// </summary>
+        /// <returns>Ticket ID.</returns>
+        public async Task<ApiTicketIdResponse> PlcCreateBackupAsync()
+        {
+            var req = _apiRequestFactory.GetPlcCreateBackupRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send Plc.CreateBackup Request
+        /// </summary>
+        /// <returns>Ticket ID.</returns>
+        public ApiTicketIdResponse PlcCreateBackup() => PlcCreateBackupAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.RestoreBackup Request
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = null)
+        {
+            var req = _apiRequestFactory.GetPlcRestoreBackupRequest(password);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Plc.RestoreBackup Request
+        /// </summary>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public ApiTicketIdResponse PlcRestoreBackup(string password = "") => PlcRestoreBackupAsync(password).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Relogin
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <param name="includeWebApplicationCookie"></param>
+        /// <returns></returns>
+        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null)
+        {
+            await ApiLogoutAsync();
+            return await ApiLoginAsync(userName, password, includeWebApplicationCookie);
+        }
+
+        /// <summary>
+        /// Relogin
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <param name="includeWebApplicationCookie"></param>
+        /// <returns></returns>
+        public ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">the resource that shall be deleted.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource)
+        {
+            var varNameForMethods = resource.GetVarNameForMethods();
+            return await FilesDeleteAsync(varNameForMethods);
+        }
+
+        /// <summary>
+        /// Send a Files.Delete Request
+        /// </summary>
+        /// <param name="resource">the resource that shall be deleted.</param>
+        /// <returns>True if the file is deleted successfully</returns>
+        public ApiTrueOnSuccessResponse FilesDelete(ApiFileResource resource)
+        => FilesDeleteAsync(resource).GetAwaiter().GetResult();
+
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">the directory to delete.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource)
+        {
+            var varNameForMethods = resource.GetVarNameForMethods();
+            return await FilesDeleteDirectoryAsync(varNameForMethods);
+        }
+
+
+        /// <summary>
+        /// Send a Files.DeleteDirectory Request
+        /// </summary>
+        /// <param name="resource">the directory to delete.</param>
+        /// <returns>True if the directory is deleted successfully</returns>
+        public ApiTrueOnSuccessResponse FilesDeleteDirectory(ApiFileResource resource)
+        => FilesDeleteDirectoryAsync(resource).GetAwaiter().GetResult();
     }
 }

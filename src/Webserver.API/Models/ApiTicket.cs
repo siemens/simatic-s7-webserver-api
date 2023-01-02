@@ -1,8 +1,9 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -81,6 +82,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Ticket Data
         /// </summary>
         public object Data { get; set; }
+
+        /// <summary>
+        /// File that has been downloaded
+        /// </summary>
+        public FileInfo File_Downloaded { get; set; }
 
         /// <summary>
         /// Check wether properties match

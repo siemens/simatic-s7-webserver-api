@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -32,7 +32,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         [JsonProperty("WebApp.DownloadResource")]
         [EnumMember(Value = "WebApp.DownloadResource")]
-        WebApp_DownloadResource = 2
+        WebApp_DownloadResource = 2,
+        /// <summary>
+        /// For Api: Plc.RestoreBackup
+        /// </summary>
+        [JsonProperty("Plc.RestoreBackup")]
+        [EnumMember(Value = "Plc.RestoreBackup")]
+        Plc_RestoreBackup = 3,
+        /// <summary>
+        /// For Api: Files.Create
+        /// </summary>
+        [JsonProperty("Files.Create")]
+        [EnumMember(Value = "Files.Create")]
+        Files_Create = 4,
+
     }
 
 

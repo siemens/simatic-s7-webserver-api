@@ -1,36 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0;net6.0;net7.0</TargetFrameworks>
-    <AssemblyName>Siemens.Simatic.S7.Webserver.API</AssemblyName>
-    <RootNamespace>Siemens.Simatic.S7.Webserver.API</RootNamespace>
-    <Platforms>AnyCPU</Platforms>
-    <Description>Webserver API client library for PLC1500; PLC1200.</Description>
-    <PackageTags>SIEMENS;SIMATIC;PLC;S7;CPU;SPS;PLC1500;PLC1200;PLC-1500;PLC-1200;S71500;S71200;S7-1500;S7-1200;CPU-1500;CPU-1200;CPU1500;CPU1200;SPS1500;SPS1200;SPS-1500;SPS-1200;PLCSIM;PLCSIMAdvanced;SoftwareController;DriveController;SimaticDriveController;Webserver;WebApi;WebserverApi;REST;Automation;EmbeddedSystem;FactoryAutomation</PackageTags>
-    <PackageReleaseNotes>first release</PackageReleaseNotes>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/siemens/simatic-s7-webserver-api</PackageProjectUrl>
-    <Authors>SIEMENS</Authors>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <PackageIcon>product-simatic-s7-1500-256-256.png</PackageIcon>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
+		<AssemblyName>Siemens.Simatic.S7.Webserver.API</AssemblyName>
+		<RootNamespace>Siemens.Simatic.S7.Webserver.API</RootNamespace>
+		<Platforms>x64</Platforms>
+		<Description>Webserver API client library for PLC1500; PLC1200.</Description>
+		<PackageTags>SIEMENS;SIMATIC;PLC;S7;CPU;SPS;PLC1500;PLC1200;PLC-1500;PLC-1200;S71500;S71200;S7-1500;S7-1200;CPU-1500;CPU-1200;CPU1500;CPU1200;SPS1500;SPS1200;SPS-1500;SPS-1200;PLCSIM;PLCSIMAdvanced;SoftwareController;DriveController;SimaticDriveController;Webserver;WebApi;WebserverApi;REST;Automation;EmbeddedSystem;FactoryAutomation</PackageTags>
+		<PackageReleaseNotes>first release</PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/siemens/simatic-s7-webserver-api</PackageProjectUrl>
+		<Authors>SIEMENS</Authors>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<!--<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>-->
+		<PackageIcon>product-simatic-s7-1500-256-256.png</PackageIcon>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MimeMapping" Version="1.0.1.50" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\docs\screens\product-simatic-s7-1500-256-256.png" Pack="true" PackagePath="\" />
-  </ItemGroup>  
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<OutputPath>..\..\bin\Release</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<OutputPath>..\..\bin\Debug</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|x64'">
+		<Optimize>false</Optimize>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|x64'">
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MimeMapping" Version="1.0.1.37" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\docs\screens\product-simatic-s7-1500-256-256.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
 </Project>

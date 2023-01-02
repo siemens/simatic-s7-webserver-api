@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
@@ -91,6 +91,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// Der Datentyp der Adresse kann nicht gelesen werden.
         /// </summary>
         UnsupportedAddress = 204,
+        /// <summary>
+        /// The entity does not exist (e.g. Files Browse)
+        /// </summary>
+        EntityDoesNotExist = 302,
+        /// <summary>
+        /// The entity is already in use (e.g. Files.DeleteDirectory) 
+        /// </summary>
+        EntityInUse = 303,
+        /// <summary>
+        /// The entity already exists (e.g. Files CreateDirectory)
+        /// </summary>
+        EntityAlreadyExists = 304,
         /// <summary>
         /// The given Ticket-ID is not found in the user(-token)s list of tickets
         /// </summary>

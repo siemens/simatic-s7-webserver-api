@@ -1,16 +1,12 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Services.Backup;
+using Siemens.Simatic.S7.Webserver.API.Services.FileHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -18,7 +14,9 @@ namespace Webserver.API.UnitTests
     {
         public ApiHttpClientRequestHandler TestHandler;
 
-        public IPAddress Ip = new IPAddress(new byte[] { 192, 168, 1, 180 });
+        public IPAddress Ip = new IPAddress(new byte[] { 192, 168, 1, 151 });
+
+        public string FQDN = "1515f.dev.webtest";
 
         public ApiRequestFactory ApiRequestFactory;
 
@@ -27,6 +25,10 @@ namespace Webserver.API.UnitTests
         public IApiRequestParameterChecker RequestParameterChecker;
 
         public IApiResponseChecker ApiResponseChecker;
+
+        public IApiBackupHandler BackupHandler;
+
+        public IApiFileHandler FileHandler;
 
         public static DirectoryInfo CurrentExeDir
         {

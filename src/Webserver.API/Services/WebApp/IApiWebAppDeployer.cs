@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MITusing System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Models;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
@@ -18,7 +18,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void MakeSureNoIdIsContainedTwice_EnoughTime_Works()
         {
-            var requests = new List<ApiRequest>();
+            var requests = new List<IApiRequest>();
             for(int i = 0; i< 500;i++)
             {
                 requests.Add(new ApiRequest("", "", "1"));
@@ -40,7 +40,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void MakeSureNoIdIsContainedTwice_NotEnoughTime_DoesntRunWayTooLong()
         {
-            var requests = new List<ApiRequest>();
+            var requests = new List<IApiRequest>();
             for (int i = 0; i < 1000000; i++)
             {
                 requests.Add(new ApiRequest("", "", "1"));

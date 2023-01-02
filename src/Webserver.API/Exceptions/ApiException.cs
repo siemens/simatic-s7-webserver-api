@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -29,7 +29,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// ApiException => general Exception for the ErroModel; often used as innerException
         /// </summary>
         /// <param name="apiErrorModel">ErrorModel containing the errorcode and errormessage</param>
-        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)s</param>
+        /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
         public ApiException(ApiErrorModel apiErrorModel, string apiRequestString)
             : base($"The Api request: {apiRequestString}{Environment.NewLine}" +
             $"has been responded with following (Error):{Environment.NewLine}{JsonConvert.SerializeObject(apiErrorModel, new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() })}")

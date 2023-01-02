@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
 {
     /// <summary>
-    /// Used to Parse a Directory that contains the WebApp Configuration (Html Files) e.g. a user wants to have on the plc
+    /// Used to Build a Directory that contains the WebApp Configuration (Html Files) e.g. a user wants to have on the plc
     /// </summary>
     public class ApiWebAppConfigParser
     {
@@ -39,10 +39,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
         private readonly IApiWebAppResourceBuilder ApiWebAppResourceBuilder;
 
         /// <summary>
-        /// Constructing the class will not yet Parse the ApiWebAppDatat - that'll happen once you call the Function Parse() on the instance so a user can also adjust the paths and reuse an instance if he wants to
+        /// Constructing the class will not yet Build the ApiWebAppDatat - that'll happen once you call the Function Build() on the instance so a user can also adjust the paths and reuse an instance if he wants to
         /// </summary>
         /// <param name="pathToWebAppDirectory">The Config File Name content needs to be according to the ApiWebAppData class (filling it)!</param>
         /// <param name="webAppConfigFileName">Important to set the PathToWebAppDirectory in case you want to use a deployer for example!(since the resources have to be built by it)</param>
+        /// <param name="webAppResourceBuilder">resource builder for resource handler, deployer...</param>
         /// <param name="ignoreBOMDifference"> a boolean that will be set for every resource that will be parsed! For details look at ApiwebAppResources ignoreBOMDifference
         /// for no value given IgnoreBOMDifference will default to false</param>
         public ApiWebAppConfigParser(string pathToWebAppDirectory, string webAppConfigFileName, IApiWebAppResourceBuilder webAppResourceBuilder, bool ignoreBOMDifference = false)
@@ -55,7 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
 
 
         /// <summary>
-        /// Parse the WebAppDirectory with the WebAppConfigFile that are currently set!
+        /// Build the WebAppDirectory with the WebAppConfigFile that are currently set!
         /// </summary>
         /// <returns>ApiWebAppData containing the informations for:
         /// ApiWebAppState, Name, Type, DefaultPage, NotAuthorizedPage, NotFoundPage, ApplicationResources (parsed from the directory) with their Properties

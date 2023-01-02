@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
@@ -133,7 +133,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// Get A Random String with the length given, Random (optional)
         /// containing characters of CharSet
         /// </summary>
-        /// <param name="length">length of the string you want</param>
         /// <returns>random string with given length</returns>
         public string Generate()
         {

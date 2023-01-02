@@ -1,6 +1,6 @@
 ![1518F](./docs/screens/1518F.png)
 # WebserverApi Client Library for .NET
-This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
+This package targeting .NET Framework: 4.8, 6.0, 7.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
 
 * Package name: **Siemens.Simatic.S7.Webserver.API**
 
@@ -8,36 +8,93 @@ This package targeting .NET Framework 4.8 or greater and .NET Standard 2.0 and a
 - [WebserverApi Client Library for .NET](#webserverapi-client-library-for-net)
 - [Table of contents](#table-of-contents)
 - [License](#license)
-- [Dependencies](#dependencies)
-- [Usage](#usage)
-- [ApiHttpClientRequestHandler](#apihttpclientrequesthandler)
-- [WebApps](#webapps)
-  - [AsyncWebAppDeployer, WebAppConfigParser](#asyncwebappdeployer-webappconfigparser)
-- [PlcProgram Browse Read and Write](#plcprogram-browse-read-and-write)
+- [Introduction](#introduction)
+  - [Overview](#overview)
+  - [Functionality](#functionality)
+  - [Dependencies](#dependencies)
+- [Engineering](#engineering)
+  - [Hardwaresetup](#hardwaresetup)
+  - [Configuration](#configuration)
+  - [Operation](#operation)
+  - [Errorhandling](#errorhandling)
+- [Topics (Web API methods)](#topics-web-api-methods)
+  - [ApiHttpClientRequestHandler](#apihttpclientrequesthandler)
+  - [WebApps](#webapps)
+    - [AsyncWebAppDeployer, WebAppConfigParser](#asyncwebappdeployer-webappconfigparser)
+  - [PlcProgram Browse Read and Write](#plcprogram-browse-read-and-write)
 - [Compatibility](#compatibility)
-  - [SIMATIC S71500:](#simatic-s71500)
-  - [SIMATIC S71200:](#simatic-s71200)
+  - [SIMATIC S7-1500:](#simatic-s7-1500)
+  - [SIMATIC S7-1200:](#simatic-s7-1200)
 - [Limitations](#limitations)
 - [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
-  - [SIMATIC S71500:](#simatic-s71500-1)
-  - [SIMATIC S71200:](#simatic-s71200-1)
+  - [SIMATIC S7-1500:](#simatic-s7-1500-1)
+  - [SIMATIC S7-1200:](#simatic-s7-1200-1)
 
 # [License](LICENSE.md)
 
-# Dependencies
-* [System.Net.Http](https://www.nuget.org/packages/system.net.http/)
-* [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/)
-* [MimeMapping](https://www.nuget.org/packages/MimeMapping/)
+# Introduction
 
-# Usage
-The Functionalities come together in the ApiHttpClientRequestHandler that implements the IAsyncApiRequesthandler (and also in any implementation of the IApiRequestHandler - not given by example). 
+## Overview
+This package provides an easy way to use the functionalities of the S7 Webserver API without taking care of the HTTP requests.
 
-In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Everybody" with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Everybody" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
+In the area of the requesthandling following comfort is in place:
+* GUIDGenerator: Create IDs (with a parameterizable length) for the requests 
+* ApiRequestFactory: Create ApiRequests comfortably by providing the parameters for the according request
+* ApiRequestParameterChecker: Check the parameters on their validity before sending them to the plc (reduce traffic, enhance testability)
+* ApiResponseChecker: Pre-checking of Responses by the plc, throw exceptions that tell the user about the origin of an issue.
+* ApiHttpClientRequestHandler: Send the requests provided by an ApiRequestFactory to the plc and return the result inside a class
+
+So generally all available methods of the S7 Web API can be called easily without taking care of RequestHandling, Id generation, result parsing, etc. Furthermore some comfort functionality is implemented:
+* WebApps 
+    * ApiResourceHandler: Upload/Download of Web-resources (html files, js files,...)
+    * ApiWebAppDataSaver: Saving the configuration of an ApiWebAppData comfortably in a json file that can be parsed by the ApiWebAppConfigParser
+    * ApiWebAppDeployer: Deploy/Update of an ApiWebAppData to the plc
+    * ApiWebAppResourceBuilder: Create an ApiWebAppResource from a file (html, js, ...)
+* PlcProgram
+    * ApiPlcProgramHandler: Implementation to comfortably read/write all children of a struct via Bulk requests (under construction)
+* Files and Directories
+    * ApiFileResourceBuilder: Build an ApiFileResource from the path to a local resource (e.g. windows file)
+    * ApiDirectoryBuilder: Build a directory containing multiple files from a given ApiDirectoryBuilderConfiguration
+    * ApiFileHandler: Take care of Upload/Download of a file
+    * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory (todo: download + deltadownload)
+* Backups
+    * ApiBackupHandler: Download/Restore a backup
+
+## Functionality
+The Functionalities come together in the [ApiHttpClientRequestHandler](#apihttpclientrequesthandler) that implements the IAsyncApiRequesthandler (and also in any implementation of the IApiRequestHandler - not given by example). 
 
 Further examples of usage are also provided in the UnitTests of the component.
 
-# ApiHttpClientRequestHandler
+## Dependencies
+Package Name | Nuget Package URL | Project URL(s)
+------------------|------------------|------------------
+NETStandard.Library   | https://www.nuget.org/packages/NETStandard.Library/	| https://dot.net/, https://github.com/dotnet/runtime
+Microsoft.SourceLink.GitHub   | https://www.nuget.org/packages/Microsoft.SourceLink.GitHub/	| https://github.com/dotnet/sourcelink
+System.Net.Http   | https://www.nuget.org/packages/system.net.http/	| https://dot.net/, https://github.com/microsoft/referencesource/tree/master/System/net/System/Net/Http
+Newtonsoft.Json   | https://www.nuget.org/packages/Newtonsoft.Json/	| https://www.newtonsoft.com/json, https://github.com/JamesNK/Newtonsoft.Json
+GitVersioning   | https://www.nuget.org/packages/Nerdbank.GitVersioning/	| https://github.com/dotnet/Nerdbank.GitVersioning
+MimeMapping   | https://www.nuget.org/packages/MimeMapping/	| https://github.com/zone117x/MimeMapping
+
+# Engineering
+
+## Hardwaresetup
+Depending on the plc you are having a different number of sessions can co-exist during operation. For details please check the manual.
+
+## Configuration 
+See [ApiHttpClientRequestHandler](#apihttpclientrequesthandler).
+
+## Operation
+See [ApiHttpClientRequestHandler](#apihttpclientrequesthandler), if you are able to successfully send the ApiBrowse request and log the responses the setup is fine.
+
+## Errorhandling
+Depending on the requests sent and the plc state there might be errors occurring. As an example there can only be 1 ApiTicket which needs to be closed after use. Therefore when calling e.g. WebApp.CreateResource the result might look like the following:<br>{"error":{"code":4,"message":"No Resources"},"id":"81dcdb3c-0704-454f-94a3-364a75b7eb4d","jsonRpc":"2.0"}<br>In this case the ApiHttpClientRequestHandler will throw an ApiNoResourcesException containing different scenarios when this exception might occur.
+
+# Topics (Web API methods)
+
+## ApiHttpClientRequestHandler
+In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Everybody" with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Everybody" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
+
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
 var serviceFactory = new ApiStandardServiceFactory();
@@ -48,7 +105,7 @@ foreach(var method in apiBrowseResponse.Result)
     Console.WriteLine(method.Name);
 }
 ```
-**Hint**: The PLC Certificate is by default not accepted by your PC - therefor you have to either download and store the certificate in the trusted root ca certificates or implement the validation callback for your system - a "plain" check for => true is not good practice but it will get you started in case you dont want to download and install the certificate.
+**Hint**: The PLC Certificate is by default not accepted by your PC - therefor you have to either download and store the certificate in the trusted root ca certificates (preferably!) or implement the validation callback for your system - a "plain" check for => true is not good practice but it will get you started in case you dont want to download and install the certificate.
 ```cs
 ...
 using System.Net;
@@ -59,7 +116,7 @@ ServicePointManager.ServerCertificateValidationCallback += (sender, certificate,
 Siemens.Simatic.S7.Webserver.API.Services.ServerCertificateCallback.CertificateCallback = (sender, cert, chain, sslPolicyErrors) => true;
 ```
 Of course you can also implement a check for the sender and so on.
-# WebApps
+## WebApps
 ![Gif_WebApp](./docs/screens/Gif_WebApp.gif)
 For the PLC WebApps Further Comfort can be accomplished by using the ApiWebAppData and ApiWebAppResource implementations:
 Generally you are free to configure everything on your own:
@@ -90,7 +147,7 @@ await requestHandler.WebAppSetDefaultPageAsync(app, "index.html");
 // do this in a loop for all resources and perform management yourself OR            
 ```
 but further comfort can be accomplished with:
-## AsyncWebAppDeployer, WebAppConfigParser
+### AsyncWebAppDeployer, WebAppConfigParser
 You can use Implementations to comfortably deploy the apps to the plc with a Deployer and FileParser for your WebAppDirectory:
 ```cs
 var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
@@ -114,7 +171,7 @@ public class ApiWebAppResourceBuilder {}
 This is the case because uploading files using javascript on a webpage has shown that the BOM (Byte Order Mark) is not transmitted!
 Therefor if you upload a file using javascript and then make the deployer do the comparison between the file locally (windows explorer) and the one on the server(plc) the files would be different since the size is different by three bytes. To get rid of this "false positive" on a difference you can set the ignoreBOMDifference to true - but keep in mind that a change of 3 bytes would then also be accepted as no difference. The deployer would still reupload the file since the last_modified dates would not match!
 
-# PlcProgram Browse Read and Write
+## PlcProgram Browse Read and Write
 The PlcProgram Methods can be used to Browse available variables and to read or write their value.
 ```cs
 ...
@@ -180,20 +237,21 @@ Console.WriteLine(myBool.Value);
 
 Use the following table to find the correct client version for each Plc version (server)
 
-## SIMATIC S71500:
+## SIMATIC S7-1500:
 Plc Version | Client Library Version
 ------------------|---------------
 2.9.x              | 1.0.x
 2.9.x              | 2.0.x
+3.0.x              | 2.1.x
 
-## SIMATIC S71200:
+## SIMATIC S7-1200:
 Plc Version | Client Library Version
 ------------------|---------------
 4.5.x             | 1.0.x
 4.5.x             | 2.0.x
+4.6.x             | 2.1.x
 
-**Hint**: The current (first) Wrapper Version supports more API calls than the current S71200 does - the S71200 will likely(!) support the API calls of the wrapper with the next version.
-
+**Hint**: This Library supports more API calls than the current S7-1200 does - the S7-1200 will likely(!) support the API calls of last version of the s7-1500 but this does NOT necessarily have to be the case - for details please always check the manual for the according version.
 
 # Limitations
 
@@ -217,13 +275,13 @@ For feature-specific details and evaluation of what best suits your use case, pl
 
 See Also:
 
-## SIMATIC S71500:
-- SIMATIC S71500: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/simatic-s7-1500.html
-- SIMATIC S71500 Webserver Manual: https://support.industry.siemens.com/cs/us/en/view/59193560
-- SIMATIC S71500 Manual Collection: https://support.industry.siemens.com/cs/us/en/view/86140384
+## SIMATIC S7-1500:
+- SIMATIC S7-1500: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/simatic-s7-1500.html
+- SIMATIC S7-1500 Webserver Manual: https://support.industry.siemens.com/cs/us/en/view/59193560
+- SIMATIC S7-1500 Manual Collection: https://support.industry.siemens.com/cs/us/en/view/86140384
 
 
-## SIMATIC S71200:
-- SIMATIC S71200: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/s7-1200.html
-- SIMATIC S71200 Manual: https://support.industry.siemens.com/cs/ch/en/view/109797241
-- SIMATIC S71200 Manual: https://support.industry.siemens.com/cs/us/en/view/91696622/45063671307
+## SIMATIC S7-1200:
+- SIMATIC S7-1200: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/s7-1200.html
+- SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/ch/en/view/109797241
+- SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/us/en/view/91696622/45063671307

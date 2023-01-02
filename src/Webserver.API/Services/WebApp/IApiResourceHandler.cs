@@ -1,8 +1,9 @@
-﻿// Copyright (c) 2021, Siemens AG
+﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
@@ -66,7 +67,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>task/void</returns>
-        void DownloadResource(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
+        FileInfo DownloadResource(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
@@ -77,6 +78,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>task/void</returns>
-        Task DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
+        Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
     }
 }

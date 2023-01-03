@@ -37,5 +37,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public override int GetHashCode() => (Name).GetHashCode();
 
+        /// <summary>
+        /// Return the Name
+        /// </summary>
+        /// <returns>Name</returns>
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

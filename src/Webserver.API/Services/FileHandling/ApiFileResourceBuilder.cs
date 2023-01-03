@@ -38,7 +38,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// used to create an ApiFileResource from a given filename and localDirectoryPath
         /// </summary>
         /// <param name="resourcePath">Path to the File/Directory to build the resource from</param>
-        /// <param name="localDirectoryPath">Local Directory Path - used to determine the filename (Path!)</param>
         /// <returns>the ApiFileResource</returns>
         public ApiFileResource BuildResourceFromFile(string resourcePath)
         {

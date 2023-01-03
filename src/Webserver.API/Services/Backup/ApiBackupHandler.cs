@@ -33,36 +33,36 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         }
 
         /// <summary>
-        /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
+        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="resource">will default to "resource.name</param> 
+        /// <param name="backupName">will default to the backup name suggested by the plc</param> 
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public async Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string resource = null,  bool overwriteExistingFile = false)
+        public async Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null,  bool overwriteExistingFile = false)
         {
             if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
             {
                 throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
             }
             var ticket = (await ApiRequestHandler.PlcCreateBackupAsync()).Result;
-            return (await ApiTicketHandler.HandleDownloadAsync(ticket, pathToDownloadDirectory)).File_Downloaded;
+            return (await ApiTicketHandler.HandleDownloadAsync(ticket, pathToDownloadDirectory, backupName, null, overwriteExistingFile)).File_Downloaded;
         }
 
         /// <summary>
-        /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
+        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="resource">will default to "resource.name</param>
+        /// <param name="backupName">will default to the backup name suggested by the plc</param>
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public FileInfo DownloadBackup(string pathToDownloadDirectory = null, string resource = null, bool overwriteExistingFile = false)
-            => DownloadBackupAsync(pathToDownloadDirectory, resource).GetAwaiter().GetResult();
+        public FileInfo DownloadBackup(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false)
+            => DownloadBackupAsync(pathToDownloadDirectory, backupName).GetAwaiter().GetResult();
 
         /// <summary>
-        /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
+        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="userName">Username for re-login</param>
         /// <param name="password">Password for re-login</param>
@@ -81,10 +81,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             {
                 throw new FileNotFoundException($"the given file at {Environment.NewLine}{restoreFilePath}{Environment.NewLine} has not been found!");
             }
-            string ticketResponse = (await ApiRequestHandler.PlcRestoreBackupAsync(password)).Result; 
+            string ticketResponse = (await ApiRequestHandler.PlcRestoreBackupAsync(password)).Result;
             try
             {
-                await ApiRequestHandler.UploadTicketAsync(ticketResponse, restoreFilePath);
+                await ApiTicketHandler.HandleUploadAsync(ticketResponse, restoreFilePath);
             }
             // HttpRequestException is okay since during the upload the plc will power cycle and not "successfully answer" the request
             catch (ApiTicketingEndpointUploadException e)
@@ -92,16 +92,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                 if (e.InnerException != null || !(e.InnerException is HttpRequestException))
                     throw;
             }
+            //var ticket = await ApiRequestHandler.ApiBrowseTicketsAsync();
+            
             var waitHandler = new WaitHandler(timeToWait);
             Console.WriteLine($"{DateTime.Now}: Wait for plc to not be pingable anymore (reboot).");
             WaitForPlcReboot(waitHandler);
             await ApiRequestHandler.ReLoginAsync(userName, password);
             ticketResponse = (await ApiRequestHandler.PlcRestoreBackupAsync(password)).Result;
             await ApiTicketHandler.HandleUploadAsync(ticketResponse, restoreFilePath);
+            WaitForPlcReboot(waitHandler);
+            await ApiRequestHandler.ReLoginAsync(userName, password);
         }
 
         /// <summary>
-        /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
+        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="userName">Username for re-login</param>
         /// <param name="password">Password for re-login</param>

@@ -16,18 +16,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="resource">will default to "resource.name</param>
+        /// <param name="backupName">will default to the backup name suggested by the plc</param> 
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
-        FileInfo DownloadBackup(string pathToDownloadDirectory = null, string resource = null, bool overwriteExistingFile = false);
+        FileInfo DownloadBackup(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false);
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="resource">will default to "resource.name</param> 
+        /// <param name="backupName">will default to the backup name suggested by the plc</param> 
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
-        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string resource = null, bool overwriteExistingFile = false);
+        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false);
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>

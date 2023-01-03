@@ -176,6 +176,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         ResourceContentHasBeenCorrupted = 514,
         /// <summary>
+        /// The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.
+        /// </summary>
+        PLCNotInStop = 1004,
+        /// <summary>
         /// The method has not been found by the plc - check the spelling and fw-version (and according methods) of plc
         /// </summary>
         MethodNotFound = -32601,

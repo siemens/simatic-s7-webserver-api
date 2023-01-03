@@ -45,7 +45,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         [JsonProperty("Files.Create")]
         [EnumMember(Value = "Files.Create")]
         Files_Create = 4,
-
+        /// <summary>
+        /// For Api: Plc.CreateBackup
+        /// </summary>
+        [JsonProperty("Plc.CreateBackup")]
+        [EnumMember(Value = "Plc.CreateBackup")]
+        Plc_CreateBackup = 5,
     }
 
 

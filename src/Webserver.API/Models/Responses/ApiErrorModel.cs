@@ -90,6 +90,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidETagException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.ResourceContentHasBeenCorrupted:
                     throw new ApiResourceContentHasBeenCorruptedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PLCNotInStop:
+                    throw new ApiPLCNotInStopException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.MethodNotFound:
                     throw new ApiMethodNotFoundException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidParams:

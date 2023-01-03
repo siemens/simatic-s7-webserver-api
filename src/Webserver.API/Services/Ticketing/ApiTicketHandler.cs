@@ -297,42 +297,56 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <exception cref="Exception">File has no content</exception>
         public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false)
         {
-            if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
+            var success = false;
+            try
             {
-                throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
-            }
-            var response = await ApiRequestHandler.DownloadTicketAndGetResponseAsync(ticketId);
-            //Downloads: 374DE290-123F-4565-9164-39C4925E467B
-            string usedPathToDownloadDirectory = pathToDownloadDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop).Replace("Desktop", "Downloads");
-            string usedFilename = fileName ?? response.Content.Headers.ContentDisposition.FileName;
-            string usedFileExtension = fileExtension ?? "";
-            var content = await response.Content.ReadAsByteArrayAsync();
-            string path = Path.Combine(usedPathToDownloadDirectory, usedFilename + usedFileExtension);
-            uint counter = 0;
-            var firstPath = path;
-            while (File.Exists(path) && !overwriteExistingFile)
-            {
-                FileInfo fileInfo = new FileInfo(path);
-                DirectoryInfo dir = fileInfo.Directory;
-                path = Path.Combine(dir.FullName, (Path.GetFileNameWithoutExtension(firstPath) + "(" + counter + ")" + fileInfo.Extension));
-                counter++;
-            }
-            if (usedFilename.Contains("/"))
-            {
-                var split = usedFilename.Split('/');
-                var paths = "";
-                foreach (var s in split)
+                if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
                 {
-                    if (s == split.Last())
-                        continue;
-                    paths += $"\\{s}";
-                    if (!Directory.Exists(usedPathToDownloadDirectory + paths))
+                    throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
+                }
+                var response = await ApiRequestHandler.DownloadTicketAndGetResponseAsync(ticketId);
+                //Downloads: 374DE290-123F-4565-9164-39C4925E467B
+                string usedPathToDownloadDirectory = pathToDownloadDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop).Replace("Desktop", "Downloads");
+                var suggestedFileName = response.Content.Headers.ContentDisposition.FileName.Replace("\"", "").Replace("-", "_").Replace(":", "_").Replace(" ", "_");
+                string usedFilename = fileName ?? suggestedFileName;
+                string usedFileExtension = fileExtension ?? (Path.HasExtension(usedFilename) ? "" : Path.GetExtension(suggestedFileName));
+                var content = await response.Content.ReadAsByteArrayAsync();
+                string path = Path.Combine(usedPathToDownloadDirectory, usedFilename + usedFileExtension);
+                uint counter = 0;
+                var firstPath = path;
+                while (File.Exists(path) && !overwriteExistingFile)
+                {
+                    FileInfo fileInfo = new FileInfo(path);
+                    DirectoryInfo dir = fileInfo.Directory;
+                    var determinedFileName = $"{Path.GetFileNameWithoutExtension(firstPath)}({counter}){fileInfo.Extension}";
+                    path = Path.Combine(dir.FullName, determinedFileName);
+                    counter++;
+                }
+                if (usedFilename.Contains("/"))
+                {
+                    var split = usedFilename.Split('/');
+                    var paths = "";
+                    foreach (var s in split)
                     {
-                        Directory.CreateDirectory(usedPathToDownloadDirectory + paths);
+                        if (s == split.Last())
+                            continue;
+                        paths += $"\\{s}";
+                        if (!Directory.Exists(usedPathToDownloadDirectory + paths))
+                        {
+                            Directory.CreateDirectory(usedPathToDownloadDirectory + paths);
+                        }
                     }
                 }
+                success = true;
+                return await HandleWriteFileAndCheckAsync(ticketId, content, path, overwriteExistingFile);
             }
-            return await HandleWriteFileAndCheckAsync(ticketId, content, path, overwriteExistingFile);
+            finally
+            {
+                if(!success)
+                {
+                    await ApiRequestHandler.ApiCloseTicketAsync(ticketId);
+                }
+            }
         }
 
         /// <summary>

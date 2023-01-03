@@ -92,6 +92,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                 if (e.InnerException != null || !(e.InnerException is HttpRequestException))
                     throw;
             }
+            //var ticket = await ApiRequestHandler.ApiBrowseTicketsAsync();
+            
             var waitHandler = new WaitHandler(timeToWait);
             WaitForPlcReboot(waitHandler);
             await ApiRequestHandler.ReLoginAsync(userName, password);

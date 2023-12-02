@@ -3,11 +3,6 @@
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -69,7 +64,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="createDirectoryIfNotExists">will be used to determine wether a directory will be created 
         /// for saving in case it does not yet exist and is provided via DirectoryPath</param>
         /// <param name="jsonSerializerSetting">Setting for the Serialization</param>
-        public ApiWebAppDataSaveSetting(string directoryPath, string configurationName, 
+        public ApiWebAppDataSaveSetting(string directoryPath, string configurationName,
             bool checkConsistency, bool createDirectoryIfNotExists, JsonSerializerSettings jsonSerializerSetting)
         {
             DirectoryPath = directoryPath;

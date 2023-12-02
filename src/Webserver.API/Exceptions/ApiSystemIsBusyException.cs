@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {
@@ -29,7 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// </summary>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference 
         /// (Nothing in Visual Basic) if no inner exception is specified.</param>
-        public ApiSystemIsBusyException(Exception innerException) : base(message, innerException){ }
+        public ApiSystemIsBusyException(Exception innerException) : base(message, innerException) { }
 
         /// <summary>
         /// The requested operation cannot be executet since the system is currently processing another request. 

@@ -3,16 +3,15 @@
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
-using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiSyslog;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -23,7 +22,7 @@ namespace Webserver.API.UnitTests
         {
             var resource = new ApiWebAppResource();
             resource = null;
-            if(resource == null)
+            if (resource == null)
             {
                 ;
             }
@@ -31,7 +30,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null altough its null!");
             }
-            if(resource != null)
+            if (resource != null)
             {
                 Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null altough its null!");
             }
@@ -40,7 +39,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null altough its not null!");
             }
-            if(!resource.Equals(null))
+            if (!resource.Equals(null))
             {
                 ;
             }
@@ -111,7 +110,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiS5Time_NullEqualAndSequenceEqual_AsExpected()
         {
-            var s5Time = new ApiS5Time(10,1);
+            var s5Time = new ApiS5Time(10, 1);
             s5Time = null;
             if (s5Time == null)
             {
@@ -125,7 +124,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail("S5TimeNullEqualAndSequenceEqual - s5Time not null altough its null!");
             }
-            s5Time = new ApiS5Time(10,1);
+            s5Time = new ApiS5Time(10, 1);
             if (s5Time.Equals(null))
             {
                 Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null altough its null!");
@@ -138,7 +137,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null altough its null!");
             }
-            var s5Time2 = new ApiS5Time(10,1);
+            var s5Time2 = new ApiS5Time(10, 1);
             Assert.That(s5Time.Equals(s5Time2));
             List<ApiS5Time> s5Times = new List<ApiS5Time>()
             {
@@ -158,15 +157,15 @@ namespace Webserver.API.UnitTests
         {
             var s5Time = new ApiS5Time(10, 1);
             var secondS5Time = new ApiS5Time(10, 1);
-            if(!s5Time.Equals(secondS5Time))
+            if (!s5Time.Equals(secondS5Time))
             {
                 Assert.Fail("same values S5time are not equal!");
             }
-            if(s5Time == secondS5Time)
+            if (s5Time == secondS5Time)
             {
                 Assert.Fail("unexpectedly s5Time == secondS5Time");
             }
-            if(!(s5Time != secondS5Time))
+            if (!(s5Time != secondS5Time))
             {
                 Assert.Fail("unexpectedly s5Time != secondS5Time is false");
             }
@@ -191,7 +190,7 @@ namespace Webserver.API.UnitTests
                 Assert.Fail("MaxValue unexpected!");
             }
             var MinValDT = ApiDateAndTime.MinValue.GetDateTime();
-            if (MinValDT != new DateTime(1990, 1,1,0,0,0))
+            if (MinValDT != new DateTime(1990, 1, 1, 0, 0, 0))
             {
                 Assert.Fail("MinValue unexpected!");
             }
@@ -215,7 +214,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail("unexpectedly ApiDateAndTime != secondDateAndTime is false");
             }
-            dateAndTime = new ApiDateAndTime() {Second = 2 };
+            dateAndTime = new ApiDateAndTime() { Second = 2 };
             if (dateAndTime.Equals(secondDateAndTime))
             {
                 Assert.Fail("other values ApiDateAndTime are equal!");
@@ -263,7 +262,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail($"Unexpected date: {myDate}");
             }
-            if(!myDate.Equals(ApiDateAndTime.MinValue))
+            if (!myDate.Equals(ApiDateAndTime.MinValue))
             {
                 Assert.Fail($"Unexpectedly dates dont match: {myDate} and {ApiDateAndTime.MinValue}");
             }
@@ -280,7 +279,7 @@ namespace Webserver.API.UnitTests
                 Assert.Fail($"Unexpectedly dates dont match: {myDate} and {ApiDateAndTime.MinValue}");
             }
             var anotherDt = new ApiDateAndTime(new DateTime(2022, 12, 31, 23, 59, 59).AddMilliseconds(999));
-            if(!anotherDt.Equals(myDate))
+            if (!anotherDt.Equals(myDate))
             {
                 Assert.Fail($"Unexpectedly dates dont match: {myDate} and {anotherDt}");
             }
@@ -304,39 +303,47 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiDateAndTime_InvalidValuesNotAccepted()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ApiDateAndTime(1989,1,1,0,0,0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ApiDateAndTime(1989, 1, 1, 0, 0, 0));
             Assert.Throws<ArgumentOutOfRangeException>(() => new ApiDateAndTime(new DateTime(1930, 1, 1)));
             Assert.Throws<ArgumentOutOfRangeException>(() => new ApiDateAndTime(new DateTime(2300, 1, 1)));
             Assert.Throws<ArgumentOutOfRangeException>(() => new ApiDateAndTime(new DateTime(2090, 1, 1)));
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
-                var mydT = new ApiDateAndTime(2020, 1, 1, 0,0, 0.0);
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Year = 2090;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Year = 1989;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Month = 13;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Month = -1;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Day = 32;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Day = -1;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Second = 61;
             });
-            Assert.Throws<ArgumentOutOfRangeException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
                 var mydT = new ApiDateAndTime(2020, 1, 1, 0, 0, 0.0);
                 mydT.Second = -1;
             });
@@ -345,7 +352,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiS5Time_ValuesAreAsExpected()
         {
-            var myS5Time = new ApiS5Time(10,0);
+            var myS5Time = new ApiS5Time(10, 0);
             if (myS5Time.GetTimeSpan() != TimeSpan.FromMilliseconds(0))
             {
                 Assert.Fail($"Unexpected myS5Time: {myS5Time}");
@@ -355,7 +362,7 @@ namespace Webserver.API.UnitTests
                 Assert.Fail($"Unexpectedly dates dont match: {myS5Time} and {ApiDateAndTime.MinValue}");
             }
             var secondS5Time = new ApiS5Time(TimeSpan.FromMilliseconds(0));
-            if(!myS5Time.Equals(secondS5Time))
+            if (!myS5Time.Equals(secondS5Time))
             {
                 Assert.Fail($"Unexpectedly dates dont match: {myS5Time} and {secondS5Time}");
             }
@@ -723,7 +730,7 @@ namespace Webserver.API.UnitTests
             {
                 Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
             }
-            var httpClientConnectionConfiguration2 = new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false);
+            var httpClientConnectionConfiguration2 = new HttpClientConnectionConfiguration(null, null, null, TimeSpan.Zero, false, false, false);
             Assert.That(httpClientConnectionConfiguration2.Equals(httpClientConnectionConfiguration));
             List<HttpClientConnectionConfiguration> httpClientConnections = new List<HttpClientConnectionConfiguration>()
             {
@@ -736,6 +743,300 @@ namespace Webserver.API.UnitTests
                 new HttpClientConnectionConfiguration(null, null, null,TimeSpan.Zero,false,false,false)
             };
             Assert.That(httpClientConnections.SequenceEqual(httpClientConnections2));
+        }
+
+        [Test]
+        public void PlcDate_InvalidValuesNotAccepted()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(0, 1, ApiDayOfWeek.Sun, 12, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(13, 1, ApiDayOfWeek.Mon, 12, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(1, 0, ApiDayOfWeek.Tue, 12, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(12, 6, ApiDayOfWeek.Wed, 12, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(1, 1, ApiDayOfWeek.Thu, -1, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(12, 5, ApiDayOfWeek.Fri, 24, 43));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(1, 1, ApiDayOfWeek.Sat, 0, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new PlcDate(12, 5, ApiDayOfWeek.Sun, 23, 60));
+        }
+
+        [Test]
+        public void PlcDate_EqualsCheck()
+        {
+            var equalsPD1 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var equalsPD2 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var notEqualsPD1 = new PlcDate(12, 5, ApiDayOfWeek.Sun, 2, 24);
+
+            Assert.IsTrue(equalsPD1.Equals(equalsPD2));
+            Assert.IsTrue(equalsPD2.Equals(equalsPD1));
+
+            Assert.IsFalse(equalsPD1.Equals(notEqualsPD1));
+            Assert.IsFalse(equalsPD2.Equals(notEqualsPD1));
+        }
+
+        [Test]
+        public void DaylightSavingTimeConfiguration_InvalidValuesNotAccepted()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DaylightSavingsTimeConfiguration(new PlcDate(11, 1, ApiDayOfWeek.Sun, 12, 43),
+                                                                                                  TimeSpan.FromMinutes(-181)));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new DaylightSavingsTimeConfiguration(new PlcDate(11, 1, ApiDayOfWeek.Sun, 12, 43),
+                                                                                                  TimeSpan.FromMinutes(181)));
+        }
+
+        [Test]
+        public void DaylightSavingTimeConfiguration_EqualsCheck()
+        {
+            var equalsPD1 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var equalsPD2 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var notEqualsPD2 = new PlcDate(10, 5, ApiDayOfWeek.Wed, 22, 10);
+
+            var equalsDST1 = new DaylightSavingsTimeConfiguration(equalsPD1, TimeSpan.FromMinutes(60));
+            var equalsDST2 = new DaylightSavingsTimeConfiguration(equalsPD2, TimeSpan.FromMinutes(60));
+            var notequalsDST1 = new DaylightSavingsTimeConfiguration(notEqualsPD2, TimeSpan.FromMinutes(60));
+            var notequalsDST2 = new DaylightSavingsTimeConfiguration(equalsPD1, TimeSpan.FromMinutes(120));
+
+            Assert.IsTrue(equalsDST1.Equals(equalsDST2));
+            Assert.IsTrue(equalsDST2.Equals(equalsDST1));
+
+            Assert.IsFalse(equalsDST1.Equals(notequalsDST1));
+            Assert.IsFalse(equalsDST2.Equals(notequalsDST2));
+        }
+
+        [Test]
+        public void StandardTimeConfiguration_EqualsCheck()
+        {
+            var equalsPD1 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var equalsPD2 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
+            var notEqualsPD2 = new PlcDate(10, 5, ApiDayOfWeek.Wed, 22, 10);
+
+            var equalsSTD1 = new StandardTimeConfiguration(equalsPD1);
+            var equalsSTD2 = new StandardTimeConfiguration(equalsPD2);
+            var notequalsSTD1 = new StandardTimeConfiguration(notEqualsPD2);
+
+            Assert.IsTrue(equalsSTD1.Equals(equalsSTD2));
+            Assert.IsTrue(equalsSTD2.Equals(equalsSTD1));
+
+            Assert.IsFalse(equalsSTD1.Equals(notequalsSTD1));
+        }
+
+        [Test]
+        public void ApiSyslog_EqualsCheck()
+        {
+            List<ApiPlcSyslog_Entry> apiSyslog_Entries = new List<ApiPlcSyslog_Entry>() { new ApiPlcSyslog_Entry() { Raw = "hello word" } };
+            List<ApiPlcSyslog_Entry> apiSyslog_Entries_other = new List<ApiPlcSyslog_Entry>() { new ApiPlcSyslog_Entry() { Raw = "goodbye word" } };
+            ApiPlcSyslog equal1 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal1 = new ApiPlcSyslog() { Count_Lost = 4, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 99, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
+            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal1), $"{equal1.ToString()} \nequal\n{not_equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal2), $"{equal1.ToString()} \nequal\n{not_equal2.ToString()}");
+            Assert.False(equal1.Equals(not_equal3), $"{equal1.ToString()} \nequal\n{not_equal3.ToString()}");
+        }
+        [Test]
+        public void ApiSyslog_Entry_EqualsCheck()
+        {
+            ApiPlcSyslog_Entry equal1 = new ApiPlcSyslog_Entry() { Raw = "random text" };
+            ApiPlcSyslog_Entry equal2 = new ApiPlcSyslog_Entry() { Raw = "random text" };
+            ApiPlcSyslog_Entry not_equal1 = new ApiPlcSyslog_Entry() { Raw = "random txet" };
+            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal1), $"{equal1.ToString()} \nequal\n{not_equal1.ToString()}");
+        }
+        [Test]
+        public void ApiSyslog_HashCodeCheck()
+        {
+            List<ApiPlcSyslog_Entry> apiSyslog_Entries = new List<ApiPlcSyslog_Entry>() { new ApiPlcSyslog_Entry() { Raw = "hello word" } };
+            List<ApiPlcSyslog_Entry> apiSyslog_Entries_other = new List<ApiPlcSyslog_Entry>() { new ApiPlcSyslog_Entry() { Raw = "goodbye word" } };
+            ApiPlcSyslog equal1 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal1 = new ApiPlcSyslog() { Count_Lost = 4, Count_Total = 100, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 101, Entries = apiSyslog_Entries };
+            ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
+            Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
+            Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
+            Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
+            Assert.False(equal1.GetHashCode() == not_equal2.GetHashCode(), $"equal1.GetHashCode() equal not_equal2.GetHashCode()");
+            Assert.False(equal1.GetHashCode() == not_equal3.GetHashCode(), $"equal1.GetHashCode() equal not_equal3.GetHashCode()");
+        }
+        [Test]
+        public void ApiSyslog_Entry_HashCodeCheck()
+        {
+            ApiPlcSyslog_Entry equal1 = new ApiPlcSyslog_Entry() { Raw = "random text" };
+            ApiPlcSyslog_Entry equal2 = new ApiPlcSyslog_Entry() { Raw = "random text" };
+            ApiPlcSyslog_Entry not_equal1 = new ApiPlcSyslog_Entry() { Raw = "random txet" };
+            Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
+            Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
+            Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
+        }
+
+        [Test]
+        public void ApiAlarms_EqualsCheck()
+        {
+            ApiAlarms equal1 = new ApiAlarms() { Count_Current = 10, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiAlarms equal2 = new ApiAlarms() { Count_Current = 10, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiAlarms not_equal = new ApiAlarms() { Count_Current = 11, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
+            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} equal\n{equal2.ToString()}");
+        }
+
+        [Test]
+        public void ApiAlarms_Entry_EqualsCheck()
+        {
+            ApiAlarms_Entry equal1 = new ApiAlarms_Entry()
+            {
+                Id = "1",
+                Alarm_Number = 518,
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Producer = "hardcoded_testcase",
+                Hwid = null,
+                Alarm_Text = "hi",
+                Info_Text = "word",
+                Text_Inconsistent = false
+            };
+            ApiAlarms_Entry equal2 = new ApiAlarms_Entry()
+            {
+                Id = "1",
+                Alarm_Number = 518,
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Producer = "hardcoded_testcase",
+                Hwid = null,
+                Alarm_Text = "hi",
+                Info_Text = "word",
+                Text_Inconsistent = false
+            };
+            ApiAlarms_Entry not_equal = new ApiAlarms_Entry()
+            {
+                Id = "1",
+                Alarm_Number = 519,
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Producer = "hardcoded_testcase",
+                Hwid = null,
+                Alarm_Text = "hi",
+                Info_Text = "word",
+                Text_Inconsistent = false
+            };
+            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
+            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} equal\n{equal2.ToString()}");
+        }
+
+        [Test]
+        public void ApiAlarms_EntryAcknowledgement_EqualsCheck()
+        {
+            ApiAlarms_EntryAcknowledgement equal1 = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Not_Acknowledged };
+            ApiAlarms_EntryAcknowledgement equal2 = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Not_Acknowledged };
+            ApiAlarms_EntryAcknowledgement not_equal = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Acknowledged, Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} \nequal\n{equal2.ToString()}");
+        }
+
+        [Test]
+        public void ApiDiagnosticBuffer_EqualsCheck()
+        {
+            ApiDiagnosticBuffer equals1 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 2400, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiDiagnosticBuffer equals2 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 2400, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiDiagnosticBuffer not_equals1 = new ApiDiagnosticBuffer() { Count_Current = 11, Count_Max = 2400, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiDiagnosticBuffer not_equals2 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 1400, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiDiagnosticBuffer not_equals3 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 2400, Language = "hun", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
+            ApiDiagnosticBuffer not_equals4 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 2400, Language = "en-US", Last_Modified = new DateTime(2021, 6, 15, 10, 33, 24, 123) };
+            Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} not equal to\n {equals2.ToString()}");
+            Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} not equal to\n {equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} equal to\n {not_equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} equal to\n {not_equals2.ToString()}");
+            Assert.False(equals1.Equals(not_equals3), $"{equals1.ToString()} equal to\n {not_equals3.ToString()}");
+            Assert.False(equals1.Equals(not_equals4), $"{equals1.ToString()} equal to\n {not_equals4.ToString()}");
+        }
+        [Test]
+        public void ApiDiagnosticBuffer_Entry_EqualsCheck()
+        {
+            ApiDiagnosticBuffer_Entry equals1 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text",
+                Short_Text = "short text",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry equals2 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text",
+                Short_Text = "short text",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry not_equals1 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2021, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text",
+                Short_Text = "short text",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry not_equals2 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Outgoing,
+                Long_Text = "long text",
+                Short_Text = "short text",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry not_equals3 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text2",
+                Short_Text = "short text",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry not_equals4 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text",
+                Short_Text = "short text2",
+                Help_Text = "help text"
+            };
+            ApiDiagnosticBuffer_Entry not_equals5 = new ApiDiagnosticBuffer_Entry()
+            {
+                Event = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 },
+                Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123),
+                Status = ApiObjectDirectoryStatus.Incoming,
+                Long_Text = "long text",
+                Short_Text = "short text",
+                Help_Text = "help text2"
+            };
+            Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} not equal to\n {equals2.ToString()}");
+            Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} not equal to\n {equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} equal to\n {not_equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} equal to\n {not_equals2.ToString()}");
+            Assert.False(equals1.Equals(not_equals3), $"{equals1.ToString()} equal to\n {not_equals3.ToString()}");
+            Assert.False(equals1.Equals(not_equals4), $"{equals1.ToString()} equal to\n {not_equals4.ToString()}");
+            Assert.False(equals1.Equals(not_equals5), $"{equals1.ToString()} equal to\n {not_equals5.ToString()}");
+        }
+        [Test]
+        public void ApiDiagnosticBuffer_EntryEvent_EqualsCheck()
+        {
+            ApiDiagnosticBuffer_EntryEvent equals1 = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 };
+            ApiDiagnosticBuffer_EntryEvent equals2 = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 5 };
+            ApiDiagnosticBuffer_EntryEvent not_equals1 = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 1, Text_Id = 5 };
+            ApiDiagnosticBuffer_EntryEvent not_equals2 = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 6 };
+            Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} \n not equal to\n  {equals2.ToString()}");
+            Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} \n not equal to\n  {equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} \n equal to\n  {not_equals1.ToString()}");
+            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} \n equal to\n  {not_equals2.ToString()}");
         }
     }
 }

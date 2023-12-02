@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// Copyright (c) 2023, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {

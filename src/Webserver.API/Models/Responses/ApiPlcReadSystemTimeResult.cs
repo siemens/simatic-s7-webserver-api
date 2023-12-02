@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {

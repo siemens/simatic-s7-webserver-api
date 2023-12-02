@@ -7,8 +7,6 @@ using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -19,7 +17,7 @@ namespace Webserver.API.UnitTests
         public void MakeSureNoIdIsContainedTwice_EnoughTime_Works()
         {
             var requests = new List<IApiRequest>();
-            for(int i = 0; i< 500;i++)
+            for (int i = 0; i < 500; i++)
             {
                 requests.Add(new ApiRequest("", "", "1"));
             }
@@ -28,7 +26,7 @@ namespace Webserver.API.UnitTests
                 var charSetGen = ReqIdGenerator as CharSetIdGenerator;
                 Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
             }
-            if(ReqIdGenerator is GUIDGenerator)
+            if (ReqIdGenerator is GUIDGenerator)
             {
                 var guidGen = ReqIdGenerator as GUIDGenerator;
                 Console.WriteLine($"Determined DefaultLength:{guidGen.DefaultLength}");

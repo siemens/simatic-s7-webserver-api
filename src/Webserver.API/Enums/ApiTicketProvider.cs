@@ -2,13 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
@@ -51,8 +45,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         [JsonProperty("Plc.CreateBackup")]
         [EnumMember(Value = "Plc.CreateBackup")]
         Plc_CreateBackup = 5,
+        /// <summary>
+        /// For Api: PlcProgram.DownloadProfilingData
+        /// </summary>
+        [JsonProperty("PlcProgram.DownloadProfilingData")]
+        [EnumMember(Value = "PlcProgram.DownloadProfilingData")]
+        PlcProgram_DownloadProfilingData = 6,
     }
-
-
-
 }

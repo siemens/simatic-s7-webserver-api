@@ -2,11 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
@@ -18,7 +13,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         /// <summary>
         /// True on SuccessResponse: Only Accept "true"
         /// </summary>
-        public override bool Result {
+        public override bool Result
+        {
             get => base.Result; set
             {
                 if (value)
@@ -29,7 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                 {
                     throw new ApiInvalidResponseException($"Server responded with \"{value}\" for a true on success response!?");
                 }
-                
+
             }
         }
     }

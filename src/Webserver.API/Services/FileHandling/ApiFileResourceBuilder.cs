@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
 {

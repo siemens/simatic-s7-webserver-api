@@ -14,15 +14,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
     /// Provides access to custom server certificate callback for handling SSL errors.
     /// </summary>
     public class ServerCertificateCallback
-    {        
+    {
         /// <summary>
         /// Gets or sets custom server certificate callback.
         /// </summary>
-       public static Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>? CertificateCallback
+#nullable enable
+        public static Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>? CertificateCallback
         {
             get;
             set;
-        }    
+        }
+#nullable disable
     }
 }
 #endif

@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
 {
@@ -18,7 +14,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Year of the Date And Time Tag
         /// </summary>
-        public int Year { get
+        public int Year
+        {
+            get
             {
                 return _year;
             }
@@ -32,7 +30,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Month of the Date And Time Tag
         /// </summary>
-        public int Month {get
+        public int Month
+        {
+            get
             {
                 return _month;
             }
@@ -46,7 +46,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Day of the Date And Time Tag
         /// </summary>
-        public int Day { get
+        public int Day
+        {
+            get
             {
                 return _day;
             }
@@ -60,7 +62,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Hour of the Date And Time Tag
         /// </summary>
-        public int Hour { get
+        public int Hour
+        {
+            get
             {
                 return _hour;
             }
@@ -74,7 +78,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Minute of the Date And Time Tag
         /// </summary>
-        public int Minute { get
+        public int Minute
+        {
+            get
             {
                 return _minute;
             }
@@ -88,7 +94,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Second of the Date And Time Tag
         /// </summary>
-        public double Second { get
+        public double Second
+        {
+            get
             {
                 return _second;
             }
@@ -120,8 +128,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <param name="hour">hour to set</param>
         /// <param name="minute">minute to set</param>
         /// <param name="second">second to set</param>
-        public ApiDateAndTime(int year, int month, int day, int hour, int minute, double second) 
-            : this((new DateTime(year, month, day, hour, minute, (int)second)).AddMilliseconds((second-(int)second)*1000))
+        public ApiDateAndTime(int year, int month, int day, int hour, int minute, double second)
+            : this((new DateTime(year, month, day, hour, minute, (int)second)).AddMilliseconds((second - (int)second) * 1000))
         {
         }
 
@@ -129,7 +137,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// Represents the biggest possible value of ApiDateAndTime. This field is constant.
         /// </summary>
         public static readonly ApiDateAndTime MaxValue = new ApiDateAndTime() { _year = 2089, _month = 12, _day = 31, _hour = 23, _minute = 59, _second = 59.999 };
-        
+
 
         /// <summary>
         /// Represents the smallest possible value of ApiDateAndTime. This field is constant.
@@ -147,7 +155,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
             this._day = dateTime.Day;
             this._hour = dateTime.Hour;
             this._minute = dateTime.Minute;
-            this._second = dateTime.Second + ((double)dateTime.Millisecond/1000);
+            this._second = dateTime.Second + ((double)dateTime.Millisecond / 1000);
             CheckValidity(nameof(dateTime));
         }
 

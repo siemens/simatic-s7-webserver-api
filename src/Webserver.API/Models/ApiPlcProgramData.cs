@@ -1,15 +1,13 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -47,12 +45,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// ApiPlcProgramDataType => helper class to determine the TIA DataTypes and map them to the byte size,...
         /// </summary>
-        public ApiPlcProgramDataType Datatype { get { return dataType; }
-            set {
+        public ApiPlcProgramDataType Datatype
+        {
+            get { return dataType; }
+            set
+            {
                 if (value == ApiPlcProgramDataType.None)
                     throw new ApiInvalidResponseException("Api PlcProgramDataType:" + value.ToString() + " was invalid!");
                 dataType = value;
-            } }
+            }
+        }
 
         private List<ApiPlcProgramDataArrayIndexer> _arrayDimensions;
         /// <summary>
@@ -97,7 +99,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 // dont! toAdd.ArrayElements = this.ArrayElements;
                 result.Add(toAdd);
             }
-            if(amountOfElements != result.Count)
+            if (amountOfElements != result.Count)
             {
                 throw new Exception($"Array Element count: {result.Count} does not match calculated count:{amountOfElements}");
             }
@@ -255,8 +257,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Json Object String of the Data</returns>
         public string GetObjectString()
         {
-            return JsonConvert.SerializeObject(this, new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver()
-                , NullValueHandling = NullValueHandling.Ignore });
+            return JsonConvert.SerializeObject(this, new JsonSerializerSettings()
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+                ,
+                NullValueHandling = NullValueHandling.Ignore
+            });
         }
 
         /// <summary>

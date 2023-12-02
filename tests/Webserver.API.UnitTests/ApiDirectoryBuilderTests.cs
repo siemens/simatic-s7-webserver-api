@@ -1,13 +1,11 @@
-﻿using NUnit.Framework;
+﻿// Copyright (c) 2023, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Services.FileHandling;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -164,7 +162,7 @@ namespace Webserver.API.UnitTests
                     fs.Close();
                 }
                 var fileInfo = new FileInfo(filePath);
-                
+
                 var dirPath2 = Path.Combine(localTmpDirectory, "temp");
                 var dirInfo2 = Directory.CreateDirectory(dirPath2);
                 var fileName2 = "file2.txt";

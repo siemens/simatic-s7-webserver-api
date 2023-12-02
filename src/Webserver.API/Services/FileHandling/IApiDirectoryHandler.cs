@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
@@ -22,7 +23,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">resouce to be browsed</param>
         /// <returns>A resource containing everything that is present underneath</returns>
-        Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource);
+        Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Delete the given resource (and all its sub-resources)
         /// </summary>
@@ -33,7 +34,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the resource to delete</param>
         /// <returns>Task for deletion</returns>
-        Task DeleteAsync(ApiFileResource resource);
+        Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -51,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// the function will only upload the resource and its direct sub-resources
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
-        Task DeployAsync(ApiFileResource resource);
+        Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -79,14 +80,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
-        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1);
+        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Update the given File Resource when necessary
         /// </summary>
         /// <param name="resource">the file to be updated</param>
         /// <param name="browsedResource">the file returned by browsing the plc</param>
         /// <returns>Task to update the File</returns>
-        Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource);
+        Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Update the given File Resource when necessary
         /// </summary>
@@ -100,13 +101,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         /// <returns>Task to update the resource</returns>
-        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource);
+        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Update the given Resource - and SubResources, when necessary
         /// </summary>
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         void UpdateResource(ApiFileResource resource, ApiFileResource browsedResource);
-        
+
     }
 }

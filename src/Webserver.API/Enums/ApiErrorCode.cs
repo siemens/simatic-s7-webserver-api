@@ -1,11 +1,6 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
@@ -44,7 +39,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// The system does not have the necessary resources to execute the Web API request. 
         /// Execute the request again as soon as sufficient resources are available again.
         /// Some examples: you have
-        ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+        ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
         ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
         ///  -system does generally not have the resources currently => wait for other requests to be completed
         /// Das System verfügt nicht über die nötigen Ressourcen, um den Web API-Request auszuführen 
@@ -58,6 +53,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         SystemIsReadOnly = 5,
         /// <summary>
+        /// The password change cannot be performed. This is caused for example if an older PLC project is present where password changes are not supported.
+        /// </summary>
+        PasswordChangeNotAccepted = 6,
+        /// <summary>
+        /// The data of a PLC of an R/H system is not accessible.
+        /// This may happen if the system is in state Syncup or RUN-redundant or if the service data of the partner PLC has been requested.
+        /// </summary>
+        PartnerNotAccessible = 7,
+        /// <summary>
         /// The given credentials dont match any downloaded credentials to the plc.
         /// </summary>
         LoginFailed = 100,
@@ -66,6 +70,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// Das aktuelle X-Auth-Token ist bereits authentifiziert. Verwenden Sie Api.Logout, bevor Sie sich erneut authentifizieren
         /// </summary>
         AlreadyAuthenticated = 101,
+        /// <summary>
+        /// The password of the user account has expired. The user needs to change the password to successfully authenticate again.
+        /// </summary>
+        PasswordExpired = 102,
+        /// <summary>
+        /// The provided new password does not match the required password policy.
+        /// </summary>
+        NewPasswordDoesNotFollowPolicy = 103,
+        /// <summary>
+        /// The provided new password is identical with the current password.
+        /// </summary>
+        NewPasswordMatchesOldPassword = 104,
         /// <summary>
         /// The requested address does not exist or the webserver cannot access the requested address.
         /// Die angeforderte Adresse existiert nicht oder der Webserver kann nicht auf die angeforderte Adresse zugreifen.
@@ -176,9 +192,41 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         ResourceContentHasBeenCorrupted = 514,
         /// <summary>
+        /// Only one simultaneous ticket resource for service data across all users is possible at a time
+        /// </summary>
+        NoServiceDataResources = 600,
+        /// <summary>
+        /// The provided alarm ID is invalid.
+        /// </summary>
+        InvalidAlarmId = 800,
+        /// <summary>
+        /// The request is invalid. The user provided invalid parameters, e. g. alarm ID and count are present at the same time.
+        /// </summary>
+        InvalidAlarmsBrowseParameters = 801,
+        /// <summary>
+        /// The provided timestamp does not match the required timestamp format
+        /// </summary>
+        InvalidTimestamp = 900,
+        /// <summary>
+        /// The timestamp is not within the allowed range
+        /// </summary>
+        TimestampOutOfRange = 901,
+        /// <summary>
+        /// The provided rule is invalid. Check the DaylightSavingsRule object. If the Rule object is present, both DST and STD is required.
+        /// </summary>
+        InvalidTimeRule = 902,
+        /// <summary>
+        /// The provided UTC offset is invalid. Check the main utc offset, and the DaylightSavingsRule object's DST offset.
+        /// </summary>
+        InvalidUTCOffset = 903,
+        /// <summary>
         /// The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.
         /// </summary>
         PLCNotInStop = 1004,
+        /// <summary>
+        /// The requested hardware identifier is invalid
+        /// </summary>
+        InvalidHwId = 1100,
         /// <summary>
         /// The method has not been found by the plc - check the spelling and fw-version (and according methods) of plc
         /// </summary>

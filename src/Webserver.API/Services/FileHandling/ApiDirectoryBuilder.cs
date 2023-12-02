@@ -117,7 +117,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     throw new ApiDirectoryParserException("Missing parameter 'Type' or Type was invalid => 'None' or 0 ", serializationException);
                 }
-                throw serializationException;
+                throw;
             }
         }
 

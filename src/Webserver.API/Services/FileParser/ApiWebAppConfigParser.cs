@@ -101,7 +101,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
                 {
                     throw new ApiWebAppConfigParserException("Missing parameter 'Type' or Type was invalid => 'None' or 0 ", serializationException);
                 }
-                throw serializationException;
+                throw;
             }
         }
 

@@ -23,9 +23,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         /// <param name="singleStringResponse"></param>
         public ApiTicketIdResponse(ApiSingleStringResponse singleStringResponse) : base()
         {
-            this.Id = string.Copy(singleStringResponse.Id);
-            this.JsonRpc = string.Copy(singleStringResponse.JsonRpc);
-            this.Result = string.Copy(singleStringResponse.Result);
+            this.Id = singleStringResponse.Id;
+            this.JsonRpc = singleStringResponse.JsonRpc;
+            this.Result = singleStringResponse.Result;
         }
     }
 }

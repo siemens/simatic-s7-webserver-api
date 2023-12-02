@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0;net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <AssemblyName>Siemens.Simatic.S7.Webserver.API</AssemblyName>
     <RootNamespace>Siemens.Simatic.S7.Webserver.API</RootNamespace>
     <Platforms>x64;AnyCPU;x86</Platforms>

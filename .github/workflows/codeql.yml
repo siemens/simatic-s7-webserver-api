@@ -106,7 +106,7 @@ jobs:
 
     - run: |
           echo "Run, Build Application using script"
-          ./././scripts/buildscript.sh
+          ./././scripts/buildscript.ps1
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

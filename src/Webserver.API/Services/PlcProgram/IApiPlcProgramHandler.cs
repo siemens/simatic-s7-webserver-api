@@ -4,6 +4,7 @@
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
@@ -28,7 +29,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="plcProgramBrowseMode">Mode for PlcProgramBrowse function</param>
         /// <param name="var">the db/structure of which the children should be browsed</param>
         /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
-        Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var);
+        Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Method to comfortably read all Children of a struct using a Bulk Request
         /// </summary>
@@ -42,7 +43,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
         /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple);
+        Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Method to comfortably write all Children of a struct using a Bulk Request
         /// </summary>
@@ -56,6 +57,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
         /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple);
+        Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

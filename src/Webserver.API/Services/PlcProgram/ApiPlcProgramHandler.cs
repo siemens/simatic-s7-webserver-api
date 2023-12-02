@@ -9,6 +9,7 @@ using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
@@ -39,9 +40,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="plcProgramBrowseMode">Mode for PlcProgramBrowse function</param>
         /// <param name="var">the db/structure of which the children should be browsed</param>
         /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
-        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var)
+        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var response = await _apiRequestHandler.PlcProgramBrowseAsync(plcProgramBrowseMode, var);
+            var response = await _apiRequestHandler.PlcProgramBrowseAsync(plcProgramBrowseMode, var, cancellationToken);
             if (plcProgramBrowseMode == ApiPlcProgramBrowseMode.Children)
             {
                 response.Result.ForEach(el =>
@@ -84,7 +85,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
         /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public async Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple)
+        public async Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple
+            , CancellationToken cancellationToken = default(CancellationToken))
         {
             var toReturn = structToRead.ShallowCopy();
             toReturn.Children = new List<ApiPlcProgramData>(structToRead.Children);
@@ -92,14 +94,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             toReturn.Parents = new List<ApiPlcProgramData>(structToRead.Parents);
             if (toReturn.Children == null || toReturn.Children.Count == 0)
             {
-                await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn);
+                await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn, cancellationToken);
             }
             List<IApiRequest> requests = new List<IApiRequest>();
             foreach (var child in toReturn.Children)
             {
                 if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
                 {
-                    await PlcProgramReadStructByChildValuesAsync(child, childrenReadMode);
+                    await PlcProgramReadStructByChildValuesAsync(child, childrenReadMode, cancellationToken);
                 }
                 else if (child.ArrayElements?.Count != 0)
                 {
@@ -107,7 +109,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     {
                         if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
                         {
-                            await PlcProgramReadStructByChildValuesAsync(arrayElement, childrenReadMode);
+                            await PlcProgramReadStructByChildValuesAsync(arrayElement, childrenReadMode, cancellationToken);
                         }
                         else
                         {
@@ -129,7 +131,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             if (requests.Count > 0)
             {
-                var childvalues = await _apiRequestHandler.ApiBulkAsync(requests);
+                var childvalues = await _apiRequestHandler.ApiBulkAsync(requests, cancellationToken);
                 foreach (var childval in childvalues.SuccessfulResponses)
                 {
                     var accordingRequest = requests.First(el => el.Id == childval.Id);
@@ -158,7 +160,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
         /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public async Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple)
+        public async Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple, CancellationToken cancellationToken = default(CancellationToken))
         {
             var toReturn = structToWrite.ShallowCopy();
             if (toReturn.Children == null || toReturn.Children.Count == 0)
@@ -171,7 +173,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 requests.Add(_requestFactory.GetApiPlcProgramWriteRequest(child.GetVarNameForMethods(), child.Value, childrenWriteMode));
             }
             requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
-            return await _apiRequestHandler.ApiBulkAsync(requests);
+            return await _apiRequestHandler.ApiBulkAsync(requests, cancellationToken);
         }
 
         /// <summary>

@@ -158,7 +158,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<List<string>> SendPostRequestAsyncFileName(string apiRequestString)
+        public async Task<List<string>> SendPostRequestAsyncFileName(string apiRequestString, CancellationToken cancellationToken = default(CancellationToken))
         {
             List<string> result = new List<string>();
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
@@ -208,7 +208,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(CancellationToken cancellationToken) => await ApiBrowseTicketsAsync((string) null, cancellationToken);
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(CancellationToken cancellationToken) => await ApiBrowseTicketsAsync((string)null, cancellationToken);
 
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
@@ -289,10 +289,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
         /// <returns>True if changing password for the user was successful</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword)
+        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiChangePasswordRequest(username, currentPassword, newPassword);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -309,10 +309,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetCertificateUrl Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>ApiSingleStringResponse that contians the URL to the certificate</returns>
-        public async Task<ApiSingleStringResponse> ApiGetCertificateUrlAsync()
+        public async Task<ApiSingleStringResponse> ApiGetCertificateUrlAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiGetCertificateUrlRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             if (!response.Contains("/MiniWebCA_Cer.crt"))
                 Console.WriteLine("unexpected response: " + response + " for Api.GetCertificateUrl!");
             return JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
@@ -338,10 +338,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetQuantityStructures Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>Api Quantity Structure object</returns>
-        public async Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync()
+        public async Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiGetQuantityStructuresRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiGetQuantityStructuresResponse>(response);
         }
 
@@ -380,10 +380,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.Ping Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>ApiSingleStringResponse - an Id that'll stay the same for the users session</returns>
-        public async Task<ApiSingleStringResponse> ApiPingAsync()
+        public async Task<ApiSingleStringResponse> ApiPingAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPingRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
             return responseObj;
         }
@@ -397,10 +397,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.Version Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>a double that contains the value for the current ApiVersion</returns>
-        public async Task<ApiDoubleResponse> ApiVersionAsync()
+        public async Task<ApiDoubleResponse> ApiVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiVersionRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiDoubleResponse>(response);
             return responseObj;
         }
@@ -415,10 +415,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
         /// <returns>Ticket to use for downloading the service data</returns>
-        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid)
+        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetModulesDownloadServiceData(hwid);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -434,10 +434,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Plc.ReadOperatingMode Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>The current Plc OperatingMode</returns>
-        public async Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync()
+        public async Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcReadOperatingModeRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiReadOperatingModeResponse>(response);
             return responseObj;
         }
@@ -453,10 +453,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.
         /// </summary>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
-        public async Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode)
+        public async Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcRequestChangeOperatingModeRequest(plcOperatingMode);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -486,10 +486,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// sucht die Variable und liefert eine Liste an Kind-Variablen und Metadaten.</param>
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
-        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, string var = null)
+        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, string var = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcProgramBrowseRequest(plcProgramBrowseMode, var);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiPlcProgramBrowseResponse>(response);
             return responseObj;
         }
@@ -529,10 +529,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// sucht die Variable und liefert eine Liste an Kind-Variablen und Metadaten.</param>
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
-        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var)
+        public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var, CancellationToken cancellationToken = default(CancellationToken))
         {
             string varName = var.GetVarNameForMethods();
-            return await PlcProgramBrowseAsync(plcProgramBrowseMode, varName);
+            return await PlcProgramBrowseAsync(plcProgramBrowseMode, varName, cancellationToken);
         }
         /// <summary>
         /// Send a PlcProgram.Browse Request using the Request from the ApiRequestFactory
@@ -608,10 +608,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
         /// in Kapitel "Unterstützte Datentypen"</param>
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
-        public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null)
+        public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcProgramReadRequest(var, plcProgramReadMode);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiResultResponse<T>>(response);
             return responseObj;
         }
@@ -653,11 +653,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// in Kapitel "Unterstützte Datentypen"</param>
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
-        public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null)
+        public async Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             //RequestParameterChecker.CheckPlcProgramReadOrWriteDataType(var.Datatype, true);
             string varName = var.GetVarNameForMethods();
-            return await PlcProgramReadAsync<T>(varName, plcProgramReadMode);
+            return await PlcProgramReadAsync<T>(varName, plcProgramReadMode, cancellationToken);
         }
         /// <summary>
         /// Send a PlcProgram.Browse Request using the Request from the ApiRequestFactory
@@ -691,12 +691,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
-        public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
+        public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             string varName = var.GetVarNameForMethods();
             // ApiRequestFactory.CheckPlcProgramReadOrWriteDataType(var.Datatype); will also be called by GetApiPlcProgramWriteValueToBeSet!
             var writeVal = _apiRequestFactory.GetApiPlcProgramWriteValueToBeSet(var.Datatype, valueToBeSet);
-            return await PlcProgramWriteAsync(varName, writeVal, plcProgramWriteMode);
+            return await PlcProgramWriteAsync(varName, writeVal, plcProgramWriteMode, cancellationToken);
         }
         /// <summary>
         /// Send a PlcProgram.Write Request using the Request from the ApiRequestFactory
@@ -722,10 +722,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
         /// <exception cref="ApiInvalidArrayIndexException">will be thrown if a ApiPlcProgramDatathat is an array will be given without an index</exception>
-        public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null)
+        public async Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcProgramWriteRequest(var, valueToBeSet, plcProgramWriteMode);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -748,9 +748,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppData">webappdata that should be requested</param>
         /// <returns>ApiWebAppBrowseResponse: Containing WebAppBrowseResult: Max_Applications:uint, 
         /// Applications: Array of ApiWebAppdata containing one element: the webappdata that has been requested</returns>
-        public async Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(ApiWebAppData webAppData)
+        public async Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(ApiWebAppData webAppData, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppBrowseAsync(webAppData.Name);
+            return await WebAppBrowseAsync(webAppData.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.Browse Request using the Request from the ApiRequestFactory
@@ -766,10 +766,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webapp name in case only one is requested</param>
         /// <returns>ApiWebAppBrowseResponse: Containing WebAppBrowseResult: Max_Applications:uint, 
         /// Applications: Array of ApiWebAppdata containing one element: the webappdata that has been requested</returns>
-        public async Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(string webAppName = null)
+        public async Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(string webAppName = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppBrowseRequest(webAppName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiWebAppBrowseResponse>(response);
             return responseObj;
         }
@@ -791,10 +791,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resourceName">If given only that resource will be inside the array (in case it exists)</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,
         /// Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
-        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, string resourceName = null)
+        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, string resourceName = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppBrowseResourcesRequest(webAppName, resourceName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiWebAppBrowseResourcesResponse>(response);
             return responseObj;
         }
@@ -820,9 +820,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resourceName">If given only that resource will be inside the array (in case it exists)</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,
         /// Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
-        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, string resourceName = null)
+        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, string resourceName = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppBrowseResourcesAsync(webApp.Name, resourceName);
+            return await WebAppBrowseResourcesAsync(webApp.Name, resourceName, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.BrowseResources Request using the Request from the ApiRequestFactory
@@ -845,9 +845,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">resource.Name to browse for</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,
         /// Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
-        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppBrowseResourcesAsync(webAppName, resource.Name);
+            return await WebAppBrowseResourcesAsync(webAppName, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.BrowseResources Request using the Request from the ApiRequestFactory
@@ -871,9 +871,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">resource.Name to browse for</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,
         /// Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
-        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppBrowseResourcesAsync(webApp.Name, resource.Name);
+            return await WebAppBrowseResourcesAsync(webApp.Name, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.BrowseResources Request using the Request from the ApiRequestFactory
@@ -893,10 +893,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webapp name for the app to be created</param>
         /// <param name="apiWebAppState">optional parameter: state the webapp should be in</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(string webAppName, ApiWebAppState? apiWebAppState = null)
+        public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(string webAppName, ApiWebAppState? apiWebAppState = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppCreateRequest(webAppName, apiWebAppState);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -913,10 +913,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">containing information about name and state for the app to be created</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(ApiWebAppData webApp)
+        public async Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken))
         {
             // ApiRequestFactory.CheckState(webApp.State); will be called in WebAppCreate in Factory.GetApiWebAppCreateRequest
-            return await WebAppCreateAsync(webApp.Name, webApp.State);
+            return await WebAppCreateAsync(webApp.Name, webApp.State, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.Create Request using the Request from the ApiRequestFactory
@@ -936,11 +936,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="etag">you can provide an etag as identification,... for your resource</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, string resourceName, string media_type,
-            string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
+            string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppCreateResourceRequest(webAppName, resourceName, media_type,
                 last_modified, apiWebAppResourceVisibility, etag);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -968,9 +968,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="etag">you can provide an etag as identification,... for your resource</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, string resourceName, string media_type,
-            string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null)
+            string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppCreateResourceAsync(webApp.Name, resourceName, media_type, last_modified, apiWebAppResourceVisibility, etag);
+            return await WebAppCreateResourceAsync(webApp.Name, resourceName, media_type, last_modified, apiWebAppResourceVisibility, etag, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.CreateResource Request using the Request from the ApiRequestFactory
@@ -995,10 +995,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility:     resource visibility (protect your confidential data)
         /// Etag:           you can provide an etag as identification,... for your resource</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
-        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await WebAppCreateResourceAsync(webAppName, resource.Name, resource.Media_type,
-                resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag);
+                resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.CreateResource Request using the Request from the ApiRequestFactory
@@ -1024,10 +1024,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility:     resource visibility (protect your confidential data)
         /// Etag:           you can provide an etag as identification,... for your resource</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
-        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type,
-                resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag);
+                resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.CreateResource Request using the Request from the ApiRequestFactory
@@ -1047,10 +1047,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(string webAppName)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(string webAppName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppDeleteRequest(webAppName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -1066,9 +1066,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(ApiWebAppData webApp)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDeleteAsync(webApp.Name);
+            return await WebAppDeleteAsync(webApp.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.Delete Request using the Request from the ApiRequestFactory
@@ -1083,10 +1083,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, string resourceName)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppDeleteResourceRequest(webAppName, resourceName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -1104,9 +1104,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webapp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, string resourceName)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDeleteResourceAsync(webApp.Name, resourceName);
+            return await WebAppDeleteResourceAsync(webApp.Name, resourceName, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.DeleteRespource Request using the Request from the ApiRequestFactory
@@ -1129,9 +1129,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDeleteResourceAsync(webApp.Name, resource.Name);
+            return await WebAppDeleteResourceAsync(webApp.Name, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.DeleteRespource Request using the Request from the ApiRequestFactory
@@ -1147,9 +1147,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to delete</param>
         /// <returns>true to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDeleteResourceAsync(webAppName, resource.Name);
+            return await WebAppDeleteResourceAsync(webAppName, resource.Name, cancellationToken);
         }
 
         /// <summary>
@@ -1158,10 +1158,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
-        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, string resourceName)
+        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppDownloadResourceRequest(webAppName, resourceName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -1179,9 +1179,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
-        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, string resourceName)
+        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDownloadResourceAsync(webApp.Name, resourceName);
+            return await WebAppDownloadResourceAsync(webApp.Name, resourceName, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.DownloadResource Request using the Request from the ApiRequestFactory
@@ -1197,9 +1197,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
-        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDownloadResourceAsync(webApp.Name, resource.Name);
+            return await WebAppDownloadResourceAsync(webApp.Name, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.DownloadResource Request using the Request from the ApiRequestFactory
@@ -1215,9 +1215,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to download</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
-        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppDownloadResourceAsync(webAppName, resource.Name);
+            return await WebAppDownloadResourceAsync(webAppName, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.DownloadResource Request using the Request from the ApiRequestFactory
@@ -1234,10 +1234,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newWebAppName">New name for the WebApp</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a WebApp that only has the information: 
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(string webAppName, string newWebAppName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(string webAppName, string newWebAppName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppRenameRequest(webAppName, newWebAppName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1262,9 +1262,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newWebAppName">New name for the WebApp</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the given WebApp that has the change:
         /// name which equals the newname</returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(ApiWebAppData webApp, string newWebAppName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(ApiWebAppData webApp, string newWebAppName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppRenameAsync(webApp.Name, newWebAppName);
+            var resp = await WebAppRenameAsync(webApp.Name, newWebAppName, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Name = newWebAppName;
             return resp;
@@ -1287,10 +1287,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
         public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, string resourceName,
-            string newResourceName)
+            string newResourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppRenameResourceRequest(webAppName, resourceName, newResourceName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             ApiTrueWithResourceResponse responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1319,9 +1319,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
         public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, string resourceName,
-            string newResourceName)
+            string newResourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppRenameResourceAsync(webApp.Name, resourceName, newResourceName);
+            return await WebAppRenameResourceAsync(webApp.Name, resourceName, newResourceName, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.RenameResource Request using the Request from the ApiRequestFactory
@@ -1343,9 +1343,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
         public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            string newResourceName)
+            string newResourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppRenameResourceAsync(webApp.Name, resource.Name, newResourceName);
+            var basicResp = await WebAppRenameResourceAsync(webApp.Name, resource.Name, newResourceName, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Name = newResourceName;
             return basicResp;
@@ -1370,9 +1370,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
         public async Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, ApiWebAppResource resource,
-            string newResourceName)
+            string newResourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppRenameResourceAsync(webAppName, resource.Name, newResourceName);
+            var basicResp = await WebAppRenameResourceAsync(webAppName, resource.Name, newResourceName, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Name = newResourceName;
             return basicResp;
@@ -1397,10 +1397,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the webAppName
         /// Default_Page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(string webAppName, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppSetDefaultPageRequest(webAppName, resourceName ?? "");
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1428,9 +1428,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Default_Page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(ApiWebAppData webApp, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetDefaultPageAsync(webApp.Name, resourceName);
+            var resp = await WebAppSetDefaultPageAsync(webApp.Name, resourceName, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Default_page = (resourceName == "" ? null : resourceName);
             return resp;
@@ -1453,9 +1453,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Default_Page:   which equals the resource.Name
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetDefaultPageAsync(webApp.Name, resource.Name);
+            var resp = await WebAppSetDefaultPageAsync(webApp.Name, resource.Name, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Default_page = (resource.Name == "" ? null : resource.Name);
             return resp;
@@ -1479,9 +1479,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the webAppName
         /// Default_Page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetDefaultPageAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetDefaultPageAsync(webAppName, resource.Name);
+            return await WebAppSetDefaultPageAsync(webAppName, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetDefaultPage Request using the Request from the ApiRequestFactory
@@ -1503,10 +1503,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:                   which equals webAppName
         /// Not_authorized_page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(string webAppName, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppSetNotAuthorizedPageRequest(webAppName, resourceName ?? "");
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1533,9 +1533,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_authorized_page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(ApiWebAppData webApp, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetNotAuthorizedPageAsync(webApp.Name, resourceName);
+            var resp = await WebAppSetNotAuthorizedPageAsync(webApp.Name, resourceName, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Not_authorized_page = (resourceName == "" ? null : resourceName);
             return resp;
@@ -1557,9 +1557,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_authorized_page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetNotAuthorizedPageAsync(webApp.Name, resource.Name);
+            var resp = await WebAppSetNotAuthorizedPageAsync(webApp.Name, resource.Name, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Not_authorized_page = (resource.Name == "" ? null : resource.Name);
             return resp;
@@ -1583,9 +1583,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:                   which equals webAppName
         /// Not_authorized_page:    which equals the resource.Name
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotAuthorizedPageAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetNotAuthorizedPageAsync(webAppName, resource.Name);
+            return await WebAppSetNotAuthorizedPageAsync(webAppName, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetNotAuthorizedPage Request using the Request from the ApiRequestFactory
@@ -1607,10 +1607,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the webAppName
         /// Not_found_page: which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppSetNotFoundPageRequest(webAppName, resourceName ?? "");
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1638,9 +1638,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_found_page:   which equals the resourceName
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(ApiWebAppData webApp, string resourceName)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetNotFoundPageAsync(webApp.Name, resourceName);
+            var resp = await WebAppSetNotFoundPageAsync(webApp.Name, resourceName, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Not_found_page = (resourceName == "" ? null : resourceName);
             return resp;
@@ -1663,9 +1663,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_found_page:   which equals the resource.Name
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetNotFoundPageAsync(webApp.Name, resource.Name);
+            var resp = await WebAppSetNotFoundPageAsync(webApp.Name, resource.Name, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.Not_found_page = (resource.Name == "" ? null : resource.Name);
             return resp;
@@ -1689,9 +1689,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:           which equals the webAppName
         /// Not_found_page: which equals the resource.Name
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, ApiWebAppResource resource)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetNotFoundPageAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetNotFoundPageAsync(webAppName, resource.Name);
+            return await WebAppSetNotFoundPageAsync(webAppName, resource.Name, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetNotFoundPage Request using the Request from the ApiRequestFactory
@@ -1713,10 +1713,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name:  which equals the webAppName
         /// State: which equals the state
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(string webAppName, ApiWebAppState apiWebAppState)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(string webAppName, ApiWebAppState apiWebAppState, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebAppSetStateRequest(webAppName, apiWebAppState);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithWebAppResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1743,10 +1743,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="defaultPage"></param>
         /// <returns>This function will return the TrueOnSuccessResponse</returns>
-        public async Task<ApiTrueOnSuccessResponse> WebServerSetDefaultPageAsync(string defaultPage)
+        public async Task<ApiTrueOnSuccessResponse> WebServerSetDefaultPageAsync(string defaultPage, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebserverSetDefaultPageRequest(defaultPage);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -1763,10 +1763,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a WebServer.ReadDefaultPage Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>Returns the default page in a response object</returns>
-        public async Task<ApiWebServerGetReadDefaultPageResponse> WebServerGetReadDefaultPageAsync()
+        public async Task<ApiWebServerGetReadDefaultPageResponse> WebServerGetReadDefaultPageAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiWebserverReadDefaultPageRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiWebServerGetReadDefaultPageResponse>(response);
             return responseObj;
         }
@@ -1786,9 +1786,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// State: which equals the state
         /// </returns>
-        public async Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(ApiWebAppData webApp, ApiWebAppState apiWebAppState)
+        public async Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(ApiWebAppData webApp, ApiWebAppState apiWebAppState, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var resp = await WebAppSetStateAsync(webApp.Name, apiWebAppState);
+            var resp = await WebAppSetStateAsync(webApp.Name, apiWebAppState, cancellationToken);
             resp.NewWebApp = webApp.ShallowCopy();
             resp.NewWebApp.State = apiWebAppState;
             return resp;
@@ -1817,10 +1817,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Etag: which equals the newEtagValue
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, string resourceName,
-            string newETagValue)
+            string newETagValue, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiSetResourceETagRequest(webAppName, resourceName, newETagValue ?? "");
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1855,9 +1855,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Etag: which equals the newEtagValue
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, string resourceName,
-            string newETagValue)
+            string newETagValue, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetResourceETagAsync(webApp.Name, resourceName, newETagValue);
+            return await WebAppSetResourceETagAsync(webApp.Name, resourceName, newETagValue, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceETag Request using the Request from the ApiRequestFactory
@@ -1884,9 +1884,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Etag: which equals the newEtagValue
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            string newETagValue)
+            string newETagValue, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceETagAsync(webApp.Name, resource.Name, newETagValue);
+            var basicResp = await WebAppSetResourceETagAsync(webApp.Name, resource.Name, newETagValue, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Etag = (newETagValue == "" ? null : newETagValue);
             return basicResp;
@@ -1916,9 +1916,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Etag: which equals the newEtagValue
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceETagAsync(string webAppName, ApiWebAppResource resource,
-            string newETagValue)
+            string newETagValue, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceETagAsync(webAppName, resource.Name, newETagValue);
+            var basicResp = await WebAppSetResourceETagAsync(webAppName, resource.Name, newETagValue, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Etag = (newETagValue == "" ? null : newETagValue);
             return basicResp;
@@ -1947,10 +1947,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// MediaType:  which equals the newMediaType
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, string resourceName,
-            string newMediaType)
+            string newMediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiSetResourceMediaTypeRequest(webAppName, resourceName, newMediaType);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -1984,9 +1984,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// MediaType:  which equals the newMediaType
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, string resourceName,
-            string newMediaType)
+            string newMediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetResourceMediaTypeAsync(webApp.Name, resourceName, newMediaType);
+            return await WebAppSetResourceMediaTypeAsync(webApp.Name, resourceName, newMediaType, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceMediaType Request using the Request from the ApiRequestFactory
@@ -2011,9 +2011,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// MediaType: which equals the newMediaType
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            string newMediaType)
+            string newMediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceMediaTypeAsync(webApp.Name, resource.Name, newMediaType);
+            var basicResp = await WebAppSetResourceMediaTypeAsync(webApp.Name, resource.Name, newMediaType, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Media_type = newMediaType;
             return basicResp;
@@ -2040,9 +2040,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// MediaType: which equals the newMediaType
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceMediaTypeAsync(string webAppName, ApiWebAppResource resource,
-            string newMediaType)
+            string newMediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceMediaTypeAsync(webAppName, resource.Name, newMediaType);
+            var basicResp = await WebAppSetResourceMediaTypeAsync(webAppName, resource.Name, newMediaType, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Media_type = newMediaType;
             return basicResp;
@@ -2070,10 +2070,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName,
-            string newModificationTime)
+            string newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiSetResourceModificationTimeRequest(webAppName, resourceName, newModificationTime);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             responseObj.NewResource = new ApiWebAppResource()
@@ -2104,9 +2104,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, string resourceName,
-            string newModificationTime)
+            string newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName, newModificationTime);
+            return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName, newModificationTime, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceModificationTime Request using the Request from the ApiRequestFactory
@@ -2131,9 +2131,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            string newModificationTime)
+            string newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name, newModificationTime);
+            var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name, newModificationTime, cancellationToken);
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Last_modified = last_mod;
@@ -2162,10 +2162,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, string resourceName,
-            DateTime newModificationTime)
+            DateTime newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await WebAppSetResourceModificationTimeAsync(webAppName, resourceName,
-                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
+                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat), cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceModificationTime Request using the Request from the ApiRequestFactory
@@ -2191,10 +2191,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified:  which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, string resourceName,
-            DateTime newModificationTime)
+            DateTime newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await WebAppSetResourceModificationTimeAsync(webApp.Name, resourceName,
-                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
+                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat), cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceModificationTime Request using the Request from the ApiRequestFactory
@@ -2219,10 +2219,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            DateTime newModificationTime)
+            DateTime newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
             var basicResp = await WebAppSetResourceModificationTimeAsync(webApp.Name, resource.Name,
-                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
+                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat), cancellationToken);
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Last_modified = last_mod;
@@ -2250,10 +2250,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource,
-            DateTime newModificationTime)
+            DateTime newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
             var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name,
-                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat));
+                newModificationTime.ToString(DateTimeFormatting.ApiDateTimeFormat), cancellationToken);
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Last_modified = last_mod;
@@ -2281,9 +2281,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceModificationTimeAsync(string webAppName, ApiWebAppResource resource,
-            string newModificationTime)
+            string newModificationTime, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name, newModificationTime);
+            var basicResp = await WebAppSetResourceModificationTimeAsync(webAppName, resource.Name, newModificationTime, cancellationToken);
             var last_mod = basicResp.NewResource.Last_modified;
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Last_modified = last_mod;
@@ -2312,10 +2312,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility: which equals the newVisibility
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, string resourceName,
-            ApiWebAppResourceVisibility newResourceVisibility)
+            ApiWebAppResourceVisibility newResourceVisibility, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiSetResourceVisibilityRequest(webAppName, resourceName, newResourceVisibility);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiTrueWithResourceResponse();
             responseObj.TrueOnSuccesResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             if (responseObj.TrueOnSuccesResponse.Result)
@@ -2348,9 +2348,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, string resourceName,
-            ApiWebAppResourceVisibility newResourceVisibility)
+            ApiWebAppResourceVisibility newResourceVisibility, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await WebAppSetResourceVisibilityAsync(webApp.Name, resourceName, newResourceVisibility);
+            return await WebAppSetResourceVisibilityAsync(webApp.Name, resourceName, newResourceVisibility, cancellationToken);
         }
         /// <summary>
         /// Send a WebApp.SetResourceVisibility Request using the Request from the ApiRequestFactory
@@ -2375,9 +2375,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(ApiWebAppData webApp, ApiWebAppResource resource,
-            ApiWebAppResourceVisibility newResourceVisibility)
+            ApiWebAppResourceVisibility newResourceVisibility, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceVisibilityAsync(webApp.Name, resource.Name, newResourceVisibility);
+            var basicResp = await WebAppSetResourceVisibilityAsync(webApp.Name, resource.Name, newResourceVisibility, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Visibility = newResourceVisibility;
             return basicResp;
@@ -2404,9 +2404,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
         public async Task<ApiTrueWithResourceResponse> WebAppSetResourceVisibilityAsync(string webAppName, ApiWebAppResource resource,
-            ApiWebAppResourceVisibility newResourceVisibility)
+            ApiWebAppResourceVisibility newResourceVisibility, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var basicResp = await WebAppSetResourceVisibilityAsync(webAppName, resource.Name, newResourceVisibility);
+            var basicResp = await WebAppSetResourceVisibilityAsync(webAppName, resource.Name, newResourceVisibility, cancellationToken);
             basicResp.NewResource = resource.ShallowCopy();
             basicResp.NewResource.Visibility = newResourceVisibility;
             return basicResp;
@@ -2505,12 +2505,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(string ticketId, ByteArrayContent data)
+        public async Task UploadTicketAsync(string ticketId, ByteArrayContent data, CancellationToken cancellationToken = default(CancellationToken))
         {
             data.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             try
             {
-                var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data);
+                var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data, cancellationToken);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
@@ -2534,8 +2534,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(ApiTicket ticket, ByteArrayContent data)
-            => await UploadTicketAsync(ticket.Id, data);
+        public async Task UploadTicketAsync(ApiTicket ticket, ByteArrayContent data, CancellationToken cancellationToken = default(CancellationToken))
+            => await UploadTicketAsync(ticket.Id, data, cancellationToken);
 
         /// <summary>
         /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
@@ -2554,14 +2554,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(string ticketId, string pathToFile)
+        public async Task UploadTicketAsync(string ticketId, string pathToFile, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!File.Exists(pathToFile))
             {
                 throw new FileNotFoundException($"file at: {pathToFile} not found!");
             }
             var fileContent = new ByteArrayContent(File.ReadAllBytes(pathToFile));
-            await UploadTicketAsync(ticketId, fileContent);
+            await UploadTicketAsync(ticketId, fileContent, cancellationToken);
         }
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
@@ -2579,8 +2579,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(string ticketId, FileInfo pathToFile)
-            => await UploadTicketAsync(ticketId, pathToFile.FullName);
+        public async Task UploadTicketAsync(string ticketId, FileInfo pathToFile, CancellationToken cancellationToken = default(CancellationToken))
+            => await UploadTicketAsync(ticketId, pathToFile.FullName, cancellationToken);
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
         /// MediaTypeHeaderValue: application/octet-stream
@@ -2598,8 +2598,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(ApiTicket ticket, string pathToFile)
-         => await UploadTicketAsync(ticket.Id, pathToFile);
+        public async Task UploadTicketAsync(ApiTicket ticket, string pathToFile, CancellationToken cancellationToken = default(CancellationToken))
+         => await UploadTicketAsync(ticket.Id, pathToFile, cancellationToken);
 
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
@@ -2617,8 +2617,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public async Task UploadTicketAsync(ApiTicket ticket, FileInfo pathToFile)
-            => await UploadTicketAsync(ticket, pathToFile.FullName);
+        public async Task UploadTicketAsync(ApiTicket ticket, FileInfo pathToFile, CancellationToken cancellationToken = default(CancellationToken))
+            => await UploadTicketAsync(ticket, pathToFile.FullName, cancellationToken);
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
         /// MediaTypeHeaderValue: application/octet-stream
@@ -2636,10 +2636,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null)
+        public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiLoginRequest(userName, password, includeWebApplicationCookie);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiLoginResponse();
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
             if (!string.IsNullOrEmpty(responseObj.Result.Token))
@@ -2666,7 +2666,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiRequests">Api Requests to be sent as Bulk</param>
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
-        public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests)
+        public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests, CancellationToken cancellationToken = default(CancellationToken))
         {
             if ((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
             {
@@ -2686,7 +2686,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
+            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
             _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
             var responseString = await response.Content.ReadAsStringAsync();
             ApiBulkResponse bulkResponse = new ApiBulkResponse();
@@ -2713,10 +2713,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Plc.ReadSystemTime Request
         /// </summary>
         /// <returns>Current Plc Utc System Time</returns>
-        public async Task<ApiPlcReadSystemTimeResponse> PlcReadSystemTimeAsync()
+        public async Task<ApiPlcReadSystemTimeResponse> PlcReadSystemTimeAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcReadSystemTimeRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiPlcReadSystemTimeResponse>(response);
             return responseObj;
         }
@@ -2732,10 +2732,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="timestamp">The timestamp of the system time to be set</param>
         /// <returns>True if time was set successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> PlcSetSystemTimeAsync(DateTime timestamp)
+        public async Task<ApiTrueOnSuccessResponse> PlcSetSystemTimeAsync(DateTime timestamp, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcSetSystemTimeRequest(timestamp);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2751,10 +2751,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Plc.ReadTimeSettings Request
         /// </summary>
         /// <returns>Current Plc Time Settings</returns>
-        public async Task<ApiPlcReadTimeSettingsResponse> PlcReadTimeSettingsAsync()
+        public async Task<ApiPlcReadTimeSettingsResponse> PlcReadTimeSettingsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcReadTimeSettingsRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiPlcReadTimeSettingsResponse>(response);
             return responseObj;
         }
@@ -2771,10 +2771,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
         /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
         /// <returns>True if the settings are applied successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> PlcSetTimeSettingsAsync(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null)
+        public async Task<ApiTrueOnSuccessResponse> PlcSetTimeSettingsAsync(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcSetTimeSettingsRequest(utcOffset, daylightSavings);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2793,10 +2793,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
         /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
         /// <returns>Browsed resources (files/dir/...)</returns>
-        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(string resource = null)
+        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(string resource = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesBrowseRequest(string.IsNullOrEmpty(resource) ? "/" : resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiBrowseFilesResponse>(response);
             return responseObj;
         }
@@ -2814,7 +2814,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">resource to browse: file/dir/...</param>
         /// <returns>Browsed resources (files/dir/...)</returns>
-        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(ApiFileResource resource) => await FilesBrowseAsync(resource.GetVarNameForMethods());
+        public async Task<ApiBrowseFilesResponse> FilesBrowseAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+            => await FilesBrowseAsync(resource.GetVarNameForMethods(), cancellationToken);
 
         /// <summary>
         /// Send a Files.Browse Request
@@ -2829,10 +2830,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>Ticket ID.</returns>
-        public async Task<ApiTicketIdResponse> FilesDownloadAsync(string resource)
+        public async Task<ApiTicketIdResponse> FilesDownloadAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesDownloadRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -2850,10 +2851,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>Ticket ID.</returns>
-        public async Task<ApiTicketIdResponse> FilesCreateAsync(string resource)
+        public async Task<ApiTicketIdResponse> FilesCreateAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesCreateRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var singleStringResp = JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
             var responseObj = new ApiTicketIdResponse(singleStringResp);
             return responseObj;
@@ -2871,8 +2872,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
         /// <returns>Ticket ID.</returns>
-        public async Task<ApiTicketIdResponse> FilesCreateAsync(FileInfo resource)
-        => await FilesCreateAsync(resource.FullName);
+        public async Task<ApiTicketIdResponse> FilesCreateAsync(FileInfo resource, CancellationToken cancellationToken = default(CancellationToken))
+        => await FilesCreateAsync(resource.FullName, cancellationToken);
 
         /// <summary>
         /// Send a Files.Create request
@@ -2887,10 +2888,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">Current path of file/folder</param>
         /// <param name="new_resource">New path of file/folder</param>
         /// <returns>True if the file or folder is renamed successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesRenameAsync(string resource, string new_resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesRenameAsync(string resource, string new_resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesRenameRequest(resource, new_resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2908,10 +2909,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>True if the file is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(string resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesDeleteRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2928,10 +2929,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>True if the directory is created successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(string resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesCreateDirectoryRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2949,10 +2950,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">DirectoryInfo for informations about the file to the memory card root.</param>
         /// <returns>True if the directory is created successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(DirectoryInfo resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(DirectoryInfo resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesCreateDirectoryRequest(resource.FullName);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -2969,10 +2970,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">The resource to create</param>
         /// <returns>True if the directory is created successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(ApiFileResource resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var varNameForMethods = resource.GetVarNameForMethods();
-            return await FilesCreateDirectoryAsync(varNameForMethods);
+            return await FilesCreateDirectoryAsync(varNameForMethods, cancellationToken);
         }
 
 
@@ -2989,10 +2990,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>True if the directory is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(string resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiFilesDeleteDirectoryRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
         }
@@ -3009,10 +3010,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>Ticket ID.</returns>
-        public async Task<ApiTicketIdResponse> DatalogsDownloadAndClearAsync(string resource)
+        public async Task<ApiTicketIdResponse> DatalogsDownloadAndClearAsync(string resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiDatalogsDownloadAndClearRequest(resource);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -3028,10 +3029,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send Plc.CreateBackup Request
         /// </summary>
         /// <returns>Ticket ID.</returns>
-        public async Task<ApiTicketIdResponse> PlcCreateBackupAsync()
+        public async Task<ApiTicketIdResponse> PlcCreateBackupAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetPlcCreateBackupRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -3047,10 +3048,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = null)
+        public async Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetPlcRestoreBackupRequest(password);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
         }
@@ -3069,10 +3070,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="password"></param>
         /// <param name="includeWebApplicationCookie"></param>
         /// <returns></returns>
-        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null)
+        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await ApiLogoutAsync();
-            return await ApiLoginAsync(userName, password, includeWebApplicationCookie);
+            await ApiLogoutAsync(cancellationToken);
+            return await ApiLoginAsync(userName, password, includeWebApplicationCookie, cancellationToken);
         }
 
         /// <summary>
@@ -3089,10 +3090,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">the resource that shall be deleted.</param>
         /// <returns>True if the file is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var varNameForMethods = resource.GetVarNameForMethods();
-            return await FilesDeleteAsync(varNameForMethods);
+            return await FilesDeleteAsync(varNameForMethods, cancellationToken);
         }
 
         /// <summary>
@@ -3109,10 +3110,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">the directory to delete.</param>
         /// <returns>True if the directory is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource)
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             var varNameForMethods = resource.GetVarNameForMethods();
-            return await FilesDeleteDirectoryAsync(varNameForMethods);
+            return await FilesDeleteDirectoryAsync(varNameForMethods, cancellationToken);
         }
 
         /// <summary>
@@ -3128,10 +3129,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
         /// <returns>Response with Failsafe parameters</returns>
-        public async Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid)
+        public async Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetFailsafeReadParametersRequest(hwid);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiFailsafeReadParametersResponse>(response);
             return responseObj;
         }
@@ -3148,10 +3149,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Failsafe.ReadRuntimeGroups request
         /// </summary>
         /// <returns>Response with Runtime Groups</returns>
-        public async Task<ApiFailsafeReadRuntimeGroupsResponse> FailsafeReadRuntimeGroupsAsync()
+        public async Task<ApiFailsafeReadRuntimeGroupsResponse> FailsafeReadRuntimeGroupsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetFailsafeReadRuntimeGroupsRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiFailsafeReadRuntimeGroupsResponse>(response);
             return responseObj;
         }
@@ -3166,10 +3167,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetPasswordPolicy request
         /// </summary>
         /// <returns>ApiGetPasswordPolicy response</returns>
-        public async Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync()
+        public async Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiGetPasswordPolicyRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiGetPasswordPolicyResponse>(response);
             return responseObj;
         }
@@ -3184,10 +3185,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetAuthenticationMode request
         /// </summary>
         /// <returns>A response containing the authentication modes</returns>
-        public async Task<ApiGetAuthenticationModeResponse> ApiGetAuthenticationModeAsync()
+        public async Task<ApiGetAuthenticationModeResponse> ApiGetAuthenticationModeAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiGetAuthenticationModeRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiGetAuthenticationModeResponse>(response);
             return responseObj;
         }
@@ -3202,10 +3203,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Project.ReadLanguages Request
         /// </summary>
         /// <returns>Languages Response containing a list of languages</returns>
-        public async Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync()
+        public async Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiProjectReadLanguagesRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiReadLanguagesResponse>(response);
             return responseObj;
         }
@@ -3221,10 +3222,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>Mode Selector state</returns>
-        public async Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid)
+        public async Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiPlcReadModeSelectorStateRequest(rhid);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiPlcReadModeSelectorStateResponse>(response);
         }
 
@@ -3246,10 +3247,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
         ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
         /// <returns>ApiSyslogBrowseResponse</returns>
-        public async Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null)
+        public async Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiSyslogBrowseRequest(redundancy_id, count, first);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiSyslogBrowseResponse>(response);
         }
         /// <summary>
@@ -3271,10 +3272,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
         /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
         /// <returns>ApiTrueOnSuccessResponse</returns>
-        public async Task<ApiTrueOnSuccessResponse> AlarmsAcknowledgeAsync(string id)
+        public async Task<ApiTrueOnSuccessResponse> AlarmsAcknowledgeAsync(string id, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiAlarmsAcknowledgeRequest(id);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
         }
         /// <summary>
@@ -3301,10 +3302,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///                     </param>
         /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no count parameter can be provided as filter.</param>
         /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
-        public async Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null)
+        public async Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiAlarmsBrowseRequest(language, count, alarm_id, filters);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiAlarmsBrowseResponse>(response);
         }
 
@@ -3332,10 +3333,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
         /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
         /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
-        public async Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null)
+        public async Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiDiagnosticBufferBrowseRequest(language, count, filters);
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiDiagnosticBufferBrowseResponse>(response);
         }
         /// <summary>

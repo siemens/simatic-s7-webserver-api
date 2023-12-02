@@ -46,28 +46,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             Length = DefaultLength;
             DeterminedThreadSleepTime = DetermineThreadSleepTime();
             ThreadSleepTime = DeterminedThreadSleepTime;
-
-            /* Unmerged change from project 'Webserver.API (netstandard2.0)'
-            Before:
-                    }
-
-                    /// <summary>
-            After:
-                    }
-
-                    /// <summary>
-            */
-
-            /* Unmerged change from project 'Webserver.API (net6.0)'
-            Before:
-                    }
-
-                    /// <summary>
-            After:
-                    }
-
-                    /// <summary>
-            */
         }
 
         /// <summary>

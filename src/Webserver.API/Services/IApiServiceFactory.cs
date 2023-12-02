@@ -45,7 +45,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
-        Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken);
+        Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/>
         /// </summary>
@@ -60,16 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
-        Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password);
-        /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/>
-        /// </summary>
-        /// <param name="baseAddress">ip address or dns name of your plc</param>
-        /// <param name="username">username to login with</param>
-        /// <param name="password">password to login with</param>
-        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
-        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
-        Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken);
+        Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Get A resourceHandler with the given requestHandler and the set resourcebuilder
         /// </summary>

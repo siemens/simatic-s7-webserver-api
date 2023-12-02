@@ -280,20 +280,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
-        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password)
-        {
-            var httpClient = await GetHttpClientAsync(baseAddress, username, password);
-            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
-        }
-
-        /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
-        /// </summary>
-        /// <param name="baseAddress">ip address or dns name of your plc</param>
-        /// <param name="username">username to login with</param>
-        /// <param name="password">password to login with</param>
-        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
-        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
             var httpClient = await GetHttpClientAsync(baseAddress, username, password, cancellationToken);

@@ -1,0 +1,1 @@
+dotnet build ./src/Webserver.API.csproj

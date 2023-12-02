@@ -1,1 +1,1 @@
-dotnet build ./src/Webserver.API.csproj
+dotnet build ../src/Webserver.API/Webserver.API.csproj

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MITusing System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
@@ -26,7 +27,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// PathToWebAppDirectory
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
-        Task DeployAsync(ApiWebAppData webApp);
+        Task DeployAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// make very sure the given webapp contains all the data:
         /// Name
@@ -58,6 +59,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away
         /// </param>
-        Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1);
+        Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

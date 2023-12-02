@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {
@@ -13,7 +9,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// The system does not have the necessary resources to execute the Web API request. 
     /// Execute the request again as soon as sufficient resources are available again.
     /// Some examples: you have
-    ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+    ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
     ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
     ///  -system does generally not have the resources currently => wait for other requests to be completed
     /// </summary>
@@ -21,7 +17,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     {
         private static string message = $"The system does not have the necessary resources to execute the Web API request. " +
             $"{Environment.NewLine}Execute the request again as soon as sufficient resources are available again. Some examples: you have{Environment.NewLine}" +
-            $" -reached the limit for logins (depending on plc)=> wait a maximum of 120 seconds and call the method (login) again.{Environment.NewLine}" +
+            $" -reached the limit for logins (depending on plc)=> wait 150 seconds and call the method (login) again.{Environment.NewLine}" +
             $" -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. " +
             $"Close all open tickets in order to free resources and call this method again. {Environment.NewLine}" +
             $" -system does generally not have the resources currently => wait for other requests to be completed";
@@ -29,7 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// The system does not have the necessary resources to execute the Web API request. 
         /// Execute the request again as soon as sufficient resources are available again.
         /// Some examples: you have
-        ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+        ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
         ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
         ///  -system does generally not have the resources currently => wait for other requests to be completed
         /// </summary>
@@ -40,7 +36,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// The system does not have the necessary resources to execute the Web API request. 
         /// Execute the request again as soon as sufficient resources are available again.
         /// Some examples: you have
-        ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+        ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
         ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
         ///  -system does generally not have the resources currently => wait for other requests to be completed
         /// </summary>
@@ -50,7 +46,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// The system does not have the necessary resources to execute the Web API request. 
         /// Execute the request again as soon as sufficient resources are available again.
         /// Some examples: you have
-        ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+        ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
         ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
         ///  -system does generally not have the resources currently => wait for other requests to be completed
         /// </summary>
@@ -60,7 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// The system does not have the necessary resources to execute the Web API request. 
         /// Execute the request again as soon as sufficient resources are available again.
         /// Some examples: you have
-        ///  -reached the limit for logins (depending on plc) - wait a maximum of 120 seconds and call the method (login) again.
+        ///  -reached the limit for logins (depending on plc) - wait 150 seconds and call the method (login) again.
         ///  -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. Close all open tickets in order to free resources and call this method again.
         ///  -system does generally not have the resources currently => wait for other requests to be completed
         /// </summary>

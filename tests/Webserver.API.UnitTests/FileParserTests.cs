@@ -6,16 +6,11 @@ using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Services.FileParser;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Services.FileParser;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -68,7 +63,7 @@ namespace Webserver.API.UnitTests
             {
                 Directory.Delete(dirPath, true);
             }
-            
+
         }
 
         [Test]
@@ -77,7 +72,7 @@ namespace Webserver.API.UnitTests
             string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp");
             try
             {
-                if(!Directory.Exists(dirPath))
+                if (!Directory.Exists(dirPath))
                 {
                     Directory.CreateDirectory(dirPath);
                 }
@@ -96,12 +91,12 @@ namespace Webserver.API.UnitTests
                     sw.Write(serializedAppString);
                 };
                 var app = parser.Parse();
-                if(app.PathToWebAppDirectory != dirPath)
+                if (app.PathToWebAppDirectory != dirPath)
                 {
                     Assert.Fail($"Path to WebApp Directory not set as expected!:{Environment.NewLine}" +
                         $"{app.PathToWebAppDirectory}");
                 }
-                if(app.DirectoriesToIgnoreForUpload == null || app.DirectoriesToIgnoreForUpload.Count != 0)
+                if (app.DirectoriesToIgnoreForUpload == null || app.DirectoriesToIgnoreForUpload.Count != 0)
                 {
                     Assert.Fail($"DirectroiesToIgnore dont default to empty List!:{Environment.NewLine}" +
                         $"{app.DirectoriesToIgnoreForUpload}");
@@ -126,7 +121,7 @@ namespace Webserver.API.UnitTests
                     Assert.Fail($"ApplicationResources dont default to empty List!:{Environment.NewLine}" +
                         $"{app.ApplicationResources}");
                 }
-                if(app.Default_page != null)
+                if (app.Default_page != null)
                 {
                     Assert.Fail($"Defaultpage doesnt default to null!:{Environment.NewLine}" +
                         $"{app.Default_page}");

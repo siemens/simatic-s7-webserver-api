@@ -3,10 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {
@@ -27,7 +24,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// <summary>
         /// Bulk Response from PLC
         /// </summary>
-        public ApiBulkResponse BulkResponse{ get; private set; }
+        public ApiBulkResponse BulkResponse { get; private set; }
         /// <summary>
         /// Bulk Request Exceptions
         /// </summary>

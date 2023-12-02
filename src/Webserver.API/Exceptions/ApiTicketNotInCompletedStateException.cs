@@ -3,10 +3,6 @@
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {
@@ -23,8 +19,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
             base($"Ticket: {ticket.Id + Environment.NewLine} is not in completed state! " +
                 $"instead: {ticket.State.ToString() + Environment.NewLine} " +
                 $"further ticket Information:{Environment.NewLine}" +
-                $"ticket Provider: { ticket.Provider.ToString() + Environment.NewLine}" +
-                $"date created: { ticket.Date_created }" +
-                ((ticket.Data != null && ticket.Data.ToString() != "{}") ? $"ticket data: {ticket.Data.ToString()}":"")) { }
+                $"ticket Provider: {ticket.Provider.ToString() + Environment.NewLine}" +
+                $"date created: {ticket.Date_created}" +
+                ((ticket.Data != null && ticket.Data.ToString() != "{}") ? $"ticket data: {ticket.Data.ToString()}" : ""))
+        { }
     }
 }

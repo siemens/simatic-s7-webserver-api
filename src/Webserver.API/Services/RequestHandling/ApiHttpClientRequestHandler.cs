@@ -6,15 +6,20 @@ using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -69,8 +74,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
         /// <param name="apiRequest">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(IApiRequest apiRequest)
+        public async Task<string> SendPostRequestAsync(IApiRequest apiRequest, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (apiRequest.Params != null)
             {
@@ -81,7 +87,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequest, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString);
+            return await SendPostRequestAsync(apiRequestString, cancellationToken);
         }
 
 
@@ -99,8 +105,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
         /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId)
+        public async Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (apiRequestWithIntId.Params != null)
             {
@@ -111,7 +118,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequestWithIntId, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString);
+            return await SendPostRequestAsync(apiRequestString, cancellationToken);
         }
 
         /// <summary>
@@ -127,15 +134,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
         /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(string apiRequestString)
+        public async Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default(CancellationToken))
         {
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
+            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
             _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+#if NET6_0_OR_GREATER
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+#else
             var responseString = await response.Content.ReadAsStringAsync();
+#endif
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
             return responseString;
         }
@@ -172,11 +184,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.Browse Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
-        public async Task<ApiArrayOfApiClassResponse> ApiBrowseAsync()
+        public async Task<ApiArrayOfApiClassResponse> ApiBrowseAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiBrowseRequest();
-            var responseString = await SendPostRequestAsync(req);
+            var responseString = await SendPostRequestAsync(req, cancellationToken);
             var arrOfApiClassResponse = JsonConvert.DeserializeObject<ApiArrayOfApiClassResponse>(responseString);
             if (arrOfApiClassResponse.Result.Count == 0)
             {
@@ -193,12 +206,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
-        /// <param name="ticketId">ticket to be browsed (null to browse all)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null)
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(CancellationToken cancellationToken) => await ApiBrowseTicketsAsync((string) null, cancellationToken);
+
+        /// <summary>
+        /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <param name="ticketId">ticket to be browsed (null to browse all)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiBrowseTicketsRequest(ticketId);
-            var responseString = await SendPostRequestAsync(req);
+            var responseString = await SendPostRequestAsync(req, cancellationToken);
             var arrOfApiClassResponse = JsonConvert.DeserializeObject<ApiBrowseTicketsResponse>(responseString);
             return arrOfApiClassResponse;
         }
@@ -215,8 +236,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="ticket">ticket to be browsed (null to browse all)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket) => await ApiBrowseTicketsAsync(ticket.Id);
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiBrowseTicketsAsync(ticket.Id, cancellationToken);
+
         /// <summary>
         /// Send an Api.BrowseTickets Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -228,11 +251,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="ticketId">ticket id (28 chars)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(string ticketId)
+        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiCloseTicketRequest(ticketId);
-            var responseString = await SendPostRequestAsync(req);
+            var responseString = await SendPostRequestAsync(req, cancellationToken);
             var apiTrueOnSuccessResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(responseString);
             return apiTrueOnSuccessResponse;
         }
@@ -247,8 +271,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="ticket">ticket containing ticket id (28 chars)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket) => await ApiCloseTicketAsync(ticket.Id);
+        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiCloseTicketAsync(ticket.Id);
 
         /// <summary>
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
@@ -257,6 +282,29 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>True to indicate Success</returns>
         public ApiTrueOnSuccessResponse ApiCloseTicket(ApiTicket ticket) => ApiCloseTicketAsync(ticket).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword)
+        {
+            var req = _apiRequestFactory.GetApiChangePasswordRequest(username, currentPassword, newPassword);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        public ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword) =>
+            ApiChangePasswordAsync(username, currentPassword, newPassword).GetAwaiter().GetResult();
         /// <summary>
         /// Send an Api.GetCertificateUrl Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -278,13 +326,31 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.GetPermissions Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Array of ApiClass (in this case permissions)</returns>
-        public async Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync()
+        public async Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiGetPermissionsRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiArrayOfApiClassResponse>(response);
         }
+        /// <summary>
+        /// Send an Api.GetQuantityStructures Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <returns>Api Quantity Structure object</returns>
+        public async Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync()
+        {
+            var req = _apiRequestFactory.GetApiGetQuantityStructuresRequest();
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiGetQuantityStructuresResponse>(response);
+        }
+
+        /// <summary>
+        /// Send an Api.GetQuantityStructures Request  
+        /// </summary>
+        /// <returns>A QuantityStructure object</returns>
+        public ApiGetQuantityStructuresResponse ApiGetQuantityStructures() => ApiGetQuantityStructuresAsync().GetAwaiter().GetResult();
+
         /// <summary>
         /// Send an Api.GetPermissions Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -294,11 +360,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.Logout Request using the Request from the ApiRequestFactory
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiLogoutAsync()
+        public async Task<ApiTrueOnSuccessResponse> ApiLogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiLogoutRequest();
-            string response = await SendPostRequestAsync(req);
+            string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             _httpClient.DefaultRequestHeaders.Remove("X-Auth-Token");
             return responseObj;
@@ -342,6 +409,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>a double that contains the value for the current ApiVersion</returns>
         public ApiDoubleResponse ApiVersion() => ApiVersionAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid)
+        {
+            var req = _apiRequestFactory.GetModulesDownloadServiceData(hwid);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
+            return responseObj;
+        }
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        public ApiTicketIdResponse ModulesDownloadServiceData(ApiPlcHwId hwid) =>
+            ModulesDownloadServiceDataAsync(hwid).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.ReadOperatingMode Request using the Request from the ApiRequestFactory
@@ -466,6 +553,43 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         public ApiPlcProgramBrowseResponse PlcProgramBrowse(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var) => PlcProgramBrowseAsync(plcProgramBrowseMode, var).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Send a PlcProgram.Browse request for the code blocks.
+        /// </summary>
+        /// <returns>ApiPlcProgramBrowseCodeBlocksResponse: A collection of ApiPlcProgramBrowseCodeBlocksData objects.</returns>
+        public ApiPlcProgramBrowseCodeBlocksResponse PlcProgramBrowseCodeBlocks() => PlcProgramBrowseCodeBlocksAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a PlcProgram.Browse request for the code blocks.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>ApiPlcProgramBrowseCodeBlocksResponse: A collection of ApiPlcProgramBrowseCodeBlocksData objects.</returns>
+        public async Task<ApiPlcProgramBrowseCodeBlocksResponse> PlcProgramBrowseCodeBlocksAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var req = _apiRequestFactory.GetApiPlcProgramBrowseCodeBlocksRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            var responseObj = JsonConvert.DeserializeObject<ApiPlcProgramBrowseCodeBlocksResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a PlcProgram.DownloadProfilingData request.
+        /// </summary>
+        /// <returns>ApiSingleStringResponse: Object containing the ticket ID for the data download.</returns>
+        public ApiSingleStringResponse PlcProgramDownloadProfilingData() => PlcProgramDownloadProfilingDataAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a PlcProgram.DownloadProfilingData request.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>ApiSingleStringResponse: Object containing the ticket ID for the data download.</returns>
+        public async Task<ApiSingleStringResponse> PlcProgramDownloadProfilingDataAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var req = _apiRequestFactory.GetApiPlcProgramDownloadProfilingDataRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            var responseObj = JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
+            return responseObj;
+        }
 
         /// <summary>
         /// Send a PlcProgram.Read Request using the Request from the ApiRequestFactory
@@ -1601,6 +1725,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             return responseObj;
         }
+
         /// <summary>
         /// Send a WebApp.SetState Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -1612,6 +1737,46 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </returns>
         public ApiTrueWithWebAppResponse WebAppSetState(string webAppName, ApiWebAppState newApiWebAppState)
             => WebAppSetStateAsync(webAppName, newApiWebAppState).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a WebServer.SetDefaultPage Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <param name="defaultPage"></param>
+        /// <returns>This function will return the TrueOnSuccessResponse</returns>
+        public async Task<ApiTrueOnSuccessResponse> WebServerSetDefaultPageAsync(string defaultPage)
+        {
+            var req = _apiRequestFactory.GetApiWebserverSetDefaultPageRequest(defaultPage);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a WebServer.SetDefaultPage Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <param name="defaultPage"></param>
+        /// <returns></returns>
+        ApiTrueOnSuccessResponse IApiRequestHandler.WebServerSetDefaultPage(string defaultPage)
+            => WebServerSetDefaultPageAsync(defaultPage).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a WebServer.ReadDefaultPage Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <returns>Returns the default page in a response object</returns>
+        public async Task<ApiWebServerGetReadDefaultPageResponse> WebServerGetReadDefaultPageAsync()
+        {
+            var req = _apiRequestFactory.GetApiWebserverReadDefaultPageRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiWebServerGetReadDefaultPageResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a WebServer.ReadDefaultPage Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <returns>Returns the default page in a response object</returns>
+        public ApiWebServerGetReadDefaultPageResponse WebServerGetReadDefaultPage()
+            => WebServerGetReadDefaultPageAsync().GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a WebApp.SetState Request using the Request from the ApiRequestFactory
@@ -1628,6 +1793,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             resp.NewWebApp.State = apiWebAppState;
             return resp;
         }
+
         /// <summary>
         /// Send a WebApp.SetState Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -2261,12 +2427,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>HTTP response</returns>
-        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId)
+        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var request_body = new ByteArrayContent(new byte[0]);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body);
+            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response;
         }
@@ -2283,9 +2450,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>HTTP response</returns>
-        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(ApiTicket ticket)
-            => await DownloadTicketAndGetResponseAsync(ticket.Id);
+        public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken))
+            => await DownloadTicketAndGetResponseAsync(ticket.Id, cancellationToken);
 
         /// <summary>
         ///  Function to get the ByteArray and the HTTP response Requested by a Ticket (e.g. DownloadResource)
@@ -2294,15 +2462,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>HTTP response</returns>
         public HttpResponseMessage DownloadTicketAndGetResponse(ApiTicket ticket)
             => DownloadTicketAndGetResponseAsync(ticket).GetAwaiter().GetResult();
-        
+
         /// <summary>
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Bytearray given from the PLC</returns>
-        public async Task<byte[]> DownloadTicketAsync(string ticketId)
+        public async Task<byte[]> DownloadTicketAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var response = await DownloadTicketAndGetResponseAsync(ticketId);
+            var response = await DownloadTicketAndGetResponseAsync(ticketId, cancellationToken);
             return await response.Content.ReadAsByteArrayAsync();
         }
 
@@ -2317,9 +2486,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticket">The Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Bytearray given from the PLC</returns>
-        public async Task<byte[]> DownloadTicketAsync(ApiTicket ticket)
-         => await DownloadTicketAsync(ticket.Id);
+        public async Task<byte[]> DownloadTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken))
+         => await DownloadTicketAsync(ticket.Id, cancellationToken);
 
         /// <summary>
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
@@ -2374,7 +2544,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public void UploadTicket(ApiTicket ticket, ByteArrayContent data) 
+        public void UploadTicket(ApiTicket ticket, ByteArrayContent data)
             => UploadTicketAsync(ticket, data).GetAwaiter().GetResult();
 
         /// <summary>
@@ -2418,7 +2588,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
         /// <returns>Task/void</returns>
-        public void UploadTicket(string ticketId, FileInfo pathToFile) 
+        public void UploadTicket(string ticketId, FileInfo pathToFile)
             => UploadTicketAsync(ticketId, pathToFile).GetAwaiter().GetResult();
 
         /// <summary>
@@ -2472,9 +2642,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string response = await SendPostRequestAsync(req);
             var responseObj = new ApiLoginResponse();
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
-            if(!string.IsNullOrEmpty(responseObj.Result.Token))
+            if (!string.IsNullOrEmpty(responseObj.Result.Token))
             {
-                if(_httpClient.DefaultRequestHeaders.Any(x => x.Key.Contains("X-Auth-Token")))
+                if (_httpClient.DefaultRequestHeaders.Any(x => x.Key.Contains("X-Auth-Token")))
                 {
                     _httpClient.DefaultRequestHeaders.Remove("X-Auth-Token");
                 }
@@ -2558,6 +2728,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public ApiPlcReadSystemTimeResponse PlcReadSystemTime() => PlcReadSystemTimeAsync().GetAwaiter().GetResult();
 
         /// <summary>
+        /// Send an Plc.SetSystemTime Request
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <returns>True if time was set successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> PlcSetSystemTimeAsync(DateTime timestamp)
+        {
+            var req = _apiRequestFactory.GetApiPlcSetSystemTimeRequest(timestamp);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+        /// <summary>
+        /// Send an Plc.SetSystemTime Request
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <returns>True if time was set successfully</returns>
+        public ApiTrueOnSuccessResponse PlcSetSystemTime(DateTime timestamp) =>
+            PlcSetSystemTimeAsync(timestamp).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Send a Plc.ReadTimeSettings Request
         /// </summary>
         /// <returns>Current Plc Time Settings</returns>
@@ -2575,6 +2765,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Current Plc Time Settings</returns>
         public ApiPlcReadTimeSettingsResponse PlcReadTimeSettings() => PlcReadTimeSettingsAsync().GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Send a Plc.SetTimeSettings Request with parameters
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <returns>True if the settings are applied successfully</returns>
+        public async Task<ApiTrueOnSuccessResponse> PlcSetTimeSettingsAsync(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null)
+        {
+            var req = _apiRequestFactory.GetApiPlcSetTimeSettingsRequest(utcOffset, daylightSavings);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Plc.SetTimeSettings Request with parameters
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <returns>True if the settings are applied successfully</returns>
+        public ApiTrueOnSuccessResponse PlcSetTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null) =>
+            PlcSetTimeSettingsAsync(utcOffset, daylightSavings = null).GetAwaiter().GetResult();
         /// <summary>
         /// Send a Files.Browse Request
         /// </summary>
@@ -2903,7 +3115,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return await FilesDeleteDirectoryAsync(varNameForMethods);
         }
 
-
         /// <summary>
         /// Send a Files.DeleteDirectory Request
         /// </summary>
@@ -2911,5 +3122,237 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>True if the directory is deleted successfully</returns>
         public ApiTrueOnSuccessResponse FilesDeleteDirectory(ApiFileResource resource)
         => FilesDeleteDirectoryAsync(resource).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Failsafe.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <returns>Response with Failsafe parameters</returns>
+        public async Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid)
+        {
+            var req = _apiRequestFactory.GetFailsafeReadParametersRequest(hwid);
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiFailsafeReadParametersResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Failsafe.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <returns>Response with Failsafe parameters</returns>
+        public ApiFailsafeReadParametersResponse FailsafeReadParameters(uint hwid) =>
+            FailsafeReadParametersAsync(hwid).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Failsafe.ReadRuntimeGroups request
+        /// </summary>
+        /// <returns>Response with Runtime Groups</returns>
+        public async Task<ApiFailsafeReadRuntimeGroupsResponse> FailsafeReadRuntimeGroupsAsync()
+        {
+            var req = _apiRequestFactory.GetFailsafeReadRuntimeGroupsRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiFailsafeReadRuntimeGroupsResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Failsafe.ReadRuntimeGroups request
+        /// </summary>
+        /// <returns>Response with Runtime Groups</returns>
+        public ApiFailsafeReadRuntimeGroupsResponse FailsafeReadRuntimeGroups() => FailsafeReadRuntimeGroupsAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send an Api.GetPasswordPolicy request
+        /// </summary>
+        /// <returns>ApiGetPasswordPolicy response</returns>
+        public async Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync()
+        {
+            var req = _apiRequestFactory.GetApiGetPasswordPolicyRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiGetPasswordPolicyResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send an Api.GetPasswordPolicy request
+        /// </summary>
+        /// <returns>ApiGetPasswordPolicy response</returns>
+        public ApiGetPasswordPolicyResponse ApiGetPasswordPolicy() => ApiGetPasswordPolicyAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send an Api.GetAuthenticationMode request
+        /// </summary>
+        /// <returns>A response containing the authentication modes</returns>
+        public async Task<ApiGetAuthenticationModeResponse> ApiGetAuthenticationModeAsync()
+        {
+            var req = _apiRequestFactory.GetApiGetAuthenticationModeRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiGetAuthenticationModeResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send an Api.GetAuthenticationMode request
+        /// </summary>
+        /// <returns>A response containing the authentication modes</returns>
+        public ApiGetAuthenticationModeResponse ApiGetAuthenticationMode() => ApiGetAuthenticationModeAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Project.ReadLanguages Request
+        /// </summary>
+        /// <returns>Languages Response containing a list of languages</returns>
+        public async Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync()
+        {
+            var req = _apiRequestFactory.GetApiProjectReadLanguagesRequest();
+            string response = await SendPostRequestAsync(req);
+            var responseObj = JsonConvert.DeserializeObject<ApiReadLanguagesResponse>(response);
+            return responseObj;
+        }
+
+        /// <summary>
+        /// Send a Project.ReadLanguages Request
+        /// </summary>
+        /// <returns>Languages Response containing a list of languages</returns>
+        public ApiReadLanguagesResponse ProjectReadLanguages() => ProjectReadLanguagesAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadModeSelectorState request
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <returns>Mode Selector state</returns>
+        public async Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid)
+        {
+            var req = _apiRequestFactory.GetApiPlcReadModeSelectorStateRequest(rhid);
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiPlcReadModeSelectorStateResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Plc.ReadModeSelectorState request
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <returns>Mode Selector state</returns>
+        public ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId rhid) =>
+            PlcReadModeSelectorStateAsync(rhid).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
+        /// </summary>
+        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
+        /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
+        /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
+        ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <returns>ApiSyslogBrowseResponse</returns>
+        public async Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null)
+        {
+            var req = _apiRequestFactory.GetApiSyslogBrowseRequest(redundancy_id, count, first);
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiSyslogBrowseResponse>(response);
+        }
+        /// <summary>
+        /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
+        /// </summary>
+        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
+        /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
+        /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
+        ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <returns>ApiSyslogBrowseResponse</returns>
+        public ApiSyslogBrowseResponse ApiSyslogBrowse(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null) => ApiSyslogBrowseAsync(redundancy_id, count, first).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// This method allows the user to acknowledge a single alarm. <br/>
+        /// This method will always return true, even when nothing is acknowledged.
+        /// </summary>
+        /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
+        /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public async Task<ApiTrueOnSuccessResponse> AlarmsAcknowledgeAsync(string id)
+        {
+            var req = _apiRequestFactory.GetApiAlarmsAcknowledgeRequest(id);
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
+        }
+        /// <summary>
+        /// This method allows the user to acknowledge a single alarm. <br/>
+        /// This method will always return true, even when nothing is acknowledged.
+        /// </summary>
+        /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
+        /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public ApiTrueOnSuccessResponse AlarmsAcknowledge(string id) => AlarmsAcknowledgeAsync(id).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Alarms.Browse request
+        /// </summary>
+        /// <returns>ApiAlarmsBrowseResponse</returns>
+        /// <param name="language">The language in which the texts should be returned. 
+        ///                        If the language is valid, then the response must contain the texts in the requested language. <br/>
+        ///                        An empty string shall be treated the same as an invalid language string.
+        ///                        </param>
+        /// <param name="count">(optional) The maximum number of alarm entries to be requested. <br/>
+        ///                     When not provided, the plc will return with the default amount: 50. <br/>
+        ///                     The maximum possible count is 5000. <br/>
+        ///                     A count of 0 must omit any alarm entries from the response and must only return the attributes last_modified, count_max and count_current. 
+        ///                     </param>
+        /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no count parameter can be provided as filter.</param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        public async Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null)
+        {
+            var req = _apiRequestFactory.GetApiAlarmsBrowseRequest(language, count, alarm_id, filters);
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiAlarmsBrowseResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Alarms.Browse request
+        /// </summary>
+        /// <returns>ApiAlarmsBrowseResponse</returns>
+        /// <param name="language">The language in which the texts should be returned. 
+        ///                        If the language is valid, then the response must contain the texts in the requested language. <br/>
+        ///                        An empty string shall be treated the same as an invalid language string.
+        ///                        </param>
+        /// <param name="count">(optional) The maximum number of alarm entries to be requested. <br/>
+        ///                     When not provided, the plc will return with the default amount: 50. <br/>
+        ///                     The maximum possible count is 5000. <br/>
+        ///                     A count of 0 must omit any alarm entries from the response and must only return the attributes last_modified, count_max and count_current. 
+        ///                     </param>
+        /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no count parameter can be provided as filter.</param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        public ApiAlarmsBrowseResponse ApiAlarmsBrowse(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null) => ApiAlarmsBrowseAsync(language, count, alarm_id, filters).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a DiagnosticBuffer.Browse request
+        /// </summary>
+        /// <param name="language">The language in which the texts should be returned. If the language is valid, then the response must contain the texts in the requested language.An empty string shall be treated the same as an invalid language string.</param>
+        /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
+        /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
+        public async Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null)
+        {
+            var req = _apiRequestFactory.GetApiDiagnosticBufferBrowseRequest(language, count, filters);
+            string response = await SendPostRequestAsync(req);
+            return JsonConvert.DeserializeObject<ApiDiagnosticBufferBrowseResponse>(response);
+        }
+        /// <summary>
+        /// Send a DiagnosticBuffer.Browse request
+        /// </summary>
+        /// <param name="language">The language in which the texts should be returned. If the language is valid, then the response must contain the texts in the requested language.An empty string shall be treated the same as an invalid language string.</param>
+        /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
+        /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
+        public ApiDiagnosticBufferBrowseResponse ApiDiagnosticBufferBrowse(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null) => ApiDiagnosticBufferBrowseAsync(language, count, filters).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Cancel the outstanding requests of the HttpClient
+        /// </summary>
+        public void CancelPendingRequests()
+        {
+            _httpClient.CancelPendingRequests();
+        }
     }
 }

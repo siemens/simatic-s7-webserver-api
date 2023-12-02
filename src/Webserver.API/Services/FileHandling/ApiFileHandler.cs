@@ -2,15 +2,10 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using System;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
@@ -129,7 +124,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             var accordingFile = Path.Combine(resource.PathToLocalDirectory, resource.Name);
             await DeployFileAsync(varNameForMethods, accordingFile);
         }
-        
+
 
         /// <summary>
         /// Upload a resource to the File API

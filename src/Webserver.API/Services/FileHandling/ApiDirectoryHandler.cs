@@ -1,16 +1,15 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
+using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
 {
@@ -85,7 +84,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             }
             else
             {
-                if(resource.Resources != null)
+                if (resource.Resources != null)
                 {
                     foreach (var file in resource.Resources)
                     {
@@ -102,7 +101,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     await ApiRequestHandler.FilesDeleteDirectoryAsync(dirName);
                 }
                 catch (ApiEntityDoesNotExistException) { }
-                
+
             }
         }
 
@@ -285,7 +284,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     throw new InvalidOperationException(errorMessage.ToString());
                 }
             }
-            catch(ApiEntityDoesNotExistException)
+            catch (ApiEntityDoesNotExistException)
             {
                 await DeployAsync(resource);
             }

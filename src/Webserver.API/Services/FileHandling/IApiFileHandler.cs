@@ -2,12 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.Responses;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
@@ -48,7 +43,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="filePath">Path of the file to upload</param>
-       /// <returns>void</returns>
+        /// <returns>void</returns>
         void DeployFile(string resource, string filePath);
 
         /// <summary>

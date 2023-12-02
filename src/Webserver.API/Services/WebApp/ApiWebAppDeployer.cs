@@ -58,11 +58,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             {
                 await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page);
             }
-                
+
             if (webApp.Not_found_page != null)
             {
                 await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page);
-                    
+
             }
             if (webApp.Default_page != null)
             {
@@ -118,9 +118,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 var browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
                 // set the IgnoreBOMDifference for all resources that have it set on the app and are found on the plc!
                 var appOnBrowsed = browsedOrdered.Where(el => appOrdered.Any(el2 => el.Name == el2.Name)).ToList();
-                foreach(var res in appOnBrowsed)
+                foreach (var res in appOnBrowsed)
                 {
-                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name) 
+                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name)
                         ?? throw new NullReferenceException("resource is not on app but expected to be!!!");
                     res.IgnoreBOMDifference = res2.IgnoreBOMDifference;
                 }
@@ -135,7 +135,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     // elements that should further be deleted but are not found in the comparison before!
                     var elemsToFurtherdelete = (browsedOrdered.Where(el => appExceptBrowsed
                     .Any(el2 => el2.Name == el.Name && !(browsedExceptApp.Any(el3 => el3.Name == el2.Name))))).ToList();
-                    if(elemsToFurtherdelete.Count != 0)
+                    if (elemsToFurtherdelete.Count != 0)
                     {
                         throw new Exception("Comparison insufficient!");
                     }

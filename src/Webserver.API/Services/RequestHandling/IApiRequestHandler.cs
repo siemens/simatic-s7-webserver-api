@@ -1,16 +1,21 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
-using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -38,24 +43,31 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>an array of ApiResponses</returns>
         /// <param name="apiRequests">api Requests to send</param>
         Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests);
-        
         /// <summary>
         /// Send an Api.Browse Request
         /// </summary>
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
-        Task<ApiArrayOfApiClassResponse> ApiBrowseAsync();
+        Task<ApiArrayOfApiClassResponse> ApiBrowseAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send an Api.BrowseTickets Request  
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
+        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(CancellationToken cancellationToken);
         /// <summary>
         /// Send an Api.BrowseTickets Request  
         /// </summary>
         /// <param name="ticketId">ticket id (28 chars)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null);
+        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.BrowseTickets Request  
         /// </summary>
         /// <param name="ticket">ticket to be browsed (null to browse all)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket);
+        Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.BrowseTickets Request
         /// </summary>
@@ -72,14 +84,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.CloseTicket Request  
         /// </summary>
         /// <param name="ticketId">ticket id (28 chars)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(string ticketId);
+        Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.CloseTicket Request  
         /// </summary>
         /// <param name="ticket">ticket containing ticket id (28 chars)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket);
+        Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword);
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword);
         /// <summary>
         /// Send an Api.GetCertificateUrl Request 
         /// </summary>
@@ -88,8 +118,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.GetPermissions Request  
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Array of ApiClass (in this case permissions)</returns>
-        Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync();
+        Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send an Api.GetQuantityStructures Request  
+        /// </summary>
+        /// <returns>A QuantityStructure object</returns>
+        Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync();
+        /// <summary>
+        /// Send an Api.GetQuantityStructures Request  
+        /// </summary>
+        /// <returns>A QuantityStructure object</returns>
+        ApiGetQuantityStructuresResponse ApiGetQuantityStructures();
         /// <summary>
         /// Send a Api.Login Request 
         /// </summary>
@@ -101,8 +142,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.Logout Request 
         /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate success</returns>
-        Task<ApiTrueOnSuccessResponse> ApiLogoutAsync();
+        Task<ApiTrueOnSuccessResponse> ApiLogoutAsync(CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.Ping Request 
         /// </summary>
@@ -117,14 +159,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Bytearray given from the PLC</returns>
-        Task<byte[]> DownloadTicketAsync(string ticketId);
+        Task<byte[]> DownloadTicketAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
-        ///  Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
+        /// Function to get the ByteArray Requested by a Ticket (e.g. DownloadResource)
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=+ticketId</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>HTTp response </returns>
-        Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId);
+        Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a PlcProgram.Browse Request 
         /// </summary>
@@ -231,8 +275,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// only use this function if you know how to build up apiRequests on your own!
         /// </summary>
         /// <param name="apiRequest">Api Request to send to the plc</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        Task<string> SendPostRequestAsync(IApiRequest apiRequest);
+        Task<string> SendPostRequestAsync(IApiRequest apiRequest, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
         /// </summary>
@@ -244,8 +289,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
         /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId);
+        Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
         /// will remove those Params that have the value Null and send the request using the HttpClient.
@@ -258,8 +304,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
         /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        Task<string> SendPostRequestAsync(string apiRequestString);
+        Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
         /// will remove those Params that have the value Null and send the request using the HttpClient.
@@ -846,6 +893,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// State: which equals the state
         /// </returns>
         Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(ApiWebAppData webApp, ApiWebAppState apiWebAppState);
+
         /// <summary>
         /// Send a WebApp.SetState Request 
         /// </summary>
@@ -858,6 +906,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         Task<ApiTrueWithWebAppResponse> WebAppSetStateAsync(string webAppName, ApiWebAppState apiWebAppState);
 
         /// <summary>
+        /// Send a WebServer.ReadDefaultPage request
+        /// </summary>
+        /// <returns>Returns an ApiWebServerGetReadDefaultPageResponse object</returns>
+        ApiWebServerGetReadDefaultPageResponse WebServerGetReadDefaultPage();
+
+        /// <summary>
+        /// Send a WebServer.ReadDefaultPage request
+        /// </summary>
+        /// <returns>Returns an ApiWebServerGetReadDefaultPageResponse object</returns>
+        Task<ApiWebServerGetReadDefaultPageResponse> WebServerGetReadDefaultPageAsync();
+
+        /// <summary>
+        /// Send a WebServer.SetDefaultPage request
+        /// </summary>
+        /// <param name="defaultPage">Name of the default page</param>
+        /// <returns>Returns a TrueOnSuccessResponse</returns>
+        Task<ApiTrueOnSuccessResponse> WebServerSetDefaultPageAsync(string defaultPage);
+
+        /// <summary>
+        /// Send a WebServer.SetDefaultPage request
+        /// </summary>
+        /// <param name="defaultPage">Name of the default page</param>
+        /// <returns>Returns a TrueOnSuccessResponse</returns>
+        ApiTrueOnSuccessResponse WebServerSetDefaultPage(string defaultPage);
+
+        /// <summary>
         /// Send an ApiBulk Request
         /// </summary>
         /// <returns>an array of ApiResponses</returns>
@@ -868,7 +942,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
         ApiArrayOfApiClassResponse ApiBrowse();
-        
+
         /// <summary>
         /// Send an Api.CloseTicket Request  
         /// </summary>
@@ -921,6 +995,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Bytearray given from the PLC</returns>
         byte[] DownloadTicket(string ticketId);
         /// <summary>
+        /// Send a Project.ReadLanguages Request
+        /// </summary>
+        /// <returns>Languages Response containing a list of languages</returns>
+        Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync();
+        /// <summary>
+        /// Send a Project.ReadLanguages Request
+        /// </summary>
+        /// <returns>Languages Response containing a list of languages</returns>
+        ApiReadLanguagesResponse ProjectReadLanguages();
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid);
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        ApiTicketIdResponse ModulesDownloadServiceData(ApiPlcHwId hwid);
+        /// <summary>
         /// Send a PlcProgram.Browse Request 
         /// </summary>
         /// <param name="var">
@@ -956,6 +1052,33 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         ApiPlcProgramBrowseResponse PlcProgramBrowse(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var);
+
+        /// <summary>
+        /// Send a PlcProgram.Browse request for the code blocks.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>ApiPlcProgramBrowseCodeBlocksResponse: A collection of ApiPlcProgramBrowseCodeBlocksData objects.</returns>
+        Task<ApiPlcProgramBrowseCodeBlocksResponse> PlcProgramBrowseCodeBlocksAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a PlcProgram.Browse request for the code blocks.
+        /// </summary>
+        /// <returns>ApiPlcProgramBrowseCodeBlocksResponse: A collection of ApiPlcProgramBrowseCodeBlocksData objects.</returns>
+        ApiPlcProgramBrowseCodeBlocksResponse PlcProgramBrowseCodeBlocks();
+
+        /// <summary>
+        /// Send a PlcProgram.DownloadProfilingData request.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>ApiSingleStringResponse: Object containing the ticket ID for the data download.</returns>
+        Task<ApiSingleStringResponse> PlcProgramDownloadProfilingDataAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a PlcProgram.DownloadProfilingData request.
+        /// </summary>
+        /// <returns>ApiSingleStringResponse: Object containing the ticket ID for the data download.</returns>
+        ApiSingleStringResponse PlcProgramDownloadProfilingData();
+
         /// <summary>
         /// Send a PlcProgram.Read Request 
         /// </summary>
@@ -1023,6 +1146,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
         ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode);
+        /// <summary>
+        /// Send a Plc.ReadModeSelectorState request
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <returns>Mode Selector state</returns>
+        Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid);
+        /// <summary>
+        /// Send a Plc.ReadModeSelectorState request
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <returns>Mode Selector state</returns>
+        ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId rhid);
         /// <summary>
         /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
         /// MediaTypeHeaderValue: application/octet-stream
@@ -1627,6 +1762,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ApiPlcReadSystemTimeResponse PlcReadSystemTime();
 
         /// <summary>
+        /// Send an Plc.SetSystemTime Request
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <returns>True if time was set successfully</returns>
+        Task<ApiTrueOnSuccessResponse> PlcSetSystemTimeAsync(DateTime timestamp);
+        /// <summary>
+        /// Send an Plc.SetSystemTime Request
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <returns>True if time was set successfully</returns>
+        ApiTrueOnSuccessResponse PlcSetSystemTime(DateTime timestamp);
+
+        /// <summary>
         /// Send a Plc.ReadTimeSettings Request
         /// </summary>
         /// <returns>Current Plc Time Settings</returns>
@@ -1637,7 +1785,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>Current Plc Time Settings</returns>
         ApiPlcReadTimeSettingsResponse PlcReadTimeSettings();
-
+        /// <summary>
+        /// Send a Plc.SetTimeSettings Request with parameters
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <returns>True if the settings are applied successfully</returns>
+        Task<ApiTrueOnSuccessResponse> PlcSetTimeSettingsAsync(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null);
+        /// <summary>
+        /// Send a Plc.SetTimeSettings Request with parameters
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <returns>True if the settings are applied successfully</returns>
+        ApiTrueOnSuccessResponse PlcSetTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null);
         /// <summary>
         /// Send a Files.Browse Request
         /// </summary>
@@ -1673,7 +1834,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>Ticket ID</returns>
-        Task<ApiTicketIdResponse> FilesDownloadAsync(string resource );
+        Task<ApiTicketIdResponse> FilesDownloadAsync(string resource);
 
 
         /// <summary>
@@ -1881,6 +2042,149 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null);
 
+        /// <summary>
+        /// Send a Failsafe.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <returns>Response with Failsafe parameters</returns>
+        Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid);
 
+        /// <summary>
+        /// Send a Failsafe.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <returns>Response with Failsafe parameters</returns>
+        ApiFailsafeReadParametersResponse FailsafeReadParameters(uint hwid);
+
+        /// <summary>
+        /// Send a Failsafe.ReadRuntimeGroups request
+        /// </summary>
+        /// <returns>Response with Runtime Groups</returns>
+        Task<ApiFailsafeReadRuntimeGroupsResponse> FailsafeReadRuntimeGroupsAsync();
+
+        /// <summary>
+        /// Send a Failsafe.ReadRuntimeGroups request
+        /// </summary>
+        /// <returns>Response with Runtime Groups</returns>
+        ApiFailsafeReadRuntimeGroupsResponse FailsafeReadRuntimeGroups();
+        /// <summary>
+        /// Send an Api.GetPasswordPolicy request
+        /// </summary>
+        /// <returns>ApiGetPasswordPolicy response</returns>
+        Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync();
+
+        /// <summary>
+        /// Send an Api.GetPasswordPolicy request
+        /// </summary>
+        /// <returns>ApiGetPasswordPolicy response</returns>
+        ApiGetPasswordPolicyResponse ApiGetPasswordPolicy();
+
+        /// <summary>
+        /// Send an Api.GetAuthenticationMode request
+        /// </summary>
+        /// <returns>A response containing the authentication modes</returns>
+        Task<ApiGetAuthenticationModeResponse> ApiGetAuthenticationModeAsync();
+
+        /// <summary>
+        /// Send an Api.GetAuthenticationMode request
+        /// </summary>
+        /// <returns>A response containing the authentication modes</returns>
+        ApiGetAuthenticationModeResponse ApiGetAuthenticationMode();
+
+        /// <summary>
+        /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
+        /// </summary>
+        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
+        /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
+        /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
+        ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <returns>ApiSyslogBrowseResponse</returns>
+        Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null);
+
+        /// <summary>
+        /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
+        /// </summary>
+        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
+        /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
+        /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
+        ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <returns>ApiSyslogBrowseResponse</returns>
+        ApiSyslogBrowseResponse ApiSyslogBrowse(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null);
+
+        /// <summary>
+        /// This method allows the user to acknowledge a single alarm. <br/>
+        /// This method will always return true, even when nothing is acknowledged.
+        /// </summary>
+        /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
+        /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        Task<ApiTrueOnSuccessResponse> AlarmsAcknowledgeAsync(string id);
+
+        /// <summary>
+        /// This method allows the user to acknowledge a single alarm. <br/>
+        /// This method will always return true, even when nothing is acknowledged.
+        /// </summary>
+        /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
+        /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        ApiTrueOnSuccessResponse AlarmsAcknowledge(string id);
+
+        /// <summary>
+        /// Send a Alarms.Browse request
+        /// </summary>
+        /// <returns>ApiAlarmsBrowseResponse</returns>
+        /// <param name="language">The language in which the texts should be returned. 
+        ///                        If the language is valid, then the response must contain the texts in the requested language. <br/>
+        ///                        An empty string shall be treated the same as an invalid language string.
+        ///                        </param>
+        /// <param name="count">(optional) The maximum number of alarm entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 must omit any alarm entries from the response and must only return the attributes last_modified, count_max and count_current. 
+        ///                     </param>
+        /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no other parameters can be provided as filter.</param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null);
+
+        /// <summary>
+        /// Send a Alarms.Browse request
+        /// </summary>
+        /// <returns>ApiAlarmsBrowseResponse</returns>
+        /// <param name="language">The language in which the texts should be returned. 
+        ///                        If the language is valid, then the response must contain the texts in the requested language. <br/>
+        ///                        An empty string shall be treated the same as an invalid language string.
+        ///                        </param>
+        /// <param name="count">(optional) The maximum number of alarm entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 must omit any alarm entries from the response and must only return the attributes last_modified, count_max and count_current. 
+        ///                     </param>
+        /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no other parameters can be provided as filter.</param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        ApiAlarmsBrowseResponse ApiAlarmsBrowse(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null);
+
+        /// <summary>
+        /// Send a DiagnosticBuffer.Browse request
+        /// </summary>
+        /// <param name="language">The language in which the texts should be returned. If the language is valid, then the response must contain the texts in the requested language.An empty string shall be treated the same as an invalid language string.</param>
+        /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
+        /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
+        Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language,
+                                                                               uint? count = null,
+                                                                               ApiDiagnosticBuffer_RequestFilters filters = null);
+        /// <summary>
+        /// Send a DiagnosticBuffer.Browse request
+        /// </summary>
+        /// <param name="language">The language in which the texts should be returned. If the language is valid, then the response must contain the texts in the requested language.An empty string shall be treated the same as an invalid language string.</param>
+        /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
+        /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
+        ApiDiagnosticBufferBrowseResponse ApiDiagnosticBufferBrowse(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null);
+
+        /// <summary>
+        /// Cancel the outstanding Requests
+        /// </summary>
+        void CancelPendingRequests();
     }
 }

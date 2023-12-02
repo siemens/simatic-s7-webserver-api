@@ -6,13 +6,10 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
 {
@@ -94,13 +91,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
                 webApp.ApplicationResources = RecursiveGetResources(PathToWebAppDirectory, webApp);
                 return webApp;
             }
-            catch(Newtonsoft.Json.JsonSerializationException serializationException)
+            catch (Newtonsoft.Json.JsonSerializationException serializationException)
             {
-                if(serializationException.Message.Contains("Error setting value to 'State'"))
+                if (serializationException.Message.Contains("Error setting value to 'State'"))
                 {
                     throw new ApiWebAppConfigParserException("Missing parameter 'State' or State was invalid => 'None' or 0 ", serializationException);
                 }
-                if(serializationException.Message.Contains("Error setting value to 'Type'"))
+                if (serializationException.Message.Contains("Error setting value to 'Type'"))
                 {
                     throw new ApiWebAppConfigParserException("Missing parameter 'Type' or Type was invalid => 'None' or 0 ", serializationException);
                 }

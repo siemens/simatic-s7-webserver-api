@@ -4,12 +4,10 @@
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Services.FileParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
 {
@@ -54,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </returns>
         public ApiFileResource Build(string configFilePath)
         {
-            if(!File.Exists(configFilePath))
+            if (!File.Exists(configFilePath))
             {
                 throw new FileNotFoundException(configFilePath);
             }
@@ -73,7 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </returns>
         public ApiFileResource Build(ApiDirectoryBuilderConfiguration parseConfiguration)
         {
-            if(!Directory.Exists(PathToLocalDirectory))
+            if (!Directory.Exists(PathToLocalDirectory))
             {
                 throw new DirectoryNotFoundException(PathToLocalDirectory);
             }
@@ -97,11 +95,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     PathToLocalDirectory = PathToLocalDirectory,
                     State = Enums.ApiFileResourceState.Active,
-                    Type = Enums.ApiFileResourceType.Dir, 
+                    Type = Enums.ApiFileResourceType.Dir,
                     Last_Modified = dirInf.LastWriteTime,
                     Name = dirInf.Name,
                 };
-                
+
                 resource.Parents = new List<ApiFileResource>();
 
                 // get resources in Directory

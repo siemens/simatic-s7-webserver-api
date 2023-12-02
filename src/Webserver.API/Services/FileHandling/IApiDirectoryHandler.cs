@@ -107,6 +107,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         void UpdateResource(ApiFileResource resource, ApiFileResource browsedResource);
-        
+
     }
 }

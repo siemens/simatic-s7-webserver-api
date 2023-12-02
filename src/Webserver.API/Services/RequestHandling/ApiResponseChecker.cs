@@ -5,11 +5,7 @@ using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -53,7 +49,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             // apiErrorModel will be null in case no Error is to be thrown!
             ApiErrorModel apiErrorModel = JsonConvert.DeserializeObject<ApiErrorModel>(responseString);
-            if(apiErrorModel.Error != null)
+            if (apiErrorModel.Error != null)
             {
                 apiErrorModel.ThrowAccordingException(apiRequestString, responseString);
             }

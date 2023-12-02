@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using System.Collections.Generic;
 using Siemens.Simatic.S7.Webserver.API.Enums;
+using System.Collections.Generic;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {

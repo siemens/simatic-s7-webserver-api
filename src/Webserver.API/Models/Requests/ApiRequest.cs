@@ -2,12 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
-using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
 {
@@ -23,7 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
         /// <param name="jsonRpc">The required JsonRpc</param>
         /// <param name="id">The required ID</param>
         /// <param name="requestParams">Optional parameters for those Api Request where it is possible (e.g. Files.Rename)</param>
-        public ApiRequest(string method, string jsonRpc, string id, Dictionary<string, object> requestParams = null) 
+        public ApiRequest(string method, string jsonRpc, string id, Dictionary<string, object> requestParams = null)
             : base(method, jsonRpc, id, requestParams)
         {
         }
@@ -42,7 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
         /// <param name="jsonRpc">The required JsonRpc</param>
         /// <param name="id">The required ID as an Integer</param>
         /// <param name="requestParams">Optional parameters for those Api Request where it is possible (e.g. Files.Rename)</param>
-        public ApiRequestIntId(string method, string jsonRpc, int id, Dictionary<string, object> requestParams = null) 
+        public ApiRequestIntId(string method, string jsonRpc, int id, Dictionary<string, object> requestParams = null)
             : base(method, jsonRpc, id, requestParams)
         {
         }

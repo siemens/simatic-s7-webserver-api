@@ -4,10 +4,6 @@
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -46,7 +42,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// Resource Visibility - (plc uses to) determine wether a user is allowed to access the Resource (has cookie with according rights)
         /// </summary>
-        public ApiWebAppResourceVisibility Visibility {
+        public ApiWebAppResourceVisibility Visibility
+        {
             get
             {
                 return visibility;
@@ -100,9 +97,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
 
             string lastModified = this.Last_modified.ToString();
             string otherLastModified = other.Last_modified.ToString();
-            if(IgnoreBOMDifference.HasValue && IgnoreBOMDifference == true)
+            if (IgnoreBOMDifference.HasValue && IgnoreBOMDifference == true)
             {
-                bool toReturn = (this.Name == other.Name && ((this.Size == (other.Size - 3)) || (this.Size == other.Size) || (this.Size == (other.Size +3))) && this.Media_type == other.Media_type
+                bool toReturn = (this.Name == other.Name && ((this.Size == (other.Size - 3)) || (this.Size == other.Size) || (this.Size == (other.Size + 3))) && this.Media_type == other.Media_type
                 && this.Visibility == other.Visibility && (lastModified == otherLastModified) && this.Etag == other.Etag);
                 return toReturn;
             }
@@ -111,7 +108,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 return this.Name == other.Name && (this.Size == other.Size) && this.Media_type == other.Media_type
                 && this.Visibility == other.Visibility && (lastModified == otherLastModified) && this.Etag == other.Etag;
             }
-            
+
         }
 
         /// <summary>

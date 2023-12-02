@@ -2,12 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -24,12 +18,12 @@ namespace Webserver.API.UnitTests
         [Test]
         public void DefaultValueCheckerTrue()
         {
-            if(ApiRequestFactory.PerformCheck == false)
+            if (ApiRequestFactory.PerformCheck == false)
             {
                 Assert.Fail("Perform Check by default is false!");
             }
             ApiRequestFactory.PerformCheck = false;
-            if(ApiRequestFactory.PerformCheck)
+            if (ApiRequestFactory.PerformCheck)
             {
                 Assert.Fail("Perform Check cannot be edited!");
             }

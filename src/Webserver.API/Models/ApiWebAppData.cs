@@ -4,11 +4,7 @@
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -41,13 +37,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// State of ApiWebApp => Enabled/Disabled, None is not valid!
         /// </summary>
-        public ApiWebAppState State { get
+        public ApiWebAppState State
+        {
+            get
             {
                 return state;
             }
             set
             {
-                if(value == ApiWebAppState.None)
+                if (value == ApiWebAppState.None)
                 {
                     throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
                 }

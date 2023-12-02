@@ -7,7 +7,6 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {

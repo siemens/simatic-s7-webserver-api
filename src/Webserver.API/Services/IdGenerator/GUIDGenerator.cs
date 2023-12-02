@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
 {
@@ -38,7 +35,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <param name="length"></param>
         public GUIDGenerator(int length) : this()
         {
-            if(length <= 0 || length > DefaultLength)
+            if (length <= 0 || length > DefaultLength)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }

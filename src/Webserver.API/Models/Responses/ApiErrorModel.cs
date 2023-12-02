@@ -1,9 +1,9 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using System;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
+using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
@@ -90,12 +90,38 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidETagException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.ResourceContentHasBeenCorrupted:
                     throw new ApiResourceContentHasBeenCorruptedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidAlarmId:
+                    throw new ApiInvalidAlarmIdException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidAlarmsBrowseParameters:
+                    throw new ApiInvalidAlarmsBrowseParametersException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.PLCNotInStop:
                     throw new ApiPLCNotInStopException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.MethodNotFound:
                     throw new ApiMethodNotFoundException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidParams:
                     throw new ApiInvalidParametersException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PasswordExpired:
+                    throw new ApiPasswordExpiredException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PasswordChangeNotAccepted:
+                    throw new ApiPasswordChangeNotAcceptedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.NewPasswordDoesNotFollowPolicy:
+                    throw new ApiNewPasswordDoesNotFollowPolicyException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.NewPasswordMatchesOldPassword:
+                    throw new ApiNewPasswordMatchesOldPasswordException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PartnerNotAccessible:
+                    throw new ApiPartnerNotAccessibleException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.NoServiceDataResources:
+                    throw new ApiNoServiceDataResourcesException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidHwId:
+                    throw new ApiInvalidHwIdException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidTimestamp:
+                    throw new ApiInvalidTimestampException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.TimestampOutOfRange:
+                    throw new ApiTimestampOutOfRangeException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidTimeRule:
+                    throw new ApiInvalidTimeRuleException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidUTCOffset:
+                    throw new ApiInvalidUTCOffsetException(new ApiException(this, apiRequestString));
                 default:
                     throw new ApiException(this, apiRequestString);
 

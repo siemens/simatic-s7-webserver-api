@@ -2,14 +2,12 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp

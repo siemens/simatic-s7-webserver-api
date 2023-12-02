@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
@@ -40,16 +41,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// the function will only upload the resource and its direct sub-resources
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
-        public async Task DeployAsync(ApiFileResource resource)
+        public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
-                await ApiFileHandler.DeployFileAsync(resource);
+                await ApiFileHandler.DeployFileAsync(resource, cancellationToken);
             }
             else
             {
                 var dirName = resource.GetVarNameForMethods();
-                await ApiRequestHandler.FilesCreateDirectoryAsync(dirName);
+                await ApiRequestHandler.FilesCreateDirectoryAsync(dirName, cancellationToken);
                 foreach (var subres in resource.Resources)
                 {
                     await DeployAsync(subres);
@@ -71,14 +72,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the resource to delete</param>
         /// <returns>Task for deletion</returns>
-        public async Task DeleteAsync(ApiFileResource resource)
+        public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
                 var resName = resource.GetVarNameForMethods();
                 try
                 {
-                    await ApiRequestHandler.FilesDeleteAsync(resName);
+                    await ApiRequestHandler.FilesDeleteAsync(resName, cancellationToken);
                 }
                 catch (ApiEntityDoesNotExistException) { }
             }
@@ -88,7 +89,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     foreach (var file in resource.Resources)
                     {
-                        await DeleteAsync(file);
+                        await DeleteAsync(file, cancellationToken);
                     }
                 }
                 else
@@ -98,7 +99,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 var dirName = resource.GetVarNameForMethods();
                 try
                 {
-                    await ApiRequestHandler.FilesDeleteDirectoryAsync(dirName);
+                    await ApiRequestHandler.FilesDeleteDirectoryAsync(dirName, cancellationToken);
                 }
                 catch (ApiEntityDoesNotExistException) { }
 
@@ -117,12 +118,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">resouce to be browsed</param>
         /// <returns>A resource containing everything that is present underneath</returns>
-        public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource)
+        public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             // should we clone here?
             var res = (ApiFileResource)resource.Clone();
             res.Resources = new List<ApiFileResource>();
-            var browseResponse = await ApiRequestHandler.FilesBrowseAsync(resource.GetVarNameForMethods());
+            var browseResponse = await ApiRequestHandler.FilesBrowseAsync(resource.GetVarNameForMethods(), cancellationToken);
             if (resource.Type == Enums.ApiFileResourceType.Dir)
             {
                 res.Resources = browseResponse.Result.Resources;
@@ -136,7 +137,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 foreach (var subRes in res.Resources)
                 {
                     subRes.Parents = parentsForChildren;
-                    var toAdd = await BrowseAndBuildResourceAsync(subRes);
+                    var toAdd = await BrowseAndBuildResourceAsync(subRes, cancellationToken);
                     toAdd.Parents = parentsForChildren;
                     toSet.Add(toAdd);
                 }
@@ -160,16 +161,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         /// <returns>Task to update the resource</returns>
-        public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource)
+        public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (browsedResource.Type != resource.Type)
             {
-                await DeleteAsync(browsedResource);
-                await DeployAsync(resource);
+                await DeleteAsync(browsedResource, cancellationToken);
+                await DeployAsync(resource, cancellationToken);
             }
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
-                await UpdateFileResourceAsync(resource, browsedResource);
+                await UpdateFileResourceAsync(resource, browsedResource, cancellationToken);
             }
             else
             {
@@ -182,9 +183,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     }
                     else
                     {
-                        var browseResult = await ApiRequestHandler.FilesBrowseAsync(subResource.GetVarNameForMethods());
+                        var browseResult = await ApiRequestHandler.FilesBrowseAsync(subResource.GetVarNameForMethods(), cancellationToken);
                         match.Resources = browseResult.Result.Resources;
-                        await UpdateResourceAsync(subResource, match);
+                        await UpdateResourceAsync(subResource, match, cancellationToken);
                     }
                 }
             }
@@ -204,7 +205,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the file to be updated</param>
         /// <param name="browsedResource">the file returned by browsing the plc</param>
         /// <returns>Task to update the File</returns>
-        public async Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource)
+        public async Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (resource.Type != Enums.ApiFileResourceType.File)
             {
@@ -217,8 +218,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             // compare if an update is necessary
             if (!resource.Equals(browsedResource))
             {
-                await ApiRequestHandler.FilesDeleteAsync(resource.GetVarNameForMethods());
-                await ApiFileHandler.DeployFileAsync(resource);
+                await ApiRequestHandler.FilesDeleteAsync(resource.GetVarNameForMethods(), cancellationToken);
+                await ApiFileHandler.DeployFileAsync(resource, cancellationToken);
             }
         }
 
@@ -243,7 +244,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
-        public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1)
+        public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (amountOfTriesForResourceDeployment < 1)
             {
@@ -251,14 +252,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             }
             try
             {
-                var browsedResource = await BrowseAndBuildResourceAsync(resource);
+                var browsedResource = await BrowseAndBuildResourceAsync(resource, cancellationToken);
                 int tries = 0;
                 while (!browsedResource.Equals(resource) && tries < amountOfTriesForResourceDeployment)
                 {
-                    await UpdateResourceAsync(resource, browsedResource);
+                    await UpdateResourceAsync(resource, browsedResource, cancellationToken);
                     tries++;
                     // make sure the browsedResource now is Equal to the one we have - for a directory this means all subNodes are also equal, they are not browsed during the "standard" BRowse
-                    browsedResource = await BrowseAndBuildResourceAsync(resource);
+                    browsedResource = await BrowseAndBuildResourceAsync(resource, cancellationToken);
                     resource.Resources = resource.Resources.OrderBy(el => el.Type).ThenBy(el => el.Size).ToList();
                     browsedResource.Resources = browsedResource.Resources.OrderBy(el => el.Type).ThenBy(el => el.Size).ToList();
                 }
@@ -286,7 +287,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             }
             catch (ApiEntityDoesNotExistException)
             {
-                await DeployAsync(resource);
+                await DeployAsync(resource, cancellationToken);
             }
         }
         /// <summary>

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Siemens.Simatic.S7.Webserver.API.Enums;
 using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
@@ -18,7 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public ApiPlcProgramBrowseCodeBlocksData ShallowCopy()
         {
-            return (ApiPlcProgramBrowseCodeBlocksData) this.MemberwiseClone();
+            return (ApiPlcProgramBrowseCodeBlocksData)this.MemberwiseClone();
         }
 
         /// <summary>
@@ -37,13 +38,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Type of the code block.
         /// </summary>
         [JsonProperty("block_type")]
-        public string BlockType { get; set; }
+        public ApiPlcProgramBlockType BlockType { get; set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         [JsonConstructor]
-        public ApiPlcProgramBrowseCodeBlocksData(string name, ushort blockNumber, string blockType)
+        public ApiPlcProgramBrowseCodeBlocksData(string name, ushort blockNumber, ApiPlcProgramBlockType blockType)
         {
             Name = name;
             BlockNumber = blockNumber;

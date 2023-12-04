@@ -243,7 +243,7 @@ Plc Version | Client Library Version
 2.9.x              | 1.0.x
 2.9.x              | 2.0.x
 3.0.x              | 2.1.x
-3.0.x              | 2.2.x
+3.1.x              | 2.2.x
 
 ## SIMATIC S7-1200:
 Plc Version | Client Library Version

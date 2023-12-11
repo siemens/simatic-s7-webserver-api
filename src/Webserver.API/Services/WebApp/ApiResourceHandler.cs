@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
@@ -48,14 +47,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// optionally:</param>
         /// <see cref="ApiWebAppResource.Etag"/>, <see cref="ApiWebAppResource.Visibility"/>
         /// <returns>Task</returns>
-        public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource)
+        public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             string path = webApp.PathToWebAppDirectory + @"\" + resource.Name.Replace("/", "\\");
             if (!File.Exists(path))
                 throw new FileNotFoundException($"file at: {path} has not been found - did you set the webApp PathToWebAppDirectory correctly? given: {Environment.NewLine + webApp.PathToWebAppDirectory}");
-            var ticketIdResponse = await ApiRequestHandler.WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type, resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag);
+            var ticketIdResponse = await ApiRequestHandler.WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type, resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag, cancellationToken);
             string ticketId = ticketIdResponse.Result;
-            await ApiTicketHandler.HandleUploadAsync(ticketId, path);
+            await ApiTicketHandler.HandleUploadAsync(ticketId, path, cancellationToken);
         }
         /// <summary>
         /// make sure to set the <see cref="ApiWebAppData.PathToWebAppDirectory"/> before calling this method!
@@ -79,10 +78,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="pathToResource">filepath to the resource that should be deployed!</param>
         /// <param name="visibility">Visibility for the resource that shall be set! defaults to public</param>
         /// <returns></returns>
-        public async Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public)
+        public async Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public, CancellationToken cancellationToken = default(CancellationToken))
         {
             var resource = ApiWebAppResourceBuilder.BuildResourceFromFile(pathToResource, webApp.PathToWebAppDirectory, visibility);
-            await DeployResourceAsync(webApp, resource);
+            await DeployResourceAsync(webApp, resource, cancellationToken);
         }
         /// <summary>
         /// make sure to set the <see cref="ApiWebAppData.PathToWebAppDirectory"/> before calling this method!
@@ -105,11 +104,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>Task/void</returns>
-        public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null)
+        public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var ticketId = (await ApiRequestHandler.WebAppDownloadResourceAsync(webApp, resource)).Result;
+            var ticketId = (await ApiRequestHandler.WebAppDownloadResourceAsync(webApp, resource, cancellationToken)).Result;
             string fileNameToUse = fileName ?? resource.Name;
-            return (await ApiTicketHandler.HandleDownloadAsync(ticketId, pathToDownloadDirectory, fileNameToUse, fileExtension, overrideExistingFile)).File_Downloaded;
+            return (await ApiTicketHandler.HandleDownloadAsync(ticketId, pathToDownloadDirectory, fileNameToUse, fileExtension, overrideExistingFile, cancellationToken)).File_Downloaded;
         }
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API

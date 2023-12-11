@@ -7,8 +7,6 @@ using Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -38,7 +36,7 @@ namespace Webserver.API.UnitTests
             CheckRange_AccordingDataType(Enumerable.Range(0, 1), typeof(object));
             // check db independent from none - I know this could be 0,2 and 1 line instead of two.
             CheckRange_AccordingDataType(Enumerable.Range(1, 1), typeof(object));
-            CheckRange_AccordingDataType(Enumerable.Range(67, (81-67+1)), typeof(object));
+            CheckRange_AccordingDataType(Enumerable.Range(67, (81 - 67 + 1)), typeof(object));
         }
 
         [Test]
@@ -46,7 +44,7 @@ namespace Webserver.API.UnitTests
         {
             CheckRange_BytesOfDataType(Enumerable.Range(65, 1), 256);
             CheckRange_BytesOfDataType(Enumerable.Range(66, 1), 512);
-            CheckRange_BytesOfDataType(Enumerable.Range(2, 6-2+1), 1);
+            CheckRange_BytesOfDataType(Enumerable.Range(2, 6 - 2 + 1), 1);
             CheckRange_BytesOfDataType(Enumerable.Range(7, 45 - 7 + 1), 2);
             CheckRange_BytesOfDataType(Enumerable.Range(46, 57 - 46 + 1), 4);
             CheckRange_BytesOfDataType(Enumerable.Range(58, 64 - 58 + 1), 8);

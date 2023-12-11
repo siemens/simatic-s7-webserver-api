@@ -13,10 +13,10 @@ using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services
@@ -63,18 +63,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             _apiWebAppResourceBuilder = apiWebAppResourceBuilder ?? throw new ArgumentNullException(nameof(apiWebAppResourceBuilder));
         }
 
-
-
         /// <summary>
         /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
         /// </summary>
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
-        public async Task<HttpClient> GetHttpClientAsync(string baseAddress, string username, string password)
+        public async Task<HttpClient> GetHttpClientAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password));
+            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), cancellationToken);
         }
 
         /// <summary>
@@ -108,10 +107,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
-        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, bool include_web_application_cookie)
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie);
+            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie, cancellationToken);
         }
 
         /// <summary>
@@ -130,8 +130,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// </summary>
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
-        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
@@ -166,7 +167,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
             // send the request and check for errors
-            var response = await httpClient.PostAsync("api/jsonrpc", request_body);
+            var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken);
             _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
             _apiResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
@@ -204,9 +205,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/>
         /// </summary>
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
+        /// <param name="cancellationToken">Token used to cancel requests without waiting for the response</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         /// <exception cref="Exception"></exception>
-        public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration)
+        public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken))
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
@@ -240,7 +242,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
             request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
             // send the request
-            var response = await httpClient.PostAsync("api/jsonrpc", request_body);
+            var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken);
             _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
             var respString = await response.Content.ReadAsStringAsync();
             _apiResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
@@ -278,9 +280,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
-        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password)
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var httpClient = await GetHttpClientAsync(baseAddress, username, password);
+            var httpClient = await GetHttpClientAsync(baseAddress, username, password, cancellationToken);
             return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
         }
 
@@ -302,6 +304,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration)
         {
             var httpClient = await GetHttpClientAsync(connectionConfiguration);
+            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
+        }
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var httpClient = await GetHttpClientAsync(connectionConfiguration, cancellationToken);
             return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
         }
 

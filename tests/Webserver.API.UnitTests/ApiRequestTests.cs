@@ -8,8 +8,10 @@ using RichardSzalay.MockHttp;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
@@ -174,10 +176,31 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            List<ApiClass> expRes = new List<ApiClass>() { new ApiClass() { Name = "read_diagnostics" }, new ApiClass() { Name = "read_value" }, new ApiClass() { Name = "write_value" }, new ApiClass() { Name = "acknowledge_alarms" }, new ApiClass() { Name = "firmware_update" }, new ApiClass() { Name = "open_user_pages" }, new ApiClass() { Name = "read_file" }, new ApiClass() { Name = "write_file" }, new ApiClass() { Name = "change_operating_mode" }, new ApiClass() { Name = "flash_leds" }, new ApiClass() { Name = "backup_plc" }, new ApiClass() { Name = "restore_plc" }, new ApiClass() { Name = "manage_user_pages" } };
+            List<ApiClass> expRes = new List<ApiClass>() {
+                new ApiClass() { Name = "read_diagnostics" },
+                new ApiClass() { Name = "read_value" },
+                new ApiClass() { Name = "write_value" },
+                new ApiClass() { Name = "acknowledge_alarms" },
+                new ApiClass() { Name = "open_user_pages" },
+                new ApiClass() { Name = "read_file" },
+                new ApiClass() { Name = "write_file" },
+                new ApiClass() { Name = "change_operating_mode" },
+                new ApiClass() { Name = "flash_leds" },
+                new ApiClass() { Name = "backup_plc" },
+                new ApiClass() { Name = "restore_plc" },
+                new ApiClass() { Name = "failsafe_admin" }, //only when PLC is failsafe
+                new ApiClass() { Name = "manage_user_pages" },
+                new ApiClass() { Name = "update_firmware" },
+                new ApiClass() { Name = "change_time_settings" },
+                new ApiClass() { Name = "download_service_data" },
+                new ApiClass() { Name = "change_webserver_default_page" },
+                new ApiClass() { Name = "read_watch_table_value" },
+                new ApiClass() { Name = "write_watch_table_value" },
+                new ApiClass() { Name = "read_syslog" }
+            };
+
             var resp = await TestHandler.ApiGetPermissionsAsync();
-            if (resp.Result == expRes)
-                Assert.Fail("correct server response but not correctly given to user with true!");
+            Assert.That(resp.Result.SequenceEqual(expRes), $"Permission don't match, missing: {string.Join(",", expRes.Except(resp.Result))}{string.Join(",", resp.Result.Except(expRes))}");
         }
 
         /// <summary>
@@ -197,8 +220,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             List<ApiClass> expRes = new List<ApiClass>();
             var resp = await TestHandler.ApiGetPermissionsAsync();
-            if (resp.Result == expRes)
-                Assert.Fail("correct server response but not correctly given to user with true!");
+            Assert.That(resp.Result.SequenceEqual(expRes), $"Permission don't match, missing: {string.Join(",", expRes.Except(resp.Result))}{string.Join(",", resp.Result.Except(expRes))}");
         }
 
         /// <summary>
@@ -531,6 +553,36 @@ namespace Webserver.API.UnitTests
                 Assert.Fail("token is empty or null altough server returned with!");
             if (string.IsNullOrEmpty(res.Result.Web_application_cookie))
                 Assert.Fail("token is empty or null altough server returned with!");
+        }
+
+        /// <summary>
+        /// Unit test for Api.Login that returns every possible value
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T007_06_ApiLogin_ValidToken_WithEverything()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.LoginWorkedWithPasswordExpirationInformation); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var req = ApiRequestFactory.GetApiLoginRequest("Anonymous", "", true);
+            var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
+            if (string.IsNullOrEmpty(res.Result.Token))
+                Assert.Fail("token is empty or null altough server returned with!");
+            if (string.IsNullOrEmpty(res.Result.Web_application_cookie))
+                Assert.Fail("token is empty or null altough server returned with!");
+            Assert.That(res.Result.Runtime_timeout == TimeSpan.FromMinutes(30),
+                "Timeout should be 30 minutes for this response!");
+            Assert.That(res.Result.Password_expiration != null,
+                "Password expiration should be present!");
+            Assert.That(res.Result.Password_expiration.Timestamp == new DateTime(2023, 7, 7, 14, 28, 3),
+                "The timestamp of the expiration doesn't match!");
+            Assert.That(!res.Result.Password_expiration.Warning);
         }
 
         /// <summary>
@@ -1027,6 +1079,69 @@ namespace Webserver.API.UnitTests
         /// </summary>
         /// <returns></returns>
         [Test]
+        public async Task T014_01_PlcProgramDownloadProfilingData_Success()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramDownloadProfilingDataSuccess); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            ApiSingleStringResponse response = await TestHandler.PlcProgramDownloadProfilingDataAsync();
+
+            Assert.That(response.Result.Equals("jgxikeMgLryvP0YoHc.eqt8BY787"));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void T014_02_PlcProgramDownloadProfilingData_NoResources()
+        {
+            // This case could happen if the user downloads the profiling
+            // data twice without clearing the ticket or downloading the actual data.
+
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramDownloadProfilingDataNoResources); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            Assert.ThrowsAsync<ApiNoResourcesException>(async () => await TestHandler.PlcProgramDownloadProfilingDataAsync());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void T014_03_PlcProgramDownloadProfilingData_PermissionDenied()
+        {
+
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramDownloadProfilingDataPermissionDenied); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            Assert.ThrowsAsync<System.UnauthorizedAccessException>(async () => await TestHandler.PlcProgramDownloadProfilingDataAsync());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
         public void T015_ApiPlcProgramBrowse_PermissionDenied_ExcThrown()
         {
             var mockHttp = new MockHttpMessageHandler();
@@ -1038,6 +1153,148 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Bool\""));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T015_02_ApiPlcProgramBrowseCodeBlocks_EmptyResult()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksEmptyResult); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
+            Assert.That(response.Result.Count == 0);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void T015_03_ApiPlcProgramBrowseCodeBlocks_InvalidParams()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksInvalidParams); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T015_04_ApiPlcProgramBrowseCodeBlocks_Success()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksSuccess); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
+
+            Assert.That(response.Result.Count == 5);
+
+            Assert.That(response.Result[0].Name == "Main");
+            Assert.That(response.Result[0].BlockType == ApiPlcProgramBlockType.Ob);
+            Assert.That(response.Result[0].BlockNumber == 1);
+
+            Assert.That(response.Result[1].Name == "USEND");
+            Assert.That(response.Result[1].BlockType == ApiPlcProgramBlockType.Sfb);
+            Assert.That(response.Result[1].BlockNumber == 8);
+
+            Assert.That(response.Result[2].Name == "COPY_HW");
+            Assert.That(response.Result[2].BlockType == ApiPlcProgramBlockType.Sfc);
+            Assert.That(response.Result[2].BlockNumber == 65509);
+
+            Assert.That(response.Result[3].Name == "PRODTEST");
+            Assert.That(response.Result[3].BlockType == ApiPlcProgramBlockType.Fb);
+            Assert.That(response.Result[3].BlockNumber == 65522);
+
+            Assert.That(response.Result[4].Name == "FC_14325");
+            Assert.That(response.Result[4].BlockType == ApiPlcProgramBlockType.Fc);
+            Assert.That(response.Result[4].BlockNumber == 14325);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T015_05_ApiPlcProgramBrowseCodeBlocks_EmptyBlockName()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksEmptyBlockName); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
+
+            Assert.That(response.Result.Count == 1);
+            Assert.That(response.Result[0].Name == String.Empty);
+            Assert.That(response.Result[0].BlockType == ApiPlcProgramBlockType.Ob);
+            Assert.That(response.Result[0].BlockNumber == 1);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void T015_06_ApiPlcProgramBrowseCodeBlocks_StringAsBlockNumber()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksStringAsNumber); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            Assert.ThrowsAsync<Newtonsoft.Json.JsonSerializationException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public void T015_07_ApiPlcProgramBrowseCodeBlocks_PermissionDenied()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcProgramBrowseCodeBlocksPermissionDenied); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            Assert.ThrowsAsync<System.UnauthorizedAccessException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
         }
 
         /// <summary>
@@ -1490,7 +1747,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var resp = await TestHandler.WebAppCreateResourceAsync("customerExampleManualAdjusted", "someresName", "text/html", "2020-08-24T07:08:06.000Z");
         }
-     
+
 
 
         /// <summary>
@@ -2313,23 +2570,11 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var timeSettings = await TestHandler.PlcReadTimeSettingsAsync();
             var result = timeSettings.Result;
-            Assert.AreEqual(result.Current_offset, 0);
-            //Assert.AreEqual(result.Utc_offset, 0);
-            //var rule = result.Rule;
-            //var dst = rule.Dst;
-            //Assert.AreEqual(dst.Offset, 60);
-            //var dstStart = dst.Start;
-            //Assert.AreEqual(dstStart.Day_of_week, "sun");
-            //Assert.AreEqual(dstStart.Hour, 1);
-            //Assert.AreEqual(dstStart.Minute, 0);
-            //Assert.AreEqual(dstStart.Month, 3);
-            //Assert.AreEqual(dstStart.Week, 5);
-            //var stdStart = rule.Std.Start;
-            //Assert.AreEqual(stdStart.Day_of_week, "sun");
-            //Assert.AreEqual(stdStart.Hour, 2);
-            //Assert.AreEqual(stdStart.Minute, 0);
-            //Assert.AreEqual(stdStart.Month, 10);
-            //Assert.AreEqual(stdStart.Week, 5);
+            var dst = new DaylightSavingsTimeConfiguration(new PlcDate(3, 5, ApiDayOfWeek.Sun, 1, 0), new TimeSpan(0, 60, 0));
+            var sdt = new StandardTimeConfiguration(new PlcDate(10, 5, ApiDayOfWeek.Sun, 2, 0));
+            var expectedRule = new DaylightSavingsRule(sdt, dst);
+            Assert.AreEqual(TimeSpan.Zero, result.Current_offset, "Current offset is not equal to expected value!");
+            Assert.AreEqual(expectedRule, result.Rule, "Time setting rule doesn't match!");
         }
 
         /// <summary>
@@ -2349,8 +2594,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var timeSettings = await TestHandler.PlcReadTimeSettingsAsync();
             var result = timeSettings.Result;
-            Assert.AreEqual(result.Current_offset, 0);
-            Assert.AreEqual(result.Utc_offset, 0);
+            Assert.AreEqual(TimeSpan.Zero, result.Current_offset);
+            Assert.AreEqual(TimeSpan.Zero, result.Utc_offset);
             var rule = result.Rule;
             Assert.AreEqual(null, rule);
         }
@@ -2636,5 +2881,479 @@ namespace Webserver.API.UnitTests
             Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
         }
 
+        /// <summary>
+        /// Testcase for ApiSyslog.Browse request
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T052_ApiSyslogBrowse_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.SyslogResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = (await TestHandler.ApiSyslogBrowseAsync()).Result;
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(5, result.Count_Total, "result Count_Total is not the expected value!");
+                Assert.AreEqual(1, result.Count_Lost, "result Count_Lost is not the expected value!");
+                Assert.AreEqual(2, result.Entries.Count, "result Entries.Count is not the expected value!");
+                Assert.AreEqual("I am a syslog, no need to question it!", result.Entries[0].Raw, "result Entries[0].Raw is not the expected value!");
+                Assert.AreEqual("I am a syslog, too. But the previous syslog is an impostor!", result.Entries[1].Raw, "result Entries[1].Raw is not the expected value!");
+            });
+        }
+        /// <summary>
+        /// TestCase for Failsafe.ReadParameters with CPU params
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T053_01_ApiFailsafeReadParameters_CPU_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.FailsafeReadParametersCPUResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.FailsafeReadParametersAsync(50);
+            var fs = new FailsafeCPU();
+            fs.Last_f_program_modification = new DateTime(2012, 4, 23, 18, 25, 43, 510);
+            fs.Collective_signature = "BC7C0410";
+            fs.Remaining_time = new TimeSpan(2, 33, 0);
+            Assert.That(result.Result.Safety_mode);
+            Assert.AreEqual(ApiFailsafeHardwareType.F_cpu, result.Result.Type);
+            Assert.That(result.Result.Parameters is FailsafeCPU);
+            Assert.That(result.Result.Parameters.Equals(fs));
+        }
+
+        /// <summary>
+        /// TestCase for Failsafe.ReadParameters with Module params
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T053_02_ApiFailsafeReadParameters_Module_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.FailsafeReadParametersModuleResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.FailsafeReadParametersAsync(50);
+            var fs = new FailsafeModule();
+            fs.F_monitoring_time = TimeSpan.FromMilliseconds(542);
+            fs.F_destination_address = 123;
+            fs.F_source_address = 321;
+            fs.F_par_crc = "DBB32A1A";
+            Assert.That(result.Result.Safety_mode);
+            Assert.AreEqual(ApiFailsafeHardwareType.F_module, result.Result.Type);
+            Assert.That(result.Result.Parameters is FailsafeModule);
+            Assert.That(result.Result.Parameters.Equals(fs));
+        }
+
+        /// <summary>
+        /// TestCase for Failsafe.ReadRuntimeGroups
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T054_ApiFailsafeReadRuntimeGroups_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.FailsafeReadRuntimeGroupsResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.FailsafeReadRuntimeGroupsAsync();
+            var noRemaining = new ApiFailsafeRuntimeGroup();
+            noRemaining.Name = "F-runtime group 1";
+            noRemaining.Signature = "E70AFF00";
+            noRemaining.Cycle_time_current = TimeSpan.FromMilliseconds(550);
+            noRemaining.Cycle_time_Max = TimeSpan.FromMilliseconds(600);
+            noRemaining.Runtime_current = TimeSpan.FromMilliseconds(40);
+            noRemaining.Runtime_max = TimeSpan.FromMilliseconds(200);
+            var withRemaining = new ApiFailsafeRuntimeGroup();
+            withRemaining.Name = "RTG_2";
+            withRemaining.Signature = "CBA57022";
+            withRemaining.Cycle_time_current = TimeSpan.FromMilliseconds(110);
+            withRemaining.Cycle_time_Max = TimeSpan.FromMilliseconds(200);
+            withRemaining.Runtime_current = TimeSpan.FromMilliseconds(50);
+            withRemaining.Runtime_max = TimeSpan.FromMilliseconds(80);
+            Assert.IsTrue(result.Result.Groups[0].Equals(noRemaining), "The groups don't match!");
+            Assert.IsTrue(result.Result.Groups[1].Equals(withRemaining), "The groups don't match!");
+        }
+
+        /// <summary>
+        /// TestCase for Api.ChangePassword
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T055_ApiChangePassword_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.TrueOnSuccess); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ApiChangePasswordAsync("Admin", "adminpw", "newadminpw");
+            Assert.IsTrue(result.Result, "Changing passwords not possible!");
+        }
+
+        /// <summary>
+        /// TestCase for Api.GetPasswordPolicy
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T056_ApiGetPasswordPolicy_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiGetPasswordPolicy); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ApiGetPasswordPolicyAsync();
+            var expectedResult = new ApiPasswordPolicy();
+            expectedResult.Requires_lowercase_characters = true;
+            expectedResult.Requires_uppercase_characters = true;
+            expectedResult.Min_password_length = 8;
+            expectedResult.Max_password_length = 120;
+            expectedResult.Min_digits = 1;
+            expectedResult.Min_special_characters = 0;
+            Assert.AreEqual(expectedResult, result.Result.Password_policy, "Password policies dont match");
+        }
+
+        /// <summary>
+        /// TestCase for Api.GetAuthenticationMode with 3 modes
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T057_ApiGetAuthenticationMode_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiGetAuthenticationModeMany); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ApiGetAuthenticationModeAsync();
+            var expectedResult = new List<ApiAuthenticationMode>();
+            expectedResult.Add(ApiAuthenticationMode.Local);
+            expectedResult.Add(ApiAuthenticationMode.Static);
+            expectedResult.Add(ApiAuthenticationMode.Disabled);
+            Assert.AreEqual(expectedResult.Count, result.Result.Authentication_modes.Count, "Authentication modes count don't match!");
+            Assert.That(expectedResult.SequenceEqual(result.Result.Authentication_modes), "Order of authetication modes is different!");
+        }
+
+        /// <summary>
+        /// TestCase for Project.ReadLanguages with 4 languages
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T058_ProjectReadLanguages_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ProjectReadLanguagesMany); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ProjectReadLanguagesAsync();
+            var expectedResult = new List<CultureInfo>();
+            expectedResult.Add(new CultureInfo("en-US"));
+            expectedResult.Add(new CultureInfo("en-GB"));
+            expectedResult.Add(new CultureInfo("es-BR"));
+            expectedResult.Add(new CultureInfo("ne-IN"));
+            Assert.AreEqual(expectedResult.Count, result.Result.Languages.Select(x => x.Language).Count(), "Languages don't match");
+            Assert.That(expectedResult.SequenceEqual(result.Result.Languages.Select(x => x.Language)), "The order of languages are different, or they don't contain the same languages.");
+        }
+
+        /// <summary>
+        /// TestCase for Plc.ReadModeSelectorState with Standard PLC
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T059_01_ApiPlcReadModeSelectorState_Standard_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcReadModeSelectorStateRun); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.StandardPLC);
+            Assert.AreEqual(ApiPlcModeSelectorState.Run, res.Result.Mode_Selector, "Plc Mode Selector state is not in run mode!");
+        }
+
+        /// <summary>
+        /// TestCase for Plc.ReadModeSelectorState with RH PLC system
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T059_02_ApiPlcReadModeSelectorState_RH_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcReadModeSelectorStateNoSwitch); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.RedundancyId_1);
+            Assert.AreEqual(ApiPlcModeSelectorState.NoSwitch, res.Result.Mode_Selector, "Plc Mode Selector state is not in noswitch mode!");
+        }
+
+        /// <summary>
+        /// TestCase for Modules.DownloadServiceData
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T060_ApiModulesDownloadServiceData_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.TicketResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ModulesDownloadServiceDataAsync(ApiPlcHwId.StandardPLC);
+            var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
+            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+        }
+
+        /// <summary>
+        /// TestCase for Alarms.Acknowledge
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T061_ApiAlarmsAcknowledge_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.AlarmsAcknowledge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.AlarmsAcknowledgeAsync("/");
+            Assert.AreEqual(true, result.Result, "The response should always contain true, but it doesn't.");
+        }
+        /// <summary>
+        /// TestCase for Plc.SetSystemTime
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T062_PlcSetSystemTime_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcSetSystemTime); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.PlcSetSystemTimeAsync(new DateTime(2010, 10, 10));
+            Assert.IsTrue(result.Result, "The time was not set successfully!");
+        }
+
+        /// <summary>
+        /// TestCase for Plc.SetTimeSettings, both offset and rule object
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T063_01_ApiPlcSetTimeSettings_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcSetTimeSettingsAll); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            var offset = new TimeSpan(8, 0, 0);
+            var dst = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 60, 0));
+            var sdt = new StandardTimeConfiguration(new PlcDate(1, 1, ApiDayOfWeek.Mon, 23, 31));
+            DaylightSavingsRule dsr = new DaylightSavingsRule(sdt, dst);
+
+            var result = await TestHandler.PlcSetTimeSettingsAsync(offset, dsr);
+            Assert.IsTrue(result.Result, "Couldn't set time settings!");
+        }
+
+        /// <summary>
+        /// TestCase for Plc.SetTimeSettings
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T063_02_ApiPlcSetTimeSettingsNoRule_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcSetTimeSettingsNoRule); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+
+            var offset = new TimeSpan(8, 0, 0);
+
+            var result = await TestHandler.PlcSetTimeSettingsAsync(offset);
+            Assert.IsTrue(result.Result, "Couldn't set time settings!");
+        }
+
+        /// <summary>
+        /// TestCase for Api.GetQuantityStructures
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T064_ApiGetQuantityStructures()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.QuantityStructuresResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.ApiGetQuantityStructuresAsync();
+            var expectedResult = new ApiQuantityStructure();
+            expectedResult.Webapi_Max_Http_Request_Body_Size = 131072;
+            expectedResult.Webapi_Max_Parallel_User_Sessions = 100;
+            expectedResult.Webapi_Max_Parallel_Requests = 4;
+            Assert.That(result.Result.Equals(expectedResult), "Quantity Structure is not as expected!");
+        }
+        /// <summary>
+        /// TestCase for WebServer.SetDefaultPage
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T065_WebServerSetDefaultPage_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.TrueOnSuccess); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.WebServerSetDefaultPageAsync("index.html");
+            Assert.IsTrue(result.Result, "The result is not true.");
+        }
+        /// <summary>
+        /// TestCase for WebServer.ReadDefaultPage
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T066_WebServerReadDefaultPage_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.DefaultPageResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = await TestHandler.WebServerGetReadDefaultPageAsync();
+            var expectedResult = "/~teszt2/index.html";
+            Assert.AreEqual(expectedResult, result.Result.Default_page, "The result is not the expected.");
+        }
+
+        /// <summary>
+        /// TestCase for ApiAlarmsBrowse 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T067_ApiAlarmsBrowse_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiAlarmsBrowseResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = (await TestHandler.ApiAlarmsBrowseAsync(new CultureInfo("en-US"))).Result;
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(2, result.Entries.Count, "result.Entries.Count");
+                Assert.AreEqual("9947888669857743000", result.Entries[0].Id, "result.Entries[0].Id");
+                Assert.AreEqual(512, result.Entries[0].Alarm_Number, "result.Entries[0].Alarm_Number");
+                Assert.AreEqual(ApiObjectDirectoryStatus.Incoming, result.Entries[0].Status, "result.Entries[0].Status");
+                Assert.AreEqual(new DateTime(2012, 1, 1, 1, 1, 42, 47), result.Entries[0].Timestamp, "result.Entries[0].Timestamp");
+                Assert.AreEqual(ApiAlarmAcknowledgementState.Not_Acknowledged, result.Entries[0].Acknowledgement.State, "result.Entries[0].Acknowledgement.State");
+                Assert.AreEqual("#1, 1", result.Entries[0].Alarm_Text, "result.Entries[0].Alarm_Text");
+                Assert.AreEqual("#1, 0", result.Entries[0].Info_Text, "result.Entries[0].Info_Text");
+                Assert.AreEqual(false, result.Entries[0].Text_Inconsistent, "result.Entries[0].Text_Inconsistent");
+                Assert.AreEqual(new DateTime(2012, 1, 1, 1, 1, 42, 99), result.Last_Modified, "result.Last_Modified");
+                Assert.AreEqual(51, result.Count_Current, "result.Count_Current");
+                Assert.AreEqual(500, result.Count_Max, "result.Count_Max");
+                Assert.AreEqual("en-US", result.Language, "result.Language");
+            });
+        }
+
+        /// <summary>
+        /// TestCase for DiagnosticBuffer.Browse method
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T068_ApiDiagnosticBufferBrowse_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.DiagnosticBufferBrowseResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            var result = (await TestHandler.ApiDiagnosticBufferBrowseAsync(new CultureInfo("en-US"))).Result;
+            DateTime expected = new DateTime(2023, 06, 07, 18, 25, 43); //2023-06-07T18:25:43.514678531Z
+            expected = expected.AddTicks(5146785);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(2, result.Entries.Count, "result.Entries.Count");
+                Assert.AreEqual(ApiObjectDirectoryStatus.Outgoing, result.Entries[0].Status, "result.Entries[0].Status");
+                Assert.AreEqual("Boot up  - CPU changes from OFF to STOP (initialization) mode", result.Entries[0].Short_Text, "result.Entries[0].Short_Text");
+                Assert.AreEqual("LONG TEXT", result.Entries[1].Long_Text, "result.Entries[1].Long_Text");
+                Assert.AreEqual(3, result.Entries[1].Event.Textlist_Id, "result.Entries[1].Event.Textlist_Id");
+                Assert.AreEqual(26315, result.Entries[1].Event.Text_Id, "result.Entries[1].Event.Text_Id");
+                Assert.AreEqual(expected, result.Last_Modified, "result.Last_Modified");
+                Assert.AreEqual(1234, result.Count_Current, "result.Count_Current");
+                Assert.AreEqual(3200, result.Count_Max, "result.Count_Max");
+                Assert.AreEqual("en-US", result.Language, "result.Language");
+            });
+        }
     }
 }

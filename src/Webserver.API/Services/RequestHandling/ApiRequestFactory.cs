@@ -2,10 +2,16 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
+using Siemens.Simatic.S7.Webserver.API.Services.Converters.JsonConverters;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
@@ -86,6 +92,55 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Api.CloseTicket", jsonRpcReq, idReq, new Dictionary<string, object>() { { "id", ticketId } });
         }
+
+        /// <summary>
+        /// Get an Api.ChangePassword request with parameters
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>an Api.ChangePassword request</returns>
+        public IApiRequest GetApiChangePasswordRequest(string username, string currentPassword, string newPassword, string jsonRpc = null, string id = null)
+        {
+            RequestParameterChecker.CheckUsername(username, PerformCheck);
+            RequestParameterChecker.CheckPasswords(currentPassword, newPassword, PerformCheck);
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Api.ChangePassword", jsonRpcReq, idReq, new Dictionary<string, object>()
+                            {
+                                { "username", username },
+                                { "password", currentPassword },
+                                { "new_password", newPassword }
+                            });
+        }
+        /// <summary>
+        /// Get an Api.GetPasswordPolicy request
+        /// </summary>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>An Api.GetPasswordPolicy request</returns>
+        public IApiRequest GetApiGetPasswordPolicyRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Api.GetPasswordPolicy", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get an Api.GetAuthenticationMode request
+        /// </summary>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>An Api.GetAuthenticationMode request</returns>
+        public IApiRequest GetApiGetAuthenticationModeRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Api.GetAuthenticationMode", jsonRpcReq, idReq);
+        }
+
         /// <summary>
         /// get an Api.GetCertificateUrl Request without parameters
         /// </summary>
@@ -140,6 +195,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("Api.GetPermissions", jsonRpcReq, idReq);
         }
         /// <summary>
+        /// Get an Api.GetQuantityStructures Request without parameters
+        /// </summary>
+        /// <returns>Api.GetQuantityStructures Request without parameters</returns>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        public virtual IApiRequest GetApiGetQuantityStructuresRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Api.GetQuantityStructures", jsonRpcReq, idReq);
+        }
+        /// <summary>
         /// get an Api.Ping Request without parameters
         /// </summary>
         /// <returns>Api.Ping Request without parameters</returns>
@@ -167,6 +234,36 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("PlcProgram.Browse", jsonRpcReq, idReq, new Dictionary<string, object>() { { "var", var },
                 { "mode", apiPlcProgramBrowseMode.ToString().ToLower() } });
         }
+
+        /// <summary>
+        /// Get a PlcProgram.Browse request for the code blocks (i.e. with parameters "mode":"Children", and "type"=["code_blocks"]).
+        /// </summary>
+        /// <returns>PlcProgram.Browse Request for the code blocks (i.e. with parameters "mode":"Children", and "type"=["code_blocks"]).</returns>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to JsonRpcVersion</param>
+        public virtual IApiRequest GetApiPlcProgramBrowseCodeBlocksRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("PlcProgram.Browse", jsonRpcReq, idReq, new Dictionary<string, object>() {
+                { "mode", ApiPlcProgramBrowseMode.Children.ToString().ToLower() },
+                { "type", new string[] {"code_blocks"} }
+            });
+        }
+
+        /// <summary>
+        /// Get a PlcProgram.DownloadProfilingData request.
+        /// </summary>
+        /// <returns>PlcProgram.DownloadProfilingData request.</returns>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to JsonRpcVersion</param>
+        public virtual IApiRequest GetApiPlcProgramDownloadProfilingDataRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("PlcProgram.DownloadProfilingData", jsonRpcReq, idReq);
+        }
+
         /// <summary>
         /// get an PlcProgram.Read Request with parameter "var" : var, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"
         /// </summary>
@@ -245,6 +342,23 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Plc.RequestChangeOperatingMode", jsonRpcReq, idReq, new Dictionary<string, object>() {
                 { "mode", apiPlcOperatingMode.ToString().ToLower() } });
+        }
+        /// <summary>
+        /// Get a Plc.ReadModeSelectorState Request with redundancy id parameter
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>Plc.ReadModeSelectorState request with redundancy id parameter</returns>
+        public IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId rhid, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.ReadModeSelectorState", jsonRpcReq, idReq,
+                rhid == ApiPlcRedundancyId.StandardPLC ? null : new Dictionary<string, object>()
+                {
+                    { "redundancy_id", (int)rhid }
+                });
         }
         /// <summary>
         /// check new Etag value
@@ -605,6 +719,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Plc.ReadSystemTime", jsonRpcReq, idReq);
         }
+
+        /// <summary>
+        /// get an Plc.SetSystemTime Request
+        /// </summary>
+        /// <returns>Plc.SetSystemTime Request</returns>
+        /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to JsonRpcVersion</param>
+        public IApiRequest GetApiPlcSetSystemTimeRequest(DateTime timestamp, string jsonRpc = null, string id = null)
+        {
+            RequestParameterChecker.CheckSystemTimeStamp(timestamp, PerformCheck);
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.SetSystemTime", jsonRpcReq, idReq, new Dictionary<string, object>() { { "timestamp", timestamp.ToString(DateTimeFormatting.ApiDateTimeFormat) } });
+        }
         /// <summary>
         /// get an Plc.ReadTimeSettings Request
         /// </summary>
@@ -616,6 +745,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Plc.ReadTimeSettings", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get an Plc.SetTimeSettings request
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>Plc.SetTimeSettings Request</returns>
+        public IApiRequest GetApiPlcSetTimeSettingsRequest(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null, string jsonRpc = null, string id = null)
+        {
+            RequestParameterChecker.CheckTimeSettings(utcOffset, daylightSavings, PerformCheck);
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.SetTimeSettings", jsonRpcReq, idReq,
+                                      new Dictionary<string, object>()
+                                      {
+                                          { "utc_offset", utcOffset.ToISO8601Duration() },
+                                          { "rule", daylightSavings }
+                                      });
         }
 
         /// <summary>
@@ -783,7 +933,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            var pwd=  string.IsNullOrEmpty(password) ? string.Empty : password;
+            var pwd = string.IsNullOrEmpty(password) ? string.Empty : password;
             var reqParams = new Dictionary<string, object>() { { "password", password?.ToString() } };
             return new ApiRequest("Plc.RestoreBackup", jsonRpcReq, idReq, reqParams);
         }
@@ -801,6 +951,207 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("DataLogs.DownloadAndClear", jsonRpcReq, idReq, new Dictionary<string, object>()
             { { "resource", resource } });
+        }
+
+        /// <summary>
+        /// Get a Failsafe.ReadParameters Request
+        /// </summary>
+        /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Failsafe.ReadParameters Request</returns>
+        public IApiRequest GetFailsafeReadParametersRequest(uint hwid, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Failsafe.ReadParameters", jsonRpcReq, idReq, new Dictionary<string, object>()
+            { { "hwid", hwid } });
+        }
+
+        /// <summary>
+        /// Get a Failsafe.ReadRuntimeGroups Request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Failsafe.ReadRuntimeGroups Request</returns>
+        public IApiRequest GetFailsafeReadRuntimeGroupsRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Failsafe.ReadRuntimeGroups", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a Project.ReadLanguages request without parameters
+        /// </summary>
+        /// <param name="id">Request Id</param>
+        /// <param name="jsonRpc">JsonRpc to be used</param>
+        /// <returns>Project.ReadLanguages request without parameters</returns>
+        public IApiRequest GetApiProjectReadLanguagesRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Project.ReadLanguages", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a Modules.DownloadServiceData request
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <returns>Modules.DownloadServiceData request</returns>
+        public IApiRequest GetModulesDownloadServiceData(ApiPlcHwId hwid, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Modules.DownloadServiceData", jsonRpcReq, idReq, new Dictionary<string, object>()
+                                        { { "hwid", hwid } });
+        }
+        /// <summary>
+        /// Get a WebServer.ReadDefaultPage Request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IApiRequest GetApiWebserverReadDefaultPageRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("WebServer.ReadDefaultPage", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a WebServer.SetDefaultPage Request 
+        /// </summary>
+        /// <param name="defaultPage"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IApiRequest GetApiWebserverSetDefaultPageRequest(string defaultPage, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("WebServer.SetDefaultPage", jsonRpcReq, idReq, new Dictionary<string, object>() { { "default_page", defaultPage } });
+        }
+
+        /// <summary>
+        /// Get a Syslog.Browse request
+        /// </summary>
+        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
+        /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
+        ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
+        /// <param name="first">(optional) Allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
+        ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiSyslogBrowse request</returns>
+        public IApiRequest GetApiSyslogBrowseRequest(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>();
+            if (redundancy_id != null && redundancy_id != 0)
+            {
+                requestParams.Add("redundancy_id", redundancy_id);
+            }
+            if (count != null)
+            {
+                requestParams.Add("count", count);
+            }
+            if (first != null)
+            {
+                requestParams.Add("first", first);
+            }
+            return new ApiRequest("Syslog.Browse", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Alarms.Acknowledge request
+        /// </summary>
+        /// <returns>ApiAlarmsAcknowledgeRequest</returns>
+        /// <param name="alarmId">Specifies the id of the alarm</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        public virtual IApiRequest GetApiAlarmsAcknowledgeRequest(string alarmId, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "id", alarmId } };
+            return new ApiRequest("Alarms.Acknowledge", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Alarms.Browse request
+        /// </summary>
+        /// <returns>ApiAlarmsBrowseRequest</returns>
+        /// <param name="language">The language in which the texts should be returned. 
+        ///                        If the language is valid, then the response must contain the texts in the requested language. <br/>
+        ///                        An empty string shall be treated the same as an invalid language string.
+        ///                        </param>
+        /// <param name="count">(optional) The maximum number of alarm entries to be requested. <br/>
+        ///                     When not provided, the plc will return with the default amount: 50. <br/>
+        ///                     The maximum possible count is 5000. <br/>
+        ///                     A count of 0 must omit any alarm entries from the response and must only return the attributes last_modified, count_max and count_current. 
+        ///                     </param>
+        /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no count parameter can be provided as filter.</param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        public virtual IApiRequest GetApiAlarmsBrowseRequest(CultureInfo language,
+                                                             int? count = null,
+                                                             string alarm_id = null,
+                                                             ApiAlarms_RequestFilters filters = null,
+                                                             string jsonRpc = null,
+                                                             string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "language", language.Name } };
+            if (alarm_id != null)
+            {
+                requestParams.Add("alarm_id", alarm_id);
+            }
+            //If alarm_id is provided, count can't be provided as filter.
+            if (count != null && alarm_id == null)
+            {
+                requestParams.Add("count", count);
+            }
+            if (filters != null)
+            {
+                requestParams.Add("filters", filters);
+            }
+            return new ApiRequest("Alarms.Browse", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a DiagnosticBuffer.Browse request
+        /// </summary>
+        /// <param name="language">Specifies the language of the response</param>
+        /// <param name="count">Specifies maximum how many diagnosticbuffer entry you will get back</param>
+        /// <param name="filters">ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiDiagnosticBufferBrowseRequest</returns>        
+        public virtual IApiRequest GetApiDiagnosticBufferBrowseRequest(CultureInfo language,
+                                                                       uint? count = null,
+                                                                       ApiDiagnosticBuffer_RequestFilters filters = null,
+                                                                       string jsonRpc = null,
+                                                                       string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "language", language.Name } };
+            if (count != null)
+            {
+                requestParams.Add("count", count);
+            }
+            if (filters != null)
+            {
+                requestParams.Add("filters", filters);
+            }
+            return new ApiRequest("DiagnosticBuffer.Browse", jsonRpcReq, idReq, requestParams);
         }
     }
 }

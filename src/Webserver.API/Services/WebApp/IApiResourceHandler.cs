@@ -4,6 +4,7 @@
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
@@ -47,7 +48,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// optionally:</param>
         /// etag, visibility
         /// <returns></returns>
-        Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource);
+        Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// make sure to set the webapp PathToWebAppDirectory before calling this method!
         /// Will send a Createresource, Uploadticket and Closeticket request to the API
@@ -56,7 +57,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="pathToResource">filepath to the resource that should be deployed!</param>
         /// <param name="visibility">Visibility for the resource that shall be set!</param>
         /// <returns></returns>
-        Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public);
+        Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
@@ -78,6 +79,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>task/void</returns>
-        Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
+        Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -5,12 +5,9 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -26,11 +23,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
         public void CheckWebAppState(ApiWebAppState apiWebAppState, bool performCheck)
         {
-            if(performCheck)
+            if (performCheck)
             {
                 if (apiWebAppState == ApiWebAppState.None)
                 {
-                    throw new ApiInvalidParametersException($"WebApp function shall not be called with state None:{ Environment.NewLine + apiWebAppState.ToString() }" +
+                    throw new ApiInvalidParametersException($"WebApp function shall not be called with state None:{Environment.NewLine + apiWebAppState.ToString()}" +
                     $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
@@ -126,7 +123,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (plcOperatingMode == ApiPlcOperatingMode.Run || plcOperatingMode == ApiPlcOperatingMode.Stop)
                     return;
-                throw new ApiInvalidParametersException($"Plc.RequestChangeOperatingMode shall not be called with { Environment.NewLine + plcOperatingMode.ToString().ToLower() }" +
+                throw new ApiInvalidParametersException($"Plc.RequestChangeOperatingMode shall not be called with {Environment.NewLine + plcOperatingMode.ToString().ToLower()}" +
                     $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
             }
         }
@@ -142,7 +139,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (plcProgramBrowseMode == ApiPlcProgramBrowseMode.None)
                 {
-                    throw new ApiInvalidParametersException($"PlcProgram.Browse shall not be called with { Environment.NewLine + plcProgramBrowseMode.ToString().ToLower() }" +
+                    throw new ApiInvalidParametersException($"PlcProgram.Browse shall not be called with {Environment.NewLine + plcProgramBrowseMode.ToString().ToLower()}" +
                     $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
@@ -161,7 +158,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 {
                     if (apiPlcProgramReadMode == ApiPlcProgramReadOrWriteMode.None)
                     {
-                        throw new ApiInvalidParametersException($"PlcProgram.Read or Write shall not be called with { Environment.NewLine + apiPlcProgramReadMode.ToString().ToLower() }" +
+                        throw new ApiInvalidParametersException($"PlcProgram.Read or Write shall not be called with {Environment.NewLine + apiPlcProgramReadMode.ToString().ToLower()}" +
                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                     }
                 }
@@ -179,7 +176,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (ticketId?.Length != 28 && ticketId?.Length != 36)
                 {
-                    throw new ApiInvalidParametersException($"Api Tickets cannot have a length other than 28 bytes!{ Environment.NewLine + ticketId + Environment.NewLine }provide a valid ticket!" +
+                    throw new ApiInvalidParametersException($"Api Tickets cannot have a length other than 28 bytes!{Environment.NewLine + ticketId + Environment.NewLine}provide a valid ticket!" +
                                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
@@ -194,13 +191,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             if (performCheck)
             {
-                if(string.IsNullOrEmpty(etag))
+                if (string.IsNullOrEmpty(etag))
                 {
                     // maybe throw here but for now let "the plc decide"
                 }
-                else if(etag.Length > 128)
+                else if (etag.Length > 128)
                 {
-                    throw new ApiInvalidETagException($"WebApp.CreateResource shall not be called with \"etag\" { Environment.NewLine + etag } because the value is too long!-max 128 bytes(chars)" +
+                    throw new ApiInvalidETagException($"WebApp.CreateResource shall not be called with \"etag\" {Environment.NewLine + etag} because the value is too long!-max 128 bytes(chars)" +
                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
@@ -217,7 +214,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 ;
             }
-                // could provide a insanely long list of possible mediaTypes look: https://www.iana.org/assignments/media-types/media-types.xhtml - will not do it until requested!
+            // could provide a insanely long list of possible mediaTypes look: https://www.iana.org/assignments/media-types/media-types.xhtml - will not do it until requested!
         }
 
         /// <summary>
@@ -230,7 +227,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             if (performCheck)
             {
                 if (apiWebAppResourceVisibility == ApiWebAppResourceVisibility.None)
-                    throw new ApiInvalidParametersException($"WebApp.CreateResource shall not be called with { Environment.NewLine + apiWebAppResourceVisibility.ToString().ToLower() }" +
+                    throw new ApiInvalidParametersException($"WebApp.CreateResource shall not be called with {Environment.NewLine + apiWebAppResourceVisibility.ToString().ToLower()}" +
                 $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
             }
         }
@@ -252,6 +249,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 //}
                 // for now not 100% sure the regex check is fine => let the plc perform the check for now/wait for a request to check locally
                 ;
+            }
+        }
+
+        /// <summary>
+        /// DateTime is only supported from 1970-01-01 to 2554-07-21 23:34:33.709551615
+        /// </summary>
+        /// <param name="timestamp">Timestamp to check</param>
+        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        public void CheckSystemTimeStamp(DateTime timestamp, bool performCheck)
+        {
+            if (performCheck)
+            {
+                var dtMin = new DateTime(1970, 1, 1);
+                var dtMax = new DateTime(2554, 7, 21, 23, 34, 33, 709);
+                if (timestamp < dtMin || timestamp > dtMax)
+                {
+                    throw new ApiTimestampOutOfRangeException($"The given date is unsupported -- it's out of range! Supported range is between 1970-01-01T00:00:00Z and 2554-07-21T23:34:33.709551615Z" +
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.TimestampOutOfRange, Message = "The timestamp is not within the allowed range of timestamps" } }));
+                }
             }
         }
 
@@ -279,6 +295,80 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        /// <summary>
+        /// Checks username for Api.ChangePassword (can't be the Anonymous user)
+        /// </summary>
+        /// <param name="username">Username to check</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
+        public void CheckUsername(string username, bool performCheck)
+        {
+            if (performCheck)
+            {
+                if (username == null || username == "")
+                {
+                    throw new ApiInvalidParametersException($"Username can't be empty! {Environment.NewLine}" +
+                            $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
+                }
+                if (username == "Anonymous")
+                {
+                    throw new ApiPasswordChangeNotAcceptedException($"Password can not be changed for the Anonymous user! {Environment.NewLine}" +
+                           $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.PasswordChangeNotAccepted, Message = "The password change cannot be performed" } }));
+                }
+            }
+        }
+        /// <summary>
+        /// Checks whether current and new password matches
+        /// </summary>
+        /// <param name="currentPassword">Current password of the user</param>
+        /// <param name="newPassword">New password for the user</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
+        public void CheckPasswords(string currentPassword, string newPassword, bool performCheck)
+        {
+            if (performCheck)
+            {
+                if (currentPassword == newPassword)
+                {
+                    throw new ApiNewPasswordMatchesOldPasswordException($"New password can not be the same as current password! {Environment.NewLine}" +
+                          $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.NewPasswordMatchesOldPassword, Message = "The provided new password is identical with a former password" } }));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the TimeSetting parameters are correct
+        /// </summary>
+        /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
+        /// <param name="daylightSavings">Represents the settings for daylight-savings.</param>
+        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        public void CheckTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings, bool performCheck)
+        {
+            if (performCheck)
+            {
+                //the time range of UTC offsets is between UTC+13 and UTC-12, this may change in the future.
+                //If it contains a precision higher than minutes, it must be considered invalid.
+                if (utcOffset.Seconds != 0 || utcOffset.Milliseconds != 0 ||
+                    utcOffset.TotalHours > 13 || utcOffset.TotalHours < -12)
+                {
+                    throw new ApiInvalidUTCOffsetException($"The Utc Offset must be between +13hrs and -12hrs. Please do not use seconds and milliseconds." +
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidUTCOffset, Message = "Invalid UTC offset" } }));
+                }
+                //allowed value range must be between -180 and +180 (inclusive).
+                //If it contains a precision higher than minutes, it must be considered invalid.
+                if (daylightSavings != null)
+                {
+                    if (daylightSavings.Dst == null || daylightSavings.Std == null ||
+                        daylightSavings.Dst.Start == null || daylightSavings.Std.Start == null ||
+                        daylightSavings.Dst.Offset.TotalMinutes > 180 || daylightSavings.Dst.Offset.TotalMinutes < -180 ||
+                        daylightSavings.Dst.Offset.Seconds != 0 || daylightSavings.Dst.Offset.Milliseconds != 0)
+                    {
+                        throw new ApiInvalidTimeRuleException($"The DaylightSavingsTimeConfiguration TimeOffset must be between +180mins and -180mins. Please do not use seconds and milliseconds." +
+                        $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidTimeRule, Message = "Invalid time rule" } }));
+                    }
+                }
+
+            }
         }
     }
 }

@@ -4,14 +4,10 @@
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
 {
@@ -48,7 +44,7 @@ namespace Webserver.API.UnitTests
         {
             var requestParameterChecker = new ApiRequestParameterChecker();
             var invalidLength = "";
-            Assert.Throws<ApiInvalidParametersException>(() => 
+            Assert.Throws<ApiInvalidParametersException>(() =>
             requestParameterChecker.CheckWebAppName(invalidLength, true));
             requestParameterChecker.CheckWebAppName(invalidLength, false);
             for (int i = 0; i <= 100; i++)
@@ -59,7 +55,7 @@ namespace Webserver.API.UnitTests
             requestParameterChecker.CheckWebAppName(invalidLength, true));
             requestParameterChecker.CheckWebAppName(invalidLength, false);
             var invalidChars = "$!{}/ÄÖÜ~";
-            foreach(var invChar in invalidChars)
+            foreach (var invChar in invalidChars)
             {
                 Assert.Throws<ApiInvalidApplicationNameException>(() =>
                 requestParameterChecker.CheckWebAppName(invChar.ToString(), true));
@@ -98,7 +94,7 @@ namespace Webserver.API.UnitTests
             List<ApiPlcProgramDataType> types = new List<ApiPlcProgramDataType>()
             // many more!
             { ApiPlcProgramDataType.Struct, ApiPlcProgramDataType.Cref, ApiPlcProgramDataType.Error_struct };
-            foreach(var unsuppType in types)
+            foreach (var unsuppType in types)
             {
                 Assert.Throws<ApiUnsupportedAddressException>(() =>
             requestParameterChecker.CheckPlcProgramReadOrWriteDataType(unsuppType, true));
@@ -206,8 +202,9 @@ namespace Webserver.API.UnitTests
         public void CheckETag()
         {
             var requestParameterChecker = new ApiRequestParameterChecker();
-            List<string> invEtags = new List<string>() {
-                
+            List<string> invEtags = new List<string>()
+            {
+
             };
             var invTag = "";
             for (int i = 0; i <= 128; i++)
@@ -223,7 +220,7 @@ namespace Webserver.API.UnitTests
             }
             List<string> validEtags = new List<string>() { "a", "", null };
             var validTag = "";
-            for(int i = 0; i < 128; i++)
+            for (int i = 0; i < 128; i++)
             {
                 validTag += "a";
             }
@@ -255,6 +252,83 @@ namespace Webserver.API.UnitTests
                 requestParameterChecker.CheckWebAppResourceVisibility(vis, true);
                 requestParameterChecker.CheckWebAppResourceVisibility(vis, false);
             }
+        }
+
+        [Test]
+        public void CheckUsername()
+        {
+            var requestParameterChecker = new ApiRequestParameterChecker();
+            Assert.Throws<ApiInvalidParametersException>(() =>
+                requestParameterChecker.CheckUsername("", true));
+            Assert.Throws<ApiPasswordChangeNotAcceptedException>(() =>
+                requestParameterChecker.CheckUsername("Anonymous", true));
+        }
+
+        [Test]
+        public void CheckPassword()
+        {
+            var requestParameterChecker = new ApiRequestParameterChecker();
+            Assert.Throws<ApiNewPasswordMatchesOldPasswordException>(() =>
+                requestParameterChecker.CheckPasswords("password", "password", true));
+        }
+
+        [Test]
+        public void CheckTimeStamp()
+        {
+            var requestParameterChecker = new ApiRequestParameterChecker();
+            var dtNotInRange = new DateTime(1969, 12, 31, 23, 59, 59, 999);
+            var dtNotInRange2 = new DateTime(2554, 07, 21, 23, 34, 34, 999);
+            Assert.Throws<ApiTimestampOutOfRangeException>(() =>
+                requestParameterChecker.CheckSystemTimeStamp(dtNotInRange, true));
+            Assert.Throws<ApiTimestampOutOfRangeException>(() =>
+                requestParameterChecker.CheckSystemTimeStamp(dtNotInRange2, true));
+            requestParameterChecker.CheckSystemTimeStamp(new DateTime(2023, 07, 21, 23, 34, 34, 999), true);
+        }
+
+        [Test]
+        public void CheckTimeSettings()
+        {
+            var requestParameterChecker = new ApiRequestParameterChecker();
+            var offsetOK = new TimeSpan(8, 0, 0);
+            var offsetHasSeconds = new TimeSpan(8, 0, 0, 29);
+            var offsetHasMs = new TimeSpan(8, 0, 0, 0, 333);
+            var offsetMinWrong = new TimeSpan(-12, -1, 0);
+            var offsetMaxWrong = new TimeSpan(13, 1, 0);
+            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetHasSeconds, null, true));
+            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetHasMs, null, true));
+            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetMinWrong, null, true));
+            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetMaxWrong, null, true));
+
+            var dstOK = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 60, 0));
+            var dstHasSeconds = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 60, 22));
+            var dstHasMs = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 0, 60, 0, 566));
+            var sdtOK = new StandardTimeConfiguration(new PlcDate(1, 1, ApiDayOfWeek.Mon, 23, 31));
+            var dstNoStart = new DaylightSavingsTimeConfiguration(null, new TimeSpan(0, 60, 0));
+            var sdtNoStart = new StandardTimeConfiguration(null);
+
+            DaylightSavingsRule dsrOK = new DaylightSavingsRule(sdtOK, dstOK);
+            DaylightSavingsRule dsrNoDST = new DaylightSavingsRule(sdtOK, null);
+            DaylightSavingsRule dsrDSTNoStart = new DaylightSavingsRule(sdtOK, dstNoStart);
+            DaylightSavingsRule dsrDSTSeconds = new DaylightSavingsRule(sdtOK, dstHasSeconds);
+            DaylightSavingsRule dsrDSTMs = new DaylightSavingsRule(sdtOK, dstHasMs);
+            DaylightSavingsRule dsrSDTNoStart = new DaylightSavingsRule(sdtNoStart, dstOK);
+
+            Assert.Throws<ApiInvalidTimeRuleException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetOK, dsrNoDST, true));
+            Assert.Throws<ApiInvalidTimeRuleException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetOK, dsrDSTNoStart, true));
+            Assert.Throws<ApiInvalidTimeRuleException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetOK, dsrSDTNoStart, true));
+            Assert.Throws<ApiInvalidTimeRuleException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetOK, dsrDSTSeconds, true));
+            Assert.Throws<ApiInvalidTimeRuleException>(() =>
+                requestParameterChecker.CheckTimeSettings(offsetOK, dsrDSTMs, true));
+
+            requestParameterChecker.CheckTimeSettings(offsetOK, dsrOK, true);
         }
     }
 }

@@ -2,10 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
 {
@@ -18,13 +14,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Base of the displayment in the response
         /// </summary>
-        public int Basis { get
+        public int Basis
+        {
+            get
             {
                 return _basis;
             }
             set
             {
-                if(value == 10 || value == 100||value == 1000|| value == 10000)
+                if (value == 10 || value == 100 || value == 1000 || value == 10000)
                 {
                     _basis = value;
                 }
@@ -39,13 +37,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <summary>
         /// Value of the requested var
         /// </summary>
-        public int Value { get
+        public int Value
+        {
+            get
             {
                 return _value;
             }
             set
             {
-                if(value >= 0 && value <= 999)
+                if (value >= 0 && value <= 999)
                 {
                     _value = value;
                 }
@@ -111,17 +111,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
                 Basis = 10;
                 Value = (int)(timeSpan.TotalMilliseconds / (double)Basis);
             }
-            else if(timeSpan >= TimeSpan.FromSeconds(10) && timeSpan < TimeSpan.FromSeconds(100))
+            else if (timeSpan >= TimeSpan.FromSeconds(10) && timeSpan < TimeSpan.FromSeconds(100))
             {
                 Basis = 100;
                 Value = (int)((timeSpan.TotalMilliseconds / (double)Basis));
             }
-            else if(timeSpan >= TimeSpan.FromSeconds(100) && timeSpan < TimeSpan.FromSeconds(1000))
+            else if (timeSpan >= TimeSpan.FromSeconds(100) && timeSpan < TimeSpan.FromSeconds(1000))
             {
                 Basis = 1000;
                 Value = (int)(timeSpan.TotalMilliseconds / (double)Basis);
             }
-            else if(timeSpan >= TimeSpan.FromSeconds(1000) && timeSpan < TimeSpan.FromSeconds(10000))
+            else if (timeSpan >= TimeSpan.FromSeconds(1000) && timeSpan < TimeSpan.FromSeconds(10000))
             {
                 Basis = 10000;
                 Value = (int)(timeSpan.TotalMilliseconds / (double)Basis);
@@ -130,7 +130,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
             {
                 throw new ArgumentOutOfRangeException(nameof(timeSpan));
             }
-            if(GetTimeSpan() != timeSpan)
+            if (GetTimeSpan() != timeSpan)
             {
                 throw new ArgumentOutOfRangeException(nameof(timeSpan));
             }
@@ -161,7 +161,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return (Basis,Value).GetHashCode();
+            return (Basis, Value).GetHashCode();
         }
     }
 }

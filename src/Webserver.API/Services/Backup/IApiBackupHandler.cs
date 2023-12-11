@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
@@ -27,7 +28,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="backupName">will default to the backup name suggested by the plc</param> 
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
-        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false);
+        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
@@ -45,6 +46,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="restoreFilePath">path to the file to be restored</param>
         /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
         /// <returns>Task/void</returns>
-        Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null);
+        Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

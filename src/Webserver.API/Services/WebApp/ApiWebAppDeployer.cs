@@ -8,6 +8,7 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
@@ -47,26 +48,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// PathToWebAppDirectory
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
-        public async Task DeployAsync(ApiWebAppData webApp)
+        public async Task DeployAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var res = await ApiRequestHandler.WebAppCreateAsync(webApp.Name);
+            var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
             foreach (var r in webApp.ApplicationResources)
             {
-                await ApiResourceHandler.DeployResourceAsync(webApp, r);
+                await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
             }
             if (webApp.Not_authorized_page != null)
             {
-                await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page);
+                await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page, cancellationToken);
             }
-                
             if (webApp.Not_found_page != null)
             {
-                await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page);
-                    
+                await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page, cancellationToken);
             }
             if (webApp.Default_page != null)
             {
-                await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page);
+                await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page, cancellationToken);
             }
         }
 
@@ -102,9 +101,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
-        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1)
+        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var webApps = await ApiRequestHandler.WebAppBrowseAsync();
+            var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
             {
                 await DeployAsync(webApp);
@@ -112,15 +111,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             else
             {
                 // check for changes!
-                var browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp.Name);
+                var browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp, cancellationToken: cancellationToken);
                 var browsedResources = browseResourcesResponse.Result.Resources;
                 var appOrdered = webApp.ApplicationResources.OrderBy(el => el.Name).ToList();
                 var browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
                 // set the IgnoreBOMDifference for all resources that have it set on the app and are found on the plc!
                 var appOnBrowsed = browsedOrdered.Where(el => appOrdered.Any(el2 => el.Name == el2.Name)).ToList();
-                foreach(var res in appOnBrowsed)
+                foreach (var res in appOnBrowsed)
                 {
-                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name) 
+                    var res2 = appOrdered.FirstOrDefault(resource => resource.Name == res.Name)
                         ?? throw new NullReferenceException("resource is not on app but expected to be!!!");
                     res.IgnoreBOMDifference = res2.IgnoreBOMDifference;
                 }
@@ -135,7 +134,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     // elements that should further be deleted but are not found in the comparison before!
                     var elemsToFurtherdelete = (browsedOrdered.Where(el => appExceptBrowsed
                     .Any(el2 => el2.Name == el.Name && !(browsedExceptApp.Any(el3 => el3.Name == el2.Name))))).ToList();
-                    if(elemsToFurtherdelete.Count != 0)
+                    if (elemsToFurtherdelete.Count != 0)
                     {
                         throw new Exception("Comparison insufficient!");
                     }
@@ -154,7 +153,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             Console.WriteLine($"Upload for resource: {r.Name} failed for the {(tries + 1).ToString()}. time!");
                         }
                     }
-                    browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp.Name);
+                    browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp, cancellationToken: cancellationToken);
                     browsedResources = browseResourcesResponse.Result.Resources;
                     browsedOrdered = browsedResources.OrderBy(el => el.Name).ToList();
                     browsedExceptApp = browsedOrdered.Except(appOrdered).ToList();
@@ -172,28 +171,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     throw new ApiResourceDeploymentFailedException($"Resources found that should were not expected to be on the app:{browsedThatShouldntBe}" +
                         $"Resources that were expected to be on the app but aren't:{missing}");
                 }
-                var browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp.Name);
+                var browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                 ApiWebAppData browsedWebApp = browsedWebAppResp.Result.Applications.First();
                 if (!browsedWebApp.Equals(webApp))
                 {
                     // webapp data is not the same
                     if (browsedWebApp.Not_authorized_page != webApp.Not_authorized_page)
                     {
-                        await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page);
+                        await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page, cancellationToken);
                     }
                     if (browsedWebApp.Not_found_page != webApp.Not_found_page)
                     {
-                        await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page);
+                        await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page, cancellationToken);
                     }
                     if (browsedWebApp.Default_page != webApp.Default_page)
                     {
-                        await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page);
+                        await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page, cancellationToken);
                     }
                     if (browsedWebApp.State != webApp.State)
                     {
-                        await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State);
+                        await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
                     }
-                    browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp.Name);
+                    browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                     browsedWebApp = browsedWebAppResp.Result.Applications.First();
                     if (!browsedWebApp.Equals(webApp))
                     {

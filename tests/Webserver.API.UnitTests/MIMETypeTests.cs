@@ -2,13 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace Webserver.API.UnitTests
 {
@@ -18,7 +12,7 @@ namespace Webserver.API.UnitTests
         public void GetMIMEType_Defaults_ApplicationOctetStream()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping("");
-            if(res != "application/octet-stream")
+            if (res != "application/octet-stream")
             {
                 Assert.Fail();
             }
@@ -29,7 +23,7 @@ namespace Webserver.API.UnitTests
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping(".html");
             if (res != "text/html")
-            { 
+            {
                 Assert.Fail();
             }
         }

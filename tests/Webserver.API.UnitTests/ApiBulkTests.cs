@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
@@ -29,12 +28,12 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
 
             var requests = new List<ApiRequest>();
-            for(int i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++)
             {
                 requests.Add(new ApiRequest("", "2.0", i.ToString()));
             }
             requests.Add(new ApiRequest("Api.Ping", "2.0", "10"));
-            Assert.ThrowsAsync<ArgumentException>(async() => await TestHandler.ApiBulkAsync(requests));
+            Assert.ThrowsAsync<ArgumentException>(async () => await TestHandler.ApiBulkAsync(requests));
         }
 
         [Test]

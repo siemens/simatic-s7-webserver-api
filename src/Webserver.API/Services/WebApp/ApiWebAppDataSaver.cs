@@ -2,13 +2,10 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
 {
@@ -35,7 +32,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="apiWebApp">the ApiWebAppData that should be saved</param>
         public void Save(IApiWebAppData apiWebApp)
         {
-            if(apiWebApp == null)
+            if (apiWebApp == null)
             {
                 throw new ArgumentNullException(nameof(apiWebApp));
             }
@@ -50,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             if (!Directory.Exists(dirToSaveTo))
             {
-                if(!ApiWebAppSaveSetting.CreateDirectoryIfNotExists)
+                if (!ApiWebAppSaveSetting.CreateDirectoryIfNotExists)
                 {
                     throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{dirToSaveTo}{Environment.NewLine} has not been found!");
                 }
@@ -61,7 +58,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             var configString = JsonConvert.SerializeObject(apiWebApp,
                         ApiWebAppSaveSetting.JsonSerializerSetting);
-            string fileNameToSave = ApiWebAppSaveSetting.ConfigurationName.EndsWith(".json") ? 
+            string fileNameToSave = ApiWebAppSaveSetting.ConfigurationName.EndsWith(".json") ?
                 ApiWebAppSaveSetting.ConfigurationName : ApiWebAppSaveSetting.ConfigurationName + ".json";
             using (StreamWriter sw = File.CreateText(Path.Combine(dirToSaveTo, fileNameToSave)))
             {

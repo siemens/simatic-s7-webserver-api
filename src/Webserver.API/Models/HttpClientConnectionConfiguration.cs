@@ -1,15 +1,8 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
-using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
-using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -78,7 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <param name="connectionClose">Defaults to false</param>
         /// <param name="allowAutoRedirect">Defaults to false</param>
         /// <param name="discardPasswordAfterConnect">Defaults to true</param>
-        public HttpClientConnectionConfiguration(string baseAddress, string username, string password, 
+        public HttpClientConnectionConfiguration(string baseAddress, string username, string password,
             TimeSpan timeOut, bool connectionClose, bool allowAutoRedirect, bool discardPasswordAfterConnect)
         {
             this.BaseAddress = baseAddress;

@@ -2,12 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.Responses;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Http.Headers;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
@@ -24,7 +20,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
-        Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false);
+        Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Send a Downloadresource, Downloadticket and Closeticket request to the API. Creates a file ticket which the client can use to retrieve a file from the PLC.
@@ -41,14 +37,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="filePath">Path of the file to upload</param>
         /// <returns>Task</returns>
-        Task DeployFileAsync(string resource, string filePath);
+        Task DeployFileAsync(string resource, string filePath, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Creates a file on the PLC : creates a file ticket which the client can use to transfer a file to the PLC. This is referred to as "uploading" a file to the PLC.
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="filePath">Path of the file to upload</param>
-       /// <returns>void</returns>
+        /// <returns>void</returns>
         void DeployFile(string resource, string filePath);
 
         /// <summary>
@@ -56,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <returns>Task</returns>
-        Task DeployFileAsync(ApiFileResource resource);
+        Task DeployFileAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Creates a file on the PLC : creates a file ticket which the client can use to transfer a file to the PLC. This is referred to as "uploading" a file to the PLC.
@@ -73,7 +69,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
-        Task<FileInfo> DataLogs_DownloadAndClearAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false);
+        Task<FileInfo> DataLogs_DownloadAndClearAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Download and clear a datalog on the PLC. Creates a file ticket which the client can use to retrieve a data log from the PLC and clear it upon completion. 

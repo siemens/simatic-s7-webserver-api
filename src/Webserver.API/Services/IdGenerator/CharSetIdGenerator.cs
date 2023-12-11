@@ -1,13 +1,10 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
 {
@@ -50,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
             DeterminedThreadSleepTime = DetermineThreadSleepTime();
             ThreadSleepTime = DeterminedThreadSleepTime;
         }
-        
+
         /// <summary>
         /// Create a charsetgenerator with userdefined values
         /// </summary>
@@ -70,7 +67,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <param name="charSet">charset to be used</param>
         /// <param name="threadSleepTime">time to sleep after generate calls</param>
         /// <param name="length">Length of the Id to be generated</param>
-        public CharSetIdGenerator(string charSet, TimeSpan threadSleepTime, 
+        public CharSetIdGenerator(string charSet, TimeSpan threadSleepTime,
             int length) : this()
         {
             ThreadSleepTime = threadSleepTime;
@@ -106,7 +103,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         public TimeSpan DetermineThreadSleepTime()
         {
             List<TimeSpan> MillisecondsDetermined = new List<TimeSpan>();
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 DateTime start = DateTime.Now;
                 var generated = Generate();
@@ -119,9 +116,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
                 MillisecondsDetermined.Add(end - start);
             }
             TimeSpan result = TimeSpan.FromSeconds(0);
-            foreach(var element in MillisecondsDetermined)
+            foreach (var element in MillisecondsDetermined)
             {
-                if(element > result)
+                if (element > result)
                 {
                     result = element;
                 }

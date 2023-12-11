@@ -1,15 +1,11 @@
 ﻿// Copyright (c) 2023, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -24,27 +20,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// 28 byte string!
         /// </summary>
-        public string Id { get { return id; }
-            set {
+        public string Id
+        {
+            get { return id; }
+            set
+            {
                 if (value.Length != 28)
                     throw new ApiInvalidTicketIdValueException($"- given string:{value}");
                 else
                     id = value;
-            } }
+            }
+        }
 
         private ApiTicketState state;
 
         /// <summary>
         /// ApiTicketState - None is not a valid State! there are no Stateless Tickets (so far)
         /// </summary>
-        public ApiTicketState State {
+        public ApiTicketState State
+        {
             get
             {
                 return state;
             }
             set
             {
-                if(value == ApiTicketState.None)
+                if (value == ApiTicketState.None)
                 {
                     throw new Exception($"{value.ToString()} is not an expected value for ApiTicketState!");
                 }
@@ -70,7 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             set
             {
-                if(value == ApiTicketProvider.None)
+                if (value == ApiTicketProvider.None)
                 {
                     //throw new ApiException(new Responses.ApiErrorModel() { Error = new ApiError() {  } })
                     throw new Exception($"{value.ToString()} is not an expected value for ApiTicketProvider!");

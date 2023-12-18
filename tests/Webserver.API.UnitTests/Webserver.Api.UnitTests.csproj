@@ -12,7 +12,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="3.2.0">
+		<PackageReference Include="coverlet.collector" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
@@ -22,7 +22,7 @@
 		</PackageReference>
 		<PackageReference Include="MimeMapping" Version="1.0.1.37" />
 		<PackageReference Include="nunit" Version="3.13.3" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 		<PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
 	</ItemGroup>

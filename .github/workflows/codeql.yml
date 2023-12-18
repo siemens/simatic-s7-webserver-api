@@ -1,4 +1,4 @@
-# A CodeQL query for the UA .NET Standard project
+# A CodeQL query for the S7-1500 WebserverApi Client library project
 name: "CodeQL"
 
 on:

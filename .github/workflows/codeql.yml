@@ -10,7 +10,7 @@ on:
     paths:
     - '**.cs'    
   schedule:
-    - cron: '30 6 * * 6'
+    - cron: '40 7 * * 4'
   workflow_dispatch:  
 
 concurrency:

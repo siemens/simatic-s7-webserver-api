@@ -48,9 +48,20 @@ namespace Webserver.API.UnitTests
         public const string PlcProgramBrowseErrorStruct = "{\"jsonrpc\":\"2.0\",\"id\":\"ibf8wom\",\"result\":[{\"name\":\"ERROR_ID\",\"db_number\":1,\"datatype\":\"word\"},{\"name\":\"FLAGS\",\"db_number\":1,\"datatype\":\"byte\"},{\"name\":\"REACTION\",\"db_number\":1,\"datatype\":\"byte\"},{\"name\":\"CODE_ADDRESS\",\"has_children\":true,\"db_number\":1,\"datatype\":\"cref\"},{\"name\":\"MODE\",\"db_number\":1,\"datatype\":\"byte\"},{\"name\":\"OPERAND_NUMBER\",\"db_number\":1,\"datatype\":\"uint\"},{\"name\":\"POINTER_NUMBER_LOCATION\",\"db_number\":1,\"datatype\":\"uint\"},{\"name\":\"SLOT_NUMBER_SCOPE\",\"db_number\":1,\"datatype\":\"uint\"},{\"name\":\"DATA_ADDRESS\",\"has_children\":true,\"db_number\":1,\"datatype\":\"nref\"}]}";
         public const string PlcProgramBrowseVarIsNotAStructure = "{\"jsonrpc\":\"2.0\",\"id\":\"5q27h2n\",\"error\":{\"code\":202,\"message\":\"Variable is not a structure\"}}";
 
+        public const string PlcProgramBrowseCodeBlocksEmptyResult = "{\"jsonrpc\":\"2.0\",\"id\":\"y9vedkb9\",\"result\":[]}";
+        public const string PlcProgramBrowseCodeBlocksInvalidParams = "{\"jsonrpc\":\"2.0\",\"id\":55,\"error\":{\"code\":-32602,\"message\":\"Invalid Params\"}}";
+        public const string PlcProgramBrowseCodeBlocksSuccess = "{\"jsonrpc\":\"2.0\",\"id\":96,\"result\":[{\"name\":\"Main\",\"block_number\":1,\"block_type\":\"ob\"},{\"name\":\"USEND\",\"block_number\":8,\"block_type\":\"sfb\"},{\"name\":\"COPY_HW\",\"block_number\":65509,\"block_type\":\"sfc\"},{\"name\":\"PRODTEST\",\"block_number\":65522,\"block_type\":\"fb\"},{\"name\":\"FC_14325\",\"block_number\":14325,\"block_type\":\"fc\"}]}";
+        public const string PlcProgramBrowseCodeBlocksEmptyBlockName = "{\"jsonrpc\":\"2.0\",\"id\":96,\"result\":[{\"name\":\"\",\"block_number\":1,\"block_type\":\"ob\"}]}";
+        public const string PlcProgramBrowseCodeBlocksStringAsNumber = "{\"jsonrpc\":\"2.0\",\"id\":96,\"result\":[{\"name\":\"Main\",\"block_number\":\"abcdefg\",\"block_type\":\"ob\"},{\"name\":\"USEND\",\"block_number\":8,\"block_type\":\"sfb\"},{\"name\":\"COPY_HW\",\"block_number\":65509,\"block_type\":\"sfc\"},{\"name\":\"PRODTEST\",\"block_number\":65522,\"block_type\":\"sfc\"}]}";
+        public const string PlcProgramBrowseCodeBlocksPermissionDenied = "{\"jsonrpc\":\"2.0\",\"id\":50,\"error\":{\"code\":2,\"message\":\"Permission denied\"}}";
+
         public const string PlcProgramInvalidAddress = "{\"jsonrpc\":\"2.0\",\"id\":\"5uxrl166\",\"error\":{\"code\":201,\"message\":\"Invalid address\"}}";
         public const string PlcProgramAddressDoesNotExist = "{\"jsonrpc\":\"2.0\",\"id\":\"8buk8ryn\",\"error\":{\"code\":200,\"message\":\"Address does not exist\"}}";
         public const string PlcProgramnInvalidArrayIndex = "{\"jsonrpc\":\"2.0\",\"id\":\"f5eqwla\",\"error\":{\"code\":203,\"message\":\"Invalid array index\"}}";
+
+        public const string PlcProgramDownloadProfilingDataSuccess = "{\"jsonrpc\":\"2.0\",\"id\": 6,\"result\":\"jgxikeMgLryvP0YoHc.eqt8BY787\"}";
+        public const string PlcProgramDownloadProfilingDataPermissionDenied = "{\"jsonrpc\":\"2.0\",\"id\": 18,\"error\":{\"code\": 2,\"message\":\"Permission denied\"}}";
+        public const string PlcProgramDownloadProfilingDataNoResources = "{\"jsonrpc\":\"2.0\",\"id\":28,\"error\":{\"code\":4,\"message\":\"No Resources\"}}";
 
         public const string PlcProgramUnsupportedAddress = "{\"jsonrpc\":\"2.0\",\"id\":\"1wwe2z8j\",\"error\":{\"code\":204,\"message\":\"Unsupported address\"}}";
 

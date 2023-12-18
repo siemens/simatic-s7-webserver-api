@@ -3,15 +3,22 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{29F9C865-DCDE-477B-BD56-11451E6A6C1F}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		version.json = version.json
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webserver.API", "src\Webserver.API\Webserver.API.csproj", "{023E3E93-8E71-48BA-9616-CCEDF8A34415}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webserver.Api.UnitTests", "tests\Webserver.API.UnitTests\Webserver.Api.UnitTests.csproj", "{F4F34F39-86B1-43D6-AD75-48ED8B45DFA8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{88538A94-22C2-485F-8D86-CA2F71ECE8AE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		CONTRIBUTING.md = CONTRIBUTING.md
+		CONTRIBUTING.pdf = CONTRIBUTING.pdf
+		Directory.Build.props = Directory.Build.props
+		LICENSE.md = LICENSE.md
+		MAINTAINERS.md = MAINTAINERS.md
+		nuget.config = nuget.config
+		README.md = README.md
+		version.json = version.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

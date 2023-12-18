@@ -1,42 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Label="Globals">
-    <Platforms>x64;AnyCPU;x86</Platforms>
-  </PropertyGroup>
+	<PropertyGroup Label="Globals">
+		<Platforms>x64;AnyCPU;x86</Platforms>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
-    <IsPackable>false</IsPackable>
-    <AssemblyName>Webserver.API.UnitTests</AssemblyName>
-    <RootNamespace>Webserver.API.UnitTests</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net48;net6.0;net7.0;net8.0</TargetFrameworks>
+		<IsPackable>false</IsPackable>
+		<AssemblyName>Webserver.API.UnitTests</AssemblyName>
+		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="3.2.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MimeMapping" Version="1.0.1.37" />
-    <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="nunit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
-    <PackageReference Include="System.Web.Http.Common" Version="4.0.20126.16343" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="6.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="MimeMapping" Version="1.0.1.37" />
+		<PackageReference Include="nunit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+		<PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Webserver.API\Webserver.API.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Webserver.API\Webserver.API.csproj" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
+	</ItemGroup>
 
 </Project>

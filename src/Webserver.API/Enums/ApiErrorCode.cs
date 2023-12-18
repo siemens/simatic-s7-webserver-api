@@ -235,8 +235,5 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// Invalid Parameters provided (null/empty string that is forbidden?, invalid ticket length?, wrong datetime string format (rfc3339)? ...)
         /// </summary>
         InvalidParams = -32602
-
-
-
     }
 }

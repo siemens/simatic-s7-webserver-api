@@ -14,31 +14,31 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup .NET Core 2.1
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "2.1.x"
       - name: Setup .NET Core 3.1
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "3.1.x"
       - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
       - name: Setup .NET 7.0
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "7.0.x"
       - name: Setup .NET 8.0
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
       - name: Run tests
         run: dotnet test --collect:"XPlat Code Coverage" 
       - name: Upload coverage
@@ -52,15 +52,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-      - uses: actions/download-artifact@v2
+        uses: actions/setup-dotnet@v4
+      - uses: actions/download-artifact@v4
         with:
           name: Code coverage windows-latest
           path: coverage-windows
       - name: Generate coverage report
-        uses: danielpalme/ReportGenerator-GitHub-Action@4.8.12
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.0
         with:
           reports: "**/coverage.cobertura.xml"
           targetdir: "coverage-report"
@@ -77,11 +77,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
       - name: Create packages
         run: dotnet pack --configuration Release --output ./packages
       - name: Upload a Build Artifact
@@ -96,12 +96,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-      - uses: actions/download-artifact@v2
+        uses: actions/setup-dotnet@v4
+      - uses: actions/download-artifact@v4
         with:
           name: NuGet packages
           path: packages

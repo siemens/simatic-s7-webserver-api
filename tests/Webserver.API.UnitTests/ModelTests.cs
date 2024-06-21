@@ -855,7 +855,7 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
             Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
             Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
-            Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
+            Assert.That(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
             Assert.False(equal1.GetHashCode() == not_equal2.GetHashCode(), $"equal1.GetHashCode() equal not_equal2.GetHashCode()");
             Assert.False(equal1.GetHashCode() == not_equal3.GetHashCode(), $"equal1.GetHashCode() equal not_equal3.GetHashCode()");
         }
@@ -865,8 +865,8 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog_Entry equal1 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry equal2 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry not_equal1 = new ApiPlcSyslog_Entry() { Raw = "random txet" };
-            Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
-            Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
             Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
         }
 

@@ -2550,7 +2550,7 @@ namespace Webserver.API.UnitTests
             var expectedDate = new DateTime(2022, 03, 01, 17, 2, 4);
             expectedDate += TimeSpan.FromMilliseconds(238);
             expectedDate += TimeSpan.FromTicks(2960);
-            Assert.AreEqual(systemTime.Result.Timestamp, expectedDate);
+            Assert.That(expectedDate, Is.EqualTo(systemTime.Result.Timestamp));
         }
 
         /// <summary>
@@ -2573,8 +2573,8 @@ namespace Webserver.API.UnitTests
             var dst = new DaylightSavingsTimeConfiguration(new PlcDate(3, 5, ApiDayOfWeek.Sun, 1, 0), new TimeSpan(0, 60, 0));
             var sdt = new StandardTimeConfiguration(new PlcDate(10, 5, ApiDayOfWeek.Sun, 2, 0));
             var expectedRule = new DaylightSavingsRule(sdt, dst);
-            Assert.AreEqual(TimeSpan.Zero, result.Current_offset, "Current offset is not equal to expected value!");
-            Assert.AreEqual(expectedRule, result.Rule, "Time setting rule doesn't match!");
+            Assert.That(result.Current_offset, Is.EqualTo(TimeSpan.Zero), "Current offset is not equal to expected value!");
+            Assert.That(result.Rule, Is.EqualTo(expectedRule), "Time setting rule doesn't match!");
         }
 
         /// <summary>
@@ -2594,10 +2594,10 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var timeSettings = await TestHandler.PlcReadTimeSettingsAsync();
             var result = timeSettings.Result;
-            Assert.AreEqual(TimeSpan.Zero, result.Current_offset);
-            Assert.AreEqual(TimeSpan.Zero, result.Utc_offset);
+            Assert.That(result.Current_offset, Is.EqualTo(TimeSpan.Zero));
+            Assert.That(result.Utc_offset, Is.EqualTo(TimeSpan.Zero));
             var rule = result.Rule;
-            Assert.AreEqual(null, rule);
+            Assert.That(rule, Is.EqualTo(null));
         }
 
         /// <summary>
@@ -2679,8 +2679,8 @@ namespace Webserver.API.UnitTests
             var result = browsedResult.Result;
             var expectedRes1 = new ApiFileResource() { Name = "pre3.png", Size = 20511, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818317050000000) };
             var expectedRes2 = new ApiFileResource() { Name = "uploadfromdev.png", Size = 110308, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818316970000000) };
-            Assert.AreEqual(result.Resources[0], expectedRes1);
-            Assert.AreEqual(result.Resources[1], expectedRes2);
+            Assert.That(expectedRes1, Is.EqualTo(result.Resources[0]));
+            Assert.That(expectedRes2, Is.EqualTo(result.Resources[1]));
         }
 
         /// <summary>
@@ -2818,8 +2818,8 @@ namespace Webserver.API.UnitTests
             var result = browsedResult.Result;
             var expectedRes1 = new ApiFileResource() { Name = "pre3.png", Size = 20511, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818317050000000) };
             var expectedRes2 = new ApiFileResource() { Name = "uploadfromdev.png", Size = 110308, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818316970000000) };
-            Assert.AreEqual(result.Resources[0], expectedRes1);
-            Assert.AreEqual(result.Resources[1], expectedRes2);
+            Assert.That(expectedRes1, Is.EqualTo(result.Resources[0]));
+            Assert.That(expectedRes2, Is.EqualTo(result.Resources[1]));
         }
 
         /// <summary>
@@ -2927,7 +2927,7 @@ namespace Webserver.API.UnitTests
             fs.Collective_signature = "BC7C0410";
             fs.Remaining_time = new TimeSpan(2, 33, 0);
             Assert.That(result.Result.Safety_mode);
-            Assert.AreEqual(ApiFailsafeHardwareType.F_cpu, result.Result.Type);
+            Assert.That(result.Result.Type, Is.EqualTo(ApiFailsafeHardwareType.F_cpu));
             Assert.That(result.Result.Parameters is FailsafeCPU);
             Assert.That(result.Result.Parameters.Equals(fs));
         }
@@ -2954,7 +2954,7 @@ namespace Webserver.API.UnitTests
             fs.F_source_address = 321;
             fs.F_par_crc = "DBB32A1A";
             Assert.That(result.Result.Safety_mode);
-            Assert.AreEqual(ApiFailsafeHardwareType.F_module, result.Result.Type);
+            Assert.That(result.Result.Type, Is.EqualTo(ApiFailsafeHardwareType.F_module));
             Assert.That(result.Result.Parameters is FailsafeModule);
             Assert.That(result.Result.Parameters.Equals(fs));
         }

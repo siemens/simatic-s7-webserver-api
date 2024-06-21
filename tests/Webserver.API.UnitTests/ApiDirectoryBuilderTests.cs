@@ -75,12 +75,12 @@ namespace Webserver.API.UnitTests
                 var builder = new ApiDirectoryBuilder(localTmpDirectory, new ApiFileResourceBuilder(), false);
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
-                Assert.AreEqual(localTmpDirectory, res.PathToLocalDirectory);
-                Assert.AreEqual(0, res.Resources.Count);
-                Assert.AreEqual(ApiFileResourceState.Active, res.State);
+                Assert.That(res.PathToLocalDirectory, Is.EqualTo(localTmpDirectory));
+                Assert.That(res.Resources.Count, Is.EqualTo(0));
+                Assert.That(res.State, Is.EqualTo(ApiFileResourceState.Active));
                 var dirInf = new DirectoryInfo(localTmpDirectory);
-                Assert.AreEqual(dirInf.LastWriteTime, res.Last_Modified);
-                Assert.AreEqual(dirInf.Name, res.Name);
+                Assert.That(res.Last_Modified, Is.EqualTo(dirInf.LastWriteTime));
+                Assert.That(res.Name, Is.EqualTo(dirInf.Name));
                 Assert.IsNull(res.Size);
             }
             finally
@@ -104,15 +104,15 @@ namespace Webserver.API.UnitTests
                 var builder = new ApiDirectoryBuilder(localTmpDirectory, new ApiFileResourceBuilder(), false);
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
-                Assert.AreEqual(1, res.Resources.Count);
+                Assert.That(res.Resources.Count, Is.EqualTo(1));
                 Assert.IsNull(res.Size);
                 var firstRes = res.Resources.First();
-                Assert.AreEqual(ApiFileResourceType.File, firstRes.Type);
-                Assert.AreEqual(ApiFileResourceState.Active, firstRes.State);
+                Assert.That(firstRes.Type, Is.EqualTo(ApiFileResourceType.File));
+                Assert.That(firstRes.State, Is.EqualTo(ApiFileResourceState.Active));
                 var fileInfo = new FileInfo(filePath);
-                Assert.AreEqual(fileInfo.Length, firstRes.Size);
-                Assert.AreEqual(fileInfo.LastWriteTime, firstRes.Last_Modified);
-                Assert.AreEqual(localTmpDirectory, firstRes.PathToLocalDirectory);
+                Assert.That(firstRes.Size, Is.EqualTo(fileInfo.Length));
+                Assert.That(firstRes.Last_Modified, Is.EqualTo(fileInfo.LastWriteTime));
+                Assert.That(firstRes.PathToLocalDirectory, Is.EqualTo(localTmpDirectory));
             }
             finally
             {
@@ -132,14 +132,14 @@ namespace Webserver.API.UnitTests
                 var builder = new ApiDirectoryBuilder(localTmpDirectory, new ApiFileResourceBuilder(), false);
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
-                Assert.AreEqual(1, res.Resources.Count);
+                Assert.That(res.Resources.Count, Is.EqualTo(1));
                 Assert.IsNull(res.Size);
                 var firstRes = res.Resources.First();
-                Assert.AreEqual(ApiFileResourceType.Dir, firstRes.Type);
-                Assert.AreEqual(ApiFileResourceState.Active, firstRes.State);
+                Assert.That(firstRes.Type, Is.EqualTo(ApiFileResourceType.Dir));
+                Assert.That(firstRes.State, Is.EqualTo(ApiFileResourceState.Active));
                 Assert.IsNull(firstRes.Size);
-                Assert.AreEqual(dirInfo.LastWriteTime, firstRes.Last_Modified);
-                Assert.AreEqual(dirPath, firstRes.PathToLocalDirectory);
+                Assert.That(firstRes.Last_Modified, Is.EqualTo(dirInfo.LastWriteTime));
+                Assert.That(firstRes.PathToLocalDirectory, Is.EqualTo(dirPath));
             }
             finally
             {
@@ -186,38 +186,38 @@ namespace Webserver.API.UnitTests
                 var builder = new ApiDirectoryBuilder(localTmpDirectory, new ApiFileResourceBuilder(), false);
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
-                Assert.AreEqual(2, res.Resources.Count);
+                Assert.That(res.Resources.Count, Is.EqualTo(2));
                 var dirRes = res.Resources.First(el => el.Type == ApiFileResourceType.Dir);
                 var fileRes = res.Resources.First(el => el.Type == ApiFileResourceType.File);
-                Assert.AreEqual(dirInfo2.Name, dirRes.Name);
-                Assert.AreEqual(2, dirRes.Resources.Count);
-                Assert.AreEqual(1, dirRes.Parents.Count);
-                Assert.AreEqual(dirInfo2.FullName, dirRes.PathToLocalDirectory);
+                Assert.That(dirRes.Name, Is.EqualTo(dirInfo2.Name));
+                Assert.That(dirRes.Resources.Count, Is.EqualTo(2));
+                Assert.That(dirRes.Parents.Count, Is.EqualTo(1));
+                Assert.That(dirRes.PathToLocalDirectory, Is.EqualTo(dirInfo2.FullName));
 
-                Assert.AreEqual(fileInfo.Name, fileRes.Name);
-                Assert.AreEqual(filePath, Path.Combine(fileRes.PathToLocalDirectory, fileRes.Name));
-                Assert.AreEqual(1, fileRes.Parents.Count);
-                Assert.AreEqual(0, fileRes.Resources.Count);
+                Assert.That(fileRes.Name, Is.EqualTo(fileInfo.Name));
+                Assert.That(Path.Combine(fileRes.PathToLocalDirectory, fileRes.Name), Is.EqualTo(filePath));
+                Assert.That(fileRes.Parents.Count, Is.EqualTo(1));
+                Assert.That(fileRes.Resources.Count, Is.EqualTo(0));
 
                 var subRes = dirRes.Resources;
-                Assert.AreEqual(2, subRes.Count);
+                Assert.That(subRes.Count, Is.EqualTo(2));
                 var dirRes2 = subRes.First(el => el.Type == ApiFileResourceType.Dir);
                 var fileRes2 = subRes.First(el => el.Type == ApiFileResourceType.File);
-                Assert.AreEqual(dirInfo3.Name, dirRes2.Name);
-                Assert.AreEqual(1, dirRes2.Resources.Count);
-                Assert.AreEqual(2, dirRes2.Parents.Count);
-                Assert.AreEqual(dirPath3, dirRes2.PathToLocalDirectory);
+                Assert.That(dirRes2.Name, Is.EqualTo(dirInfo3.Name));
+                Assert.That(dirRes2.Resources.Count, Is.EqualTo(1));
+                Assert.That(dirRes2.Parents.Count, Is.EqualTo(2));
+                Assert.That(dirRes2.PathToLocalDirectory, Is.EqualTo(dirPath3));
 
-                Assert.AreEqual(fileInfo2.Name, fileRes2.Name);
-                Assert.AreEqual(filePath2, Path.Combine(fileRes2.PathToLocalDirectory, fileRes2.Name));
-                Assert.AreEqual(2, fileRes2.Parents.Count);
-                Assert.AreEqual(0, fileRes2.Resources.Count);
+                Assert.That(fileRes2.Name, Is.EqualTo(fileInfo2.Name));
+                Assert.That(Path.Combine(fileRes2.PathToLocalDirectory, fileRes2.Name), Is.EqualTo(filePath2));
+                Assert.That(fileRes2.Parents.Count, Is.EqualTo(2));
+                Assert.That(fileRes2.Resources.Count, Is.EqualTo(0));
 
                 var fileRes3 = dirRes2.Resources.First();
-                Assert.AreEqual(fileInfo3.Name, fileRes3.Name);
-                Assert.AreEqual(filePath3, Path.Combine(fileRes3.PathToLocalDirectory, fileRes3.Name));
-                Assert.AreEqual(0, fileRes3.Resources.Count);
-                Assert.AreEqual(3, fileRes3.Parents.Count);
+                Assert.That(fileRes3.Name, Is.EqualTo(fileInfo3.Name));
+                Assert.That(Path.Combine(fileRes3.PathToLocalDirectory, fileRes3.Name), Is.EqualTo(filePath3));
+                Assert.That(fileRes3.Resources.Count, Is.EqualTo(0));
+                Assert.That(fileRes3.Parents.Count, Is.EqualTo(3));
             }
             finally
             {

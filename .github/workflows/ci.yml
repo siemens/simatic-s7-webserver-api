@@ -42,7 +42,7 @@ jobs:
       - name: Run tests
         run: dotnet test --collect:"XPlat Code Coverage" 
       - name: Upload coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Code coverage ${{ matrix.os }}
           path: "**/coverage.cobertura.xml"
@@ -55,12 +55,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: Code coverage windows-latest
           path: coverage-windows
       - name: Generate coverage report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.0
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.3
         with:
           reports: "**/coverage.cobertura.xml"
           targetdir: "coverage-report"
@@ -85,7 +85,7 @@ jobs:
       - name: Create packages
         run: dotnet pack --configuration Release --output ./packages
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: NuGet packages
           path: packages/*.*
@@ -101,7 +101,7 @@ jobs:
           fetch-depth: 0
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: NuGet packages
           path: packages
@@ -109,7 +109,7 @@ jobs:
         run: dir packages
       - name: Push packages
         run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-      - uses: dotnet/nbgv@v0.4.0
+      - uses: dotnet/nbgv@v0.4.2
         id: nbgv
       
       - name: Create GitHub release
@@ -120,7 +120,7 @@ jobs:
           tag_name: v${{ steps.nbgv.outputs.SemVer2 }}
           release_name: v${{ steps.nbgv.outputs.SemVer2 }}
       - name: Comment relevant issues and merge requests
-        uses: apexskier/github-release-commenter@v1.3.2
+        uses: apexskier/github-release-commenter@v1.3.6
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           comment-template: |

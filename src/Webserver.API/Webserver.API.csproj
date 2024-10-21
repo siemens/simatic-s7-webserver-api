@@ -18,6 +18,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PackageIcon>product-simatic-s7-1500-256-256.png</PackageIcon>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	  <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>

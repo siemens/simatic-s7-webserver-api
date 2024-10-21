@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    labels:
+      - "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: github-actions
+    labels:
+      - "actions"
+    directory: "./"
+    schedule:
+      interval: "weekly"

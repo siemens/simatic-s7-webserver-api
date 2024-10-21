@@ -2617,7 +2617,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcCreateBackupAsync();
-            Assert.IsTrue(resp.Result.ToString() == expected, "Failed");
+            Assert.That(resp.Result.ToString() == expected, "Failed");
         }
 
         /// <summary>
@@ -2637,7 +2637,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcRestoreBackupAsync();
-            Assert.IsTrue(resp.Result.ToString() == expected, "Failed");
+            Assert.That(resp.Result.ToString() == expected, "Failed");
         }
 
         /// <summary>
@@ -2657,7 +2657,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcRestoreBackupAsync();
-            Assert.IsTrue(resp.Result.ToString() == expected, "Failed");
+            Assert.That(resp.Result.ToString() == expected, "Failed");
         }
 
         /// <summary>
@@ -2700,7 +2700,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesDownloadAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
-            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+            Assert.That(result.Result, Is.EqualTo(expectedResult));
         }
 
         /// <summary>
@@ -2720,7 +2720,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesCreateAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
-            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+            Assert.That(result.Result, Is.EqualTo(expectedResult), "Tickets for FilesCreate!");
         }
 
         /// <summary>
@@ -2739,7 +2739,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesCreateDirectoryAsync("/Dir/newDir");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
 
         /// <summary>
@@ -2758,7 +2758,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesRenameAsync("/Dir/newDir", "/Dir/renamedDir");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
 
         /// <summary>
@@ -2777,7 +2777,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesDeleteAsync("/Dir/newDir");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
 
         /// <summary>
@@ -2796,7 +2796,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesDeleteDirectoryAsync("/Dir/newDir");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
 
         /// <summary>
@@ -2839,7 +2839,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesDownloadAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
-            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+            Assert.That(result.Result, Is.EqualTo(expectedResult));
         }
 
         /// <summary>
@@ -2858,7 +2858,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.FilesDeleteAsync("/Dir/newDir");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
 
         /// <summary>
@@ -2878,7 +2878,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.DatalogsDownloadAndClearAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
-            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+            Assert.That(result.Result, Is.EqualTo(expectedResult));
         }
 
         /// <summary>
@@ -2899,11 +2899,11 @@ namespace Webserver.API.UnitTests
             var result = (await TestHandler.ApiSyslogBrowseAsync()).Result;
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(5, result.Count_Total, "result Count_Total is not the expected value!");
-                Assert.AreEqual(1, result.Count_Lost, "result Count_Lost is not the expected value!");
-                Assert.AreEqual(2, result.Entries.Count, "result Entries.Count is not the expected value!");
-                Assert.AreEqual("I am a syslog, no need to question it!", result.Entries[0].Raw, "result Entries[0].Raw is not the expected value!");
-                Assert.AreEqual("I am a syslog, too. But the previous syslog is an impostor!", result.Entries[1].Raw, "result Entries[1].Raw is not the expected value!");
+                Assert.That(result.Count_Total, Is.EqualTo(5));
+                Assert.That(result.Count_Lost, Is.EqualTo(1));
+                Assert.That(result.Entries.Count, Is.EqualTo(2));
+                Assert.That(result.Entries[0].Raw, Is.EqualTo("I am a syslog, no need to question it!"));
+                Assert.That(result.Entries[1].Raw, Is.EqualTo("I am a syslog, too. But the previous syslog is an impostor!"), "Tickets for FilesCreate!");
             });
         }
         /// <summary>
@@ -2989,8 +2989,8 @@ namespace Webserver.API.UnitTests
             withRemaining.Cycle_time_Max = TimeSpan.FromMilliseconds(200);
             withRemaining.Runtime_current = TimeSpan.FromMilliseconds(50);
             withRemaining.Runtime_max = TimeSpan.FromMilliseconds(80);
-            Assert.IsTrue(result.Result.Groups[0].Equals(noRemaining), "The groups don't match!");
-            Assert.IsTrue(result.Result.Groups[1].Equals(withRemaining), "The groups don't match!");
+            Assert.That(result.Result.Groups[0].Equals(noRemaining), "The groups don't match!");
+            Assert.That(result.Result.Groups[1].Equals(withRemaining), "The groups don't match!");
         }
 
         /// <summary>
@@ -3009,7 +3009,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.ApiChangePasswordAsync("Admin", "adminpw", "newadminpw");
-            Assert.IsTrue(result.Result, "Changing passwords not possible!");
+            Assert.That(result.Result, "Changing passwords not possible!");
         }
 
         /// <summary>
@@ -3035,7 +3035,7 @@ namespace Webserver.API.UnitTests
             expectedResult.Max_password_length = 120;
             expectedResult.Min_digits = 1;
             expectedResult.Min_special_characters = 0;
-            Assert.AreEqual(expectedResult, result.Result.Password_policy, "Password policies dont match");
+            Assert.That(result.Result.Password_policy, Is.EqualTo(expectedResult), "Tickets for FilesCreate!");
         }
 
         /// <summary>
@@ -3058,7 +3058,7 @@ namespace Webserver.API.UnitTests
             expectedResult.Add(ApiAuthenticationMode.Local);
             expectedResult.Add(ApiAuthenticationMode.Static);
             expectedResult.Add(ApiAuthenticationMode.Disabled);
-            Assert.AreEqual(expectedResult.Count, result.Result.Authentication_modes.Count, "Authentication modes count don't match!");
+            Assert.That(result.Result.Authentication_modes.Count, Is.EqualTo(expectedResult.Count));
             Assert.That(expectedResult.SequenceEqual(result.Result.Authentication_modes), "Order of authetication modes is different!");
         }
 
@@ -3083,7 +3083,7 @@ namespace Webserver.API.UnitTests
             expectedResult.Add(new CultureInfo("en-GB"));
             expectedResult.Add(new CultureInfo("es-BR"));
             expectedResult.Add(new CultureInfo("ne-IN"));
-            Assert.AreEqual(expectedResult.Count, result.Result.Languages.Select(x => x.Language).Count(), "Languages don't match");
+            Assert.That(result.Result.Languages.Select(x => x.Language).Count(), Is.EqualTo(expectedResult.Count));
             Assert.That(expectedResult.SequenceEqual(result.Result.Languages.Select(x => x.Language)), "The order of languages are different, or they don't contain the same languages.");
         }
 
@@ -3103,7 +3103,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.StandardPLC);
-            Assert.AreEqual(ApiPlcModeSelectorState.Run, res.Result.Mode_Selector, "Plc Mode Selector state is not in run mode!");
+            Assert.That(res.Result.Mode_Selector, Is.EqualTo(ApiPlcModeSelectorState.Run));
         }
 
         /// <summary>
@@ -3122,7 +3122,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.RedundancyId_1);
-            Assert.AreEqual(ApiPlcModeSelectorState.NoSwitch, res.Result.Mode_Selector, "Plc Mode Selector state is not in noswitch mode!");
+            Assert.That(res.Result.Mode_Selector, Is.EqualTo(ApiPlcModeSelectorState.NoSwitch));
         }
 
         /// <summary>
@@ -3142,7 +3142,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.ModulesDownloadServiceDataAsync(ApiPlcHwId.StandardPLC);
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
-            Assert.AreEqual(expectedResult, result.Result, "The tickets are not identical.");
+            Assert.That(result.Result, Is.EqualTo(expectedResult));
         }
 
         /// <summary>
@@ -3161,7 +3161,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.AlarmsAcknowledgeAsync("/");
-            Assert.AreEqual(true, result.Result, "The response should always contain true, but it doesn't.");
+            Assert.That(result.Result);
         }
         /// <summary>
         /// TestCase for Plc.SetSystemTime
@@ -3179,7 +3179,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.PlcSetSystemTimeAsync(new DateTime(2010, 10, 10));
-            Assert.IsTrue(result.Result, "The time was not set successfully!");
+            Assert.That(result.Result, "The time was not set successfully!");
         }
 
         /// <summary>
@@ -3204,7 +3204,7 @@ namespace Webserver.API.UnitTests
             DaylightSavingsRule dsr = new DaylightSavingsRule(sdt, dst);
 
             var result = await TestHandler.PlcSetTimeSettingsAsync(offset, dsr);
-            Assert.IsTrue(result.Result, "Couldn't set time settings!");
+            Assert.That(result.Result, "Couldn't set time settings!");
         }
 
         /// <summary>
@@ -3226,7 +3226,7 @@ namespace Webserver.API.UnitTests
             var offset = new TimeSpan(8, 0, 0);
 
             var result = await TestHandler.PlcSetTimeSettingsAsync(offset);
-            Assert.IsTrue(result.Result, "Couldn't set time settings!");
+            Assert.That(result.Result, "Couldn't set time settings!");
         }
 
         /// <summary>
@@ -3267,7 +3267,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.WebServerSetDefaultPageAsync("index.html");
-            Assert.IsTrue(result.Result, "The result is not true.");
+            Assert.That(result.Result, "The result is not true.");
         }
         /// <summary>
         /// TestCase for WebServer.ReadDefaultPage
@@ -3286,7 +3286,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
             var result = await TestHandler.WebServerGetReadDefaultPageAsync();
             var expectedResult = "/~teszt2/index.html";
-            Assert.AreEqual(expectedResult, result.Result.Default_page, "The result is not the expected.");
+            Assert.That(result.Result.Default_page, Is.EqualTo(expectedResult));
         }
 
         /// <summary>
@@ -3307,19 +3307,19 @@ namespace Webserver.API.UnitTests
             var result = (await TestHandler.ApiAlarmsBrowseAsync(new CultureInfo("en-US"))).Result;
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(2, result.Entries.Count, "result.Entries.Count");
-                Assert.AreEqual("9947888669857743000", result.Entries[0].Id, "result.Entries[0].Id");
-                Assert.AreEqual(512, result.Entries[0].Alarm_Number, "result.Entries[0].Alarm_Number");
-                Assert.AreEqual(ApiObjectDirectoryStatus.Incoming, result.Entries[0].Status, "result.Entries[0].Status");
-                Assert.AreEqual(new DateTime(2012, 1, 1, 1, 1, 42, 47), result.Entries[0].Timestamp, "result.Entries[0].Timestamp");
-                Assert.AreEqual(ApiAlarmAcknowledgementState.Not_Acknowledged, result.Entries[0].Acknowledgement.State, "result.Entries[0].Acknowledgement.State");
-                Assert.AreEqual("#1, 1", result.Entries[0].Alarm_Text, "result.Entries[0].Alarm_Text");
-                Assert.AreEqual("#1, 0", result.Entries[0].Info_Text, "result.Entries[0].Info_Text");
-                Assert.AreEqual(false, result.Entries[0].Text_Inconsistent, "result.Entries[0].Text_Inconsistent");
-                Assert.AreEqual(new DateTime(2012, 1, 1, 1, 1, 42, 99), result.Last_Modified, "result.Last_Modified");
-                Assert.AreEqual(51, result.Count_Current, "result.Count_Current");
-                Assert.AreEqual(500, result.Count_Max, "result.Count_Max");
-                Assert.AreEqual("en-US", result.Language, "result.Language");
+                Assert.That(result.Entries.Count, Is.EqualTo(2));
+                Assert.That(result.Entries[0].Id, Is.EqualTo("9947888669857743000"));
+                Assert.That(result.Entries[0].Alarm_Number, Is.EqualTo(512));
+                Assert.That(result.Entries[0].Status, Is.EqualTo(ApiObjectDirectoryStatus.Incoming));
+                Assert.That(result.Entries[0].Timestamp, Is.EqualTo(new DateTime(2012, 1, 1, 1, 1, 42, 47)));
+                Assert.That(result.Entries[0].Acknowledgement.State, Is.EqualTo(ApiAlarmAcknowledgementState.Not_Acknowledged));
+                Assert.That(result.Entries[0].Alarm_Text, Is.EqualTo("#1, 1"));
+                Assert.That(result.Entries[0].Info_Text, Is.EqualTo("#1, 0"));
+                Assert.That(result.Entries[0].Text_Inconsistent, Is.EqualTo(false));
+                Assert.That(result.Last_Modified, Is.EqualTo(new DateTime(2012, 1, 1, 1, 1, 42, 99)));
+                Assert.That(result.Count_Current, Is.EqualTo(51));
+                Assert.That(result.Count_Max, Is.EqualTo(500));
+                Assert.That(result.Language, Is.EqualTo("en-US"));
             });
         }
 
@@ -3343,16 +3343,16 @@ namespace Webserver.API.UnitTests
             expected = expected.AddTicks(5146785);
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(2, result.Entries.Count, "result.Entries.Count");
-                Assert.AreEqual(ApiObjectDirectoryStatus.Outgoing, result.Entries[0].Status, "result.Entries[0].Status");
-                Assert.AreEqual("Boot up  - CPU changes from OFF to STOP (initialization) mode", result.Entries[0].Short_Text, "result.Entries[0].Short_Text");
-                Assert.AreEqual("LONG TEXT", result.Entries[1].Long_Text, "result.Entries[1].Long_Text");
-                Assert.AreEqual(3, result.Entries[1].Event.Textlist_Id, "result.Entries[1].Event.Textlist_Id");
-                Assert.AreEqual(26315, result.Entries[1].Event.Text_Id, "result.Entries[1].Event.Text_Id");
-                Assert.AreEqual(expected, result.Last_Modified, "result.Last_Modified");
-                Assert.AreEqual(1234, result.Count_Current, "result.Count_Current");
-                Assert.AreEqual(3200, result.Count_Max, "result.Count_Max");
-                Assert.AreEqual("en-US", result.Language, "result.Language");
+                Assert.That(result.Entries.Count, Is.EqualTo(2));
+                Assert.That(result.Entries[0].Status, Is.EqualTo(ApiObjectDirectoryStatus.Outgoing));
+                Assert.That(result.Entries[0].Short_Text, Is.EqualTo("Boot up  - CPU changes from OFF to STOP (initialization) mode"));
+                Assert.That(result.Entries[1].Long_Text, Is.EqualTo("LONG TEXT"));
+                Assert.That(result.Entries[1].Event.Textlist_Id, Is.EqualTo(3));
+                Assert.That(result.Entries[1].Event.Text_Id, Is.EqualTo(26315));
+                Assert.That(result.Last_Modified, Is.EqualTo(expected));
+                Assert.That(result.Count_Current, Is.EqualTo(1234));
+                Assert.That(result.Count_Max, Is.EqualTo(3200));
+                Assert.That(result.Language, Is.EqualTo("en-US"));
             });
         }
     }

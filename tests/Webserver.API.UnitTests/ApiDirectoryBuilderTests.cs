@@ -81,7 +81,7 @@ namespace Webserver.API.UnitTests
                 var dirInf = new DirectoryInfo(localTmpDirectory);
                 Assert.That(res.Last_Modified, Is.EqualTo(dirInf.LastWriteTime));
                 Assert.That(res.Name, Is.EqualTo(dirInf.Name));
-                Assert.IsNull(res.Size);
+                Assert.That(res.Size, Is.Null);
             }
             finally
             {
@@ -105,7 +105,7 @@ namespace Webserver.API.UnitTests
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
                 Assert.That(res.Resources.Count, Is.EqualTo(1));
-                Assert.IsNull(res.Size);
+                Assert.That(res.Size, Is.Null);
                 var firstRes = res.Resources.First();
                 Assert.That(firstRes.Type, Is.EqualTo(ApiFileResourceType.File));
                 Assert.That(firstRes.State, Is.EqualTo(ApiFileResourceState.Active));
@@ -133,11 +133,11 @@ namespace Webserver.API.UnitTests
                 var parseConfig = new ApiDirectoryBuilderConfiguration() { };
                 var res = builder.Build(parseConfig);
                 Assert.That(res.Resources.Count, Is.EqualTo(1));
-                Assert.IsNull(res.Size);
+                Assert.That(res.Size, Is.Null);
                 var firstRes = res.Resources.First();
                 Assert.That(firstRes.Type, Is.EqualTo(ApiFileResourceType.Dir));
                 Assert.That(firstRes.State, Is.EqualTo(ApiFileResourceState.Active));
-                Assert.IsNull(firstRes.Size);
+                Assert.That(firstRes.Size, Is.Null);
                 Assert.That(firstRes.Last_Modified, Is.EqualTo(dirInfo.LastWriteTime));
                 Assert.That(firstRes.PathToLocalDirectory, Is.EqualTo(dirPath));
             }

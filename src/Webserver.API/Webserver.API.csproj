@@ -18,6 +18,7 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PackageIcon>product-simatic-s7-1500-256-256.png</PackageIcon>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	  <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,7 +36,7 @@
   </ItemGroup>
 	
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.133" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
   </ItemGroup>
 
 </Project>

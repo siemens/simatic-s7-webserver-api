@@ -765,11 +765,11 @@ namespace Webserver.API.UnitTests
             var equalsPD2 = new PlcDate(11, 5, ApiDayOfWeek.Sun, 2, 24);
             var notEqualsPD1 = new PlcDate(12, 5, ApiDayOfWeek.Sun, 2, 24);
 
-            Assert.IsTrue(equalsPD1.Equals(equalsPD2));
-            Assert.IsTrue(equalsPD2.Equals(equalsPD1));
+            Assert.That(equalsPD1.Equals(equalsPD2));
+            Assert.That(equalsPD2.Equals(equalsPD1));
 
-            Assert.IsFalse(equalsPD1.Equals(notEqualsPD1));
-            Assert.IsFalse(equalsPD2.Equals(notEqualsPD1));
+            Assert.That(notEqualsPD1, Is.Not.EqualTo(equalsPD1));
+            Assert.That(notEqualsPD1, Is.Not.EqualTo(equalsPD2));
         }
 
         [Test]
@@ -793,11 +793,11 @@ namespace Webserver.API.UnitTests
             var notequalsDST1 = new DaylightSavingsTimeConfiguration(notEqualsPD2, TimeSpan.FromMinutes(60));
             var notequalsDST2 = new DaylightSavingsTimeConfiguration(equalsPD1, TimeSpan.FromMinutes(120));
 
-            Assert.IsTrue(equalsDST1.Equals(equalsDST2));
-            Assert.IsTrue(equalsDST2.Equals(equalsDST1));
+            Assert.That(equalsDST1.Equals(equalsDST2));
+            Assert.That(equalsDST2.Equals(equalsDST1));
 
-            Assert.IsFalse(equalsDST1.Equals(notequalsDST1));
-            Assert.IsFalse(equalsDST2.Equals(notequalsDST2));
+            Assert.That(notequalsDST1, Is.Not.EqualTo(equalsDST1));
+            Assert.That(notequalsDST2, Is.Not.EqualTo(equalsDST2));
         }
 
         [Test]
@@ -811,10 +811,10 @@ namespace Webserver.API.UnitTests
             var equalsSTD2 = new StandardTimeConfiguration(equalsPD2);
             var notequalsSTD1 = new StandardTimeConfiguration(notEqualsPD2);
 
-            Assert.IsTrue(equalsSTD1.Equals(equalsSTD2));
-            Assert.IsTrue(equalsSTD2.Equals(equalsSTD1));
+            Assert.That(equalsSTD1.Equals(equalsSTD2));
+            Assert.That(equalsSTD2.Equals(equalsSTD1));
 
-            Assert.IsFalse(equalsSTD1.Equals(notequalsSTD1));
+            Assert.That(notequalsSTD1, Is.Not.EqualTo(equalsSTD1));
         }
 
         [Test]
@@ -827,21 +827,24 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog not_equal1 = new ApiPlcSyslog() { Count_Lost = 4, Count_Total = 100, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 99, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
-            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
-            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal1), $"{equal1.ToString()} \nequal\n{not_equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal2), $"{equal1.ToString()} \nequal\n{not_equal2.ToString()}");
-            Assert.False(equal1.Equals(not_equal3), $"{equal1.ToString()} \nequal\n{not_equal3.ToString()}");
+            Assert.That(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.That(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+
+            Assert.That(equal1, Is.Not.EqualTo(not_equal1));
+            Assert.That(equal1, Is.Not.EqualTo(not_equal2));
+            Assert.That(equal1, Is.Not.EqualTo(not_equal3));
         }
+
         [Test]
         public void ApiSyslog_Entry_EqualsCheck()
         {
             ApiPlcSyslog_Entry equal1 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry equal2 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry not_equal1 = new ApiPlcSyslog_Entry() { Raw = "random txet" };
-            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
-            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal1), $"{equal1.ToString()} \nequal\n{not_equal1.ToString()}");
+            Assert.That(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.That(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+
+            Assert.That(equal1, Is.Not.EqualTo(not_equal1));
         }
         [Test]
         public void ApiSyslog_HashCodeCheck()
@@ -853,11 +856,12 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog not_equal1 = new ApiPlcSyslog() { Count_Lost = 4, Count_Total = 100, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 101, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
-            Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
-            Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
-            Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
-            Assert.False(equal1.GetHashCode() == not_equal2.GetHashCode(), $"equal1.GetHashCode() equal not_equal2.GetHashCode()");
-            Assert.False(equal1.GetHashCode() == not_equal3.GetHashCode(), $"equal1.GetHashCode() equal not_equal3.GetHashCode()");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), "GetHashcode was not equal altough it should be");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), "GetHashcode was not equal altough it should be");
+
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal altough it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal2.GetHashCode()), "GetHashcode was equal altough it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal3.GetHashCode()), "GetHashcode was equal altough it should not be");
         }
         [Test]
         public void ApiSyslog_Entry_HashCodeCheck()
@@ -865,9 +869,10 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog_Entry equal1 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry equal2 = new ApiPlcSyslog_Entry() { Raw = "random text" };
             ApiPlcSyslog_Entry not_equal1 = new ApiPlcSyslog_Entry() { Raw = "random txet" };
-            Assert.AreEqual(equal1.GetHashCode(), equal1.GetHashCode(), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
-            Assert.AreEqual(equal1.GetHashCode(), equal2.GetHashCode(), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
-            Assert.False(equal1.GetHashCode() == not_equal1.GetHashCode(), $"equal1.GetHashCode() equal not_equal1.GetHashCode()");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
+
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal altough it should not be");
         }
 
         [Test]
@@ -876,9 +881,10 @@ namespace Webserver.API.UnitTests
             ApiAlarms equal1 = new ApiAlarms() { Count_Current = 10, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
             ApiAlarms equal2 = new ApiAlarms() { Count_Current = 10, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
             ApiAlarms not_equal = new ApiAlarms() { Count_Current = 11, Count_Max = 1000, Language = "en-US", Last_Modified = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
-            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
-            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} equal\n{equal2.ToString()}");
+            Assert.That(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
+            Assert.That(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
+
+            Assert.That(equal1, Is.Not.EqualTo(not_equal), "was equal altough it should not be");
         }
 
         [Test]
@@ -920,9 +926,9 @@ namespace Webserver.API.UnitTests
                 Info_Text = "word",
                 Text_Inconsistent = false
             };
-            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
-            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} equal\n{equal2.ToString()}");
+            Assert.That(equal1.Equals(equal2), $"{equal1.ToString()} not equal\n{equal2.ToString()}");
+            Assert.That(equal2.Equals(equal1), $"{equal2.ToString()} not equal\n{equal1.ToString()}");
+            Assert.That(equal1, Is.Not.EqualTo(not_equal));
         }
 
         [Test]
@@ -931,9 +937,10 @@ namespace Webserver.API.UnitTests
             ApiAlarms_EntryAcknowledgement equal1 = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Not_Acknowledged };
             ApiAlarms_EntryAcknowledgement equal2 = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Not_Acknowledged };
             ApiAlarms_EntryAcknowledgement not_equal = new ApiAlarms_EntryAcknowledgement() { State = ApiAlarmAcknowledgementState.Acknowledged, Timestamp = new DateTime(2023, 6, 15, 10, 33, 24, 123) };
-            Assert.True(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
-            Assert.True(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
-            Assert.False(equal1.Equals(not_equal), $"{equal1.ToString()} \nequal\n{equal2.ToString()}");
+            Assert.That(equal1.Equals(equal2), $"{equal1.ToString()} \nnot equal\n{equal2.ToString()}");
+            Assert.That(equal2.Equals(equal1), $"{equal2.ToString()} \nnot equal\n{equal1.ToString()}");
+
+            Assert.That(equal1, Is.Not.EqualTo(not_equal));
         }
 
         [Test]
@@ -947,10 +954,12 @@ namespace Webserver.API.UnitTests
             ApiDiagnosticBuffer not_equals4 = new ApiDiagnosticBuffer() { Count_Current = 10, Count_Max = 2400, Language = "en-US", Last_Modified = new DateTime(2021, 6, 15, 10, 33, 24, 123) };
             Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} not equal to\n {equals2.ToString()}");
             Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} not equal to\n {equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} equal to\n {not_equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} equal to\n {not_equals2.ToString()}");
-            Assert.False(equals1.Equals(not_equals3), $"{equals1.ToString()} equal to\n {not_equals3.ToString()}");
-            Assert.False(equals1.Equals(not_equals4), $"{equals1.ToString()} equal to\n {not_equals4.ToString()}");
+
+
+            Assert.That(equals1, Is.Not.EqualTo(not_equals1));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals2));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals3));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals4));
         }
         [Test]
         public void ApiDiagnosticBuffer_Entry_EqualsCheck()
@@ -1020,11 +1029,12 @@ namespace Webserver.API.UnitTests
             };
             Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} not equal to\n {equals2.ToString()}");
             Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} not equal to\n {equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} equal to\n {not_equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} equal to\n {not_equals2.ToString()}");
-            Assert.False(equals1.Equals(not_equals3), $"{equals1.ToString()} equal to\n {not_equals3.ToString()}");
-            Assert.False(equals1.Equals(not_equals4), $"{equals1.ToString()} equal to\n {not_equals4.ToString()}");
-            Assert.False(equals1.Equals(not_equals5), $"{equals1.ToString()} equal to\n {not_equals5.ToString()}");
+
+            Assert.That(equals1, Is.Not.EqualTo(not_equals1));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals2));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals3));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals4));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals5));
         }
         [Test]
         public void ApiDiagnosticBuffer_EntryEvent_EqualsCheck()
@@ -1035,8 +1045,9 @@ namespace Webserver.API.UnitTests
             ApiDiagnosticBuffer_EntryEvent not_equals2 = new ApiDiagnosticBuffer_EntryEvent() { Textlist_Id = 2, Text_Id = 6 };
             Assert.That(equals1.Equals(equals2), $"{equals1.ToString()} \n not equal to\n  {equals2.ToString()}");
             Assert.That(equals2.Equals(equals1), $"{equals2.ToString()} \n not equal to\n  {equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals1), $"{equals1.ToString()} \n equal to\n  {not_equals1.ToString()}");
-            Assert.False(equals1.Equals(not_equals2), $"{equals1.ToString()} \n equal to\n  {not_equals2.ToString()}");
+
+            Assert.That(equals1, Is.Not.EqualTo(not_equals1));
+            Assert.That(equals1, Is.Not.EqualTo(not_equals2));
         }
     }
 }

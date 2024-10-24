@@ -35,7 +35,7 @@
 
 	<ItemGroup>
     <None Include="..\..\docs\screens\product-simatic-s7-1500-256-256.png" Pack="true" PackagePath="\" />
-    <None Include="README.md">
+    <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

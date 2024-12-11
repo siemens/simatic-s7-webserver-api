@@ -1,7 +1,7 @@
 ﻿﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Globals">
-		<Platforms>x64</Platforms>
+		<Platforms>x64;AnyCPU;x86</Platforms>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -11,20 +11,6 @@
 		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<OutputPath>..\..\bin\Release</OutputPath>
-		<Optimize>false</Optimize>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<OutputPath>..\..\bin\Debug</OutputPath>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<IsTestProject>true</IsTestProject>
-	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="coverlet.collector" Version="6.0.2">
 			<PrivateAssets>all</PrivateAssets>
@@ -44,6 +30,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Webserver.API\Webserver.API.csproj" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 		<PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />

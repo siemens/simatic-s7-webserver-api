@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -80,7 +80,8 @@ namespace Webserver.API.UnitTests
                 {
                     Name = "validName",
                     State = ApiWebAppState.Disabled,
-                    Type = ApiWebAppType.User
+                    Type = ApiWebAppType.User,
+                    Redirect_mode = ApiWebAppRedirectMode.Redirect
                 };
                 var serializedAppString = JsonConvert.SerializeObject(TypeApp);
                 string fileName = "webappconfig.json";

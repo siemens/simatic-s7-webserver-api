@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -9,12 +9,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
     /// <summary>
     /// User Authentication modes of the PLC.<br/>
-    /// Depends on the configured user management which authentication modes will be supported by the PLC<br/>
-    /// based on the authentication mode.
+    /// Depends on the configured user management which authentication modes will be supported by the PLC based on the authentication mode.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter), converterParameters: typeof(SnakeCaseNamingStrategy))]
     public enum ApiAuthenticationMode
     {
+        /// <summary>
+        /// The users are stored on the PLC
+        /// </summary>
+        Local,
         /// <summary>
         /// Legacy User Management
         /// </summary>
@@ -24,8 +27,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         Disabled,
         /// <summary>
-        /// The users are stored on the PLC
+        /// Central User Management (via remote authentication with Username and Password)
         /// </summary>
-        Local
+        Umc,
     }
 }

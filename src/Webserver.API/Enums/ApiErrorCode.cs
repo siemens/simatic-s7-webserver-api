@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 
@@ -53,9 +53,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         SystemIsReadOnly = 5,
         /// <summary>
-        /// The password change cannot be performed. This is caused for example if an older PLC project is present where password changes are not supported.
+        /// Not accepted in login: The authentication cannot be performed. This may happen because the requested mode is not supported by the PLC. <br/>
+        /// Not accepted in password change: The password change cannot be performed. This is caused for example if an older PLC project is present where password changes are not supported.
+        /// The execution of the requested method has not been accepted due to a method-specific restriction.
         /// </summary>
-        PasswordChangeNotAccepted = 6,
+        NotAccepted = 6,
         /// <summary>
         /// The data of a PLC of an R/H system is not accessible.
         /// This may happen if the system is in state Syncup or RUN-redundant or if the service data of the partner PLC has been requested.
@@ -82,6 +84,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// The provided new password is identical with the current password.
         /// </summary>
         NewPasswordMatchesOldPassword = 104,
+        /// <summary>
+        /// Authentication on the UMC server was not successful. This may happen due to various reasons, e.g. the UMC server could not be reached by the PLC.
+        /// </summary>
+        InfrastructureError = 105,
         /// <summary>
         /// The requested address does not exist or the webserver cannot access the requested address.
         /// Die angeforderte Adresse existiert nicht oder der Webserver kann nicht auf die angeforderte Adresse zugreifen.
@@ -173,6 +179,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         ResourceLimitReached = 509,
         /// <summary>
+        /// The version string provided does not meet the criteria of a valid version string.
+        /// </summary>
+        InvalidVersionString = 510,
+        /// <summary>
         /// The proposed modification time is inalid. Adjust the proposed modification before calling this method again.
         /// Die vorgesehene Änderungszeit liegt außerhalb des zulässigen Zeitfensters für die Änderungszeit. Verringern Sie die Änderungszeit entsprechend, bevor Sie diese Methode aufrufen.
         /// </summary>
@@ -227,6 +237,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// The requested hardware identifier is invalid
         /// </summary>
         InvalidHwId = 1100,
+        /// <summary>
+        /// The provided pattern is not in the allowed list. Choose a pattern that is allowed to be configured.
+        /// </summary>
+        InvalidPattern = 1301,
+        /// <summary>
+        /// At least one of the provided HTTP headers is not part in the allowed list. Choose a HTTP header that is allowed to be set.
+        /// </summary>
+        HTTPHeaderNotAllowed = 1302,
+        /// <summary>
+        /// At least one of the provided HTTP headers represents an invalid HTTP header. Verify the provided HTTP header string and correct it as required.
+        /// </summary>
+        HTTPHeaderInvalid = 1303,
+        /// <summary>
+        /// Too many HTTP response headers are configured. <br/>
+        /// Reduce the number to a supported number of headers. The number is currently capped at 1.
+        /// </summary>
+        TooManyHTTPHeaders = 1304,
+        /// <summary>
+        /// The overall size of all HTTP headers requested to be configured is too large. <br/>
+        /// The user shall either reduce the number of headers or the length of an individual HTTP header.
+        /// </summary>
+        RequestTooLarge = 1305,
+        /// <summary>
+        /// The accessed variable is not a variable of a technology object and cannot be read.
+        /// </summary>
+        NotATechnologyObject = 1400,
         /// <summary>
         /// The method has not been found by the plc - check the spelling and fw-version (and according methods) of plc
         /// </summary>

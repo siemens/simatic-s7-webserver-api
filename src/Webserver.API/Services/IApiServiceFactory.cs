@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
@@ -59,6 +59,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -45,6 +45,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <see cref="ApiWebAppResource.Media_type"/>
         /// <see cref="ApiWebAppResource.Last_modified"/>
         /// optionally:</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <see cref="ApiWebAppResource.Etag"/>, <see cref="ApiWebAppResource.Visibility"/>
         /// <returns>Task</returns>
         public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
@@ -77,6 +78,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="webApp">make sure to set the <see cref="ApiWebAppData.PathToWebAppDirectory"/> before calling this method!</param>
         /// <param name="pathToResource">filepath to the resource that should be deployed!</param>
         /// <param name="visibility">Visibility for the resource that shall be set! defaults to public</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns></returns>
         public async Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -102,6 +104,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="fileName">will default to "resource.name"</param>
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>Task/void</returns>
         public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default(CancellationToken))

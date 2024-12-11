@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -39,6 +39,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="plcProgramBrowseMode">Mode for PlcProgramBrowse function</param>
         /// <param name="var">the db/structure of which the children should be browsed</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiResultResponse of List of ApiPlcProgramData containing the children of the given var</returns>
         public async Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -84,8 +85,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
         /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public async Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple
+        public async Task<ApiPlcProgramData> PlcProgramReadStructByChildValuesAsync(ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple
             , CancellationToken cancellationToken = default(CancellationToken))
         {
             var toReturn = structToRead.ShallowCopy();
@@ -151,7 +153,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
         /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public ApiPlcProgramData PlcProgramReadStructByChildValues(ApiPlcProgramData structToRead, ApiPlcProgramReadOrWriteMode childrenReadMode = ApiPlcProgramReadOrWriteMode.Simple)
+        public ApiPlcProgramData PlcProgramReadStructByChildValues(ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple)
             => PlcProgramReadStructByChildValuesAsync(structToRead, childrenReadMode).GetAwaiter().GetResult();
 
         /// <summary>
@@ -159,8 +161,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
         /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public async Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcDataRepresentation childrenWriteMode = ApiPlcDataRepresentation.Simple, CancellationToken cancellationToken = default(CancellationToken))
         {
             var toReturn = structToWrite.ShallowCopy();
             if (toReturn.Children == null || toReturn.Children.Count == 0)
@@ -182,7 +185,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="structToWrite">Struct of which the Children should be written by Bulk Request</param>
         /// <param name="childrenWriteMode">Mode in which the child values should be written - defaults to simple (easy user handling)</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
-        public ApiBulkResponse PlcProgramWriteStructByChildValues(ApiPlcProgramData structToWrite, ApiPlcProgramReadOrWriteMode childrenWriteMode = ApiPlcProgramReadOrWriteMode.Simple)
+        public ApiBulkResponse PlcProgramWriteStructByChildValues(ApiPlcProgramData structToWrite, ApiPlcDataRepresentation childrenWriteMode = ApiPlcDataRepresentation.Simple)
             => PlcProgramWriteStructByChildValuesAsync(structToWrite, childrenWriteMode).GetAwaiter().GetResult();
     }
 }

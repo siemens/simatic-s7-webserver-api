@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -42,6 +42,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>an array of ApiResponses</returns>
         /// <param name="apiRequests">api Requests to send</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.Browse Request
@@ -100,16 +101,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
+        /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.ChangePassword request
         /// </summary>
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
+        /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword);
+        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null);
         /// <summary>
         /// Send an Api.GetCertificateUrl Request 
         /// </summary>
@@ -137,8 +141,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Api.Login Request 
+        /// </summary>
+        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
+        Task<ApiLoginResponse> ApiLoginAsync(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.Logout Request 
         /// </summary>
@@ -184,6 +200,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// sucht nach der Variable, um die Metadaten der Variable zu finden.
         /// • Wenn "mode" = "children", ist dieses Attribut optional. Die Browse-Methode
         /// sucht die Variable und liefert eine Liste an Kind-Variablen und Metadaten.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, string var = null, CancellationToken cancellationToken = default(CancellationToken));
@@ -202,6 +219,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// sucht nach der Variable, um die Metadaten der Variable zu finden.
         /// • Wenn "mode" = "children", ist dieses Attribut optional. Die Browse-Methode
         /// sucht die Variable und liefert eine Liste an Kind-Variablen und Metadaten.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="plcProgramBrowseMode"></param>
         /// <returns>PlcProgramBrowseResponse: An Array of ApiPlcProgramData</returns>
         Task<ApiPlcProgramBrowseResponse> PlcProgramBrowseAsync(ApiPlcProgramBrowseMode plcProgramBrowseMode, ApiPlcProgramData var, CancellationToken cancellationToken = default(CancellationToken));
@@ -220,8 +238,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// "simple" in Kapitel "Unterstützte Datentypen (Seite 162)"
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
         /// in Kapitel "Unterstützte Datentypen"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
-        Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(ApiPlcProgramData var, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a PlcProgram.Read Request 
         /// </summary>
@@ -236,8 +255,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// "simple" in Kapitel "Unterstützte Datentypen (Seite 162)"
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
         /// in Kapitel "Unterstützte Datentypen"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
-        Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a PlcProgram.Write Request 
         /// This function will build up the name with quotes from the parents given with the ApiPlcProgramDataand call PlcProgramWrite
@@ -246,9 +266,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name of the variable to be read
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramWriteMode"></param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
-        Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(ApiPlcProgramData var, object valueToBeSet, ApiPlcDataRepresentation? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a PlcProgram.Write Request 
         /// </summary>
@@ -256,21 +277,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Name of the variable to be read
         /// Name der zu lesenden Variable</param>
         /// <param name="plcProgramWriteMode"></param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
-        Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiTrueOnSuccessResponse> PlcProgramWriteAsync(string var, object valueToBeSet, ApiPlcDataRepresentation? plcProgramWriteMode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a Plc.ReadOperatingMode Request 
         /// </summary>
         /// <returns>The current Plc OperatingMode</returns>
-        Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a Plc.RequestChangeOperatingMode Request 
         /// Method to change the plc operating mode
         /// valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.
         /// </summary>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
-        Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
         /// </summary>
@@ -319,6 +341,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="data">ByteArray that should be sent to the plc Ticketing Endpoint</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task/void</returns>
         Task UploadTicketAsync(string ticketId, ByteArrayContent data, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -327,18 +350,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="ticketId">Id of the Ticket - will be used to send the request to the endpoint /api/ticket?id=ticketId</param>
         /// <param name="pathToFile">File Bytes will be Read and saved into ByteArrayContent - then sent to the ticketing Endpoint</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task/void</returns>
         Task UploadTicketAsync(string ticketId, string pathToFile, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a WebApp.Browse Request 
         /// </summary>
         /// <param name="webAppName">webapp name in case only one is requested</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResponse: Containing WebAppBrowseResult: Max_Applications:uint, Applications: Array of ApiWebAppdata</returns>
         Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(string webAppName = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a WebApp.Browse Request 
         /// </summary>
         /// <param name="webAppData">webappdata that should be requested</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResponse: Containing WebAppBrowseResult: Max_Applications:uint, Applications: Array of ApiWebAppdata containing one element: the webappdata that has been requested</returns>
         Task<ApiWebAppBrowseResponse> WebAppBrowseAsync(ApiWebAppData webAppData, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -348,6 +374,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">WebApp.Name to browse resources of</param>
         /// <param name="resourceName">If given only that resource will be inside the array (in case it exists)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,Resources</returns>
         Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, string resourceName = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -357,6 +384,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">WebApp Name to browse resources of</param>
         /// <param name="resource">resource.Name to browse for</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,Resources</returns>
         Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -366,6 +394,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name to browse resources of</param>
         /// <param name="resource">resource.Name to browse for</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,Resources:Array of ApiWebAppResource (only 1 if one is requested)</returns>
         Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -375,12 +404,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">WebApp name to browse resources of</param>
         /// <param name="resourceName">If given only that resource will be inside the array (in case it exists)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebAppBrowseResourcesResponse:containing ApiWebAppBrowseResourcesResult: Max_Resources:uint,Resources</returns>
         Task<ApiWebAppBrowseResourcesResponse> WebAppBrowseResourcesAsync(string webAppName, string resourceName = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a WebApp.Create Request 
         /// </summary>
         /// <param name="webApp">containing information about name and state for the app to be created</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -388,6 +419,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">webapp name for the app to be created</param>
         /// <param name="apiWebAppState">optional parameter: state the webapp should be in</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppCreateAsync(string webAppName, ApiWebAppState? apiWebAppState = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -400,6 +432,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_modified:  Be sure to provide the RFC3339 format!
         /// Visibility:     resource visibility (protect your confidential data)
         /// Etag:           you can provide an etag as identification,... for your resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -412,6 +445,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Last_modified:  Be sure to provide the RFC3339 format!
         /// Visibility:     resource visibility (protect your confidential data)
         /// Etag:           you can provide an etag as identification,... for your resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -423,6 +457,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="last_modified">Be sure to provide the RFC3339 format!</param>
         /// <param name="apiWebAppResourceVisibility">resource visibility (protect your confidential data)</param>
         /// <param name="etag">you can provide an etag as identification,... for your resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         Task<ApiTicketIdResponse> WebAppCreateResourceAsync(ApiWebAppData webApp, string resourceName, string media_type, string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -434,18 +469,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="last_modified">Be sure to provide the RFC3339 format!</param>
         /// <param name="apiWebAppResourceVisibility">resource visibility (protect your confidential data)</param>
         /// <param name="etag">you can provide an etag as identification,... for your resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>TicketId for the Ticketing Endpoint to perform the Upload on</returns>
         Task<ApiTicketIdResponse> WebAppCreateResourceAsync(string webAppName, string resourceName, string media_type, string last_modified, ApiWebAppResourceVisibility? apiWebAppResourceVisibility = null, string etag = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a WebApp.Delete Request 
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a WebApp.Delete Request 
         /// </summary>
         /// <param name="webAppName">Name of the webapp to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteAsync(string webAppName, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -453,6 +491,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -460,6 +499,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -467,6 +507,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webapp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -474,6 +515,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>true to indicate success</returns>
         Task<ApiTrueOnSuccessResponse> WebAppDeleteResourceAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -481,6 +523,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to download</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -488,6 +531,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource to download</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -495,6 +539,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to download</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(ApiWebAppData webApp, string resourceName, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -502,6 +547,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource to download</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket id for Ticketing Endpoint to trigger the download on</returns>
         Task<ApiTicketIdResponse> WebAppDownloadResourceAsync(string webAppName, string resourceName, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -509,6 +555,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that should be renamed</param>
         /// <param name="newWebAppName">New name for the WebApp</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the given WebApp that has the change:
         /// name which equals the newname</returns>
         Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(ApiWebAppData webApp, string newWebAppName, CancellationToken cancellationToken = default(CancellationToken));
@@ -517,6 +564,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that should be renamed</param>
         /// <param name="newWebAppName">New name for the WebApp</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a WebApp that only has the information: 
         /// name which equals the newname</returns>
         Task<ApiTrueWithWebAppResponse> WebAppRenameAsync(string webAppName, string newWebAppName, CancellationToken cancellationToken = default(CancellationToken));
@@ -526,6 +574,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that should be renamed</param>
         /// <param name="newResourceName">New name for the resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
         Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, string newResourceName, CancellationToken cancellationToken = default(CancellationToken));
@@ -535,6 +584,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that should be renamed</param>
         /// <param name="newResourceName">New name for the resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the Resource given that has the following change: 
         /// name which equals the newname</returns>
         Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, ApiWebAppResource resource, string newResourceName, CancellationToken cancellationToken = default(CancellationToken));
@@ -544,6 +594,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource that should be renamed</param>
         /// <param name="newResourceName">New name for the resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
         Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(ApiWebAppData webApp, string resourceName, string newResourceName, CancellationToken cancellationToken = default(CancellationToken));
@@ -553,6 +604,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">Name of the webapp that contains the resource</param>
         /// <param name="resourceName">Name of the resource that should be renamed</param>
         /// <param name="newResourceName">New name for the resource</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a Resource that only has the information: 
         /// name which equals the newname</returns>
         Task<ApiTrueWithResourceResponse> WebAppRenameResourceAsync(string webAppName, string resourceName, string newResourceName, CancellationToken cancellationToken = default(CancellationToken));
@@ -561,6 +613,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the default page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps default page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Default_Page:   which equals the resource.Name
         /// </returns>
@@ -570,6 +623,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the default page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps default page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:           which equals the webAppName
         /// Default_Page:   which equals the resourceName
@@ -580,6 +634,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the default page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps default page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Default_Page:   which equals the resourceName
         /// </returns>
@@ -589,6 +644,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the default page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps default page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:           which equals the webAppName
         /// Default_Page:   which equals the resourceName
@@ -599,6 +655,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the not authorized page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps not authorized page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_authorized_page:   which equals the resourceName
         /// </returns>
@@ -608,6 +665,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the not authorized page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps not authorized page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:                   which equals webAppName
         /// Not_authorized_page:    which equals the resource.Name
@@ -618,6 +676,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the not authorized page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps not authorized page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_authorized_page:   which equals the resourceName
         /// </returns>
@@ -627,6 +686,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the not authorized page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps not authorized page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:                   which equals webAppName
         /// Not_authorized_page:   which equals the resourceName
@@ -637,6 +697,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the not found page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps not found page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_found_page:   which equals the resource.Name
         /// </returns>
@@ -646,6 +707,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the not found page should be set for</param>
         /// <param name="resource">resource.Name of the resource that should be the webapps not found page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:           which equals the webAppName
         /// Not_found_page: which equals the resource.Name
@@ -656,6 +718,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that the not found page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps not found page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// Not_found_page:   which equals the resourceName
         /// </returns>
@@ -665,6 +728,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the not found page should be set for</param>
         /// <param name="resourceName">Name of the resource that should be the webapps not found page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:           which equals the webAppName
         /// Not_found_page: which equals the resourceName
@@ -677,6 +741,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">resource.Name of the resource that the etag should be set for </param>
         /// <param name="newETagValue">Etag value the resource should have
         /// new value for the resource etag - "" for "null"/"no etag", also null can be given for null!</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Etag: which equals the newEtagValue
         /// </returns>
@@ -688,6 +753,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">resource.Name of the resource that the etag should be set for </param>
         /// <param name="newETagValue">Etag value the resource should have
         /// new value for the resource etag - "" for "null"/"no etag", also null can be given for null!</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Etag: which equals the newEtagValue
         /// </returns>
@@ -699,6 +765,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resourceName">resourceName of the resource that the etag should be set for </param>
         /// <param name="newETagValue">Etag value the resource should have
         /// new value for the resource etag - "" for "null"/"no etag", also null can be given for null!</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name: which equals the resourceName
         /// Etag: which equals the newEtagValue
@@ -711,6 +778,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resourceName">resourceName of the resource that the etag should be set for </param>
         /// <param name="newETagValue">Etag value the resource should have
         /// new value for the resource etag - "" for "null"/"no etag", also null can be given for null!</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name: which equals the resourceName
         /// Etag: which equals the newEtagValue
@@ -722,6 +790,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Media_type should be set for </param>
         /// <param name="newMediaType">MediaType value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// MediaType: which equals the newMediaType
         /// </returns>
@@ -732,6 +801,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Media_type should be set for </param>
         /// <param name="newMediaType">MediaType value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// MediaType: which equals the newMediaType
         /// </returns>
@@ -742,6 +812,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Media_type should be set for </param>
         /// <param name="newMediaType">MediaType value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:       which equals the resourceName
         /// MediaType:  which equals the newMediaType
@@ -753,6 +824,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Media_type should be set for </param>
         /// <param name="newMediaType">MediaType value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:       which equals the resourceName
         /// MediaType:  which equals the newMediaType
@@ -764,6 +836,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
@@ -774,6 +847,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
@@ -784,6 +858,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
@@ -795,6 +870,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
@@ -806,6 +882,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
@@ -817,6 +894,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
@@ -827,6 +905,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name:           which equals the resourceName
         /// Last_Modified:  which equals the newModificationTime
@@ -838,6 +917,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Last_modified should be set for </param>
         /// <param name="newModificationTime">ModificationTime - Last_modified value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Last_Modified: which equals the newModificationTime
         /// </returns>
@@ -848,6 +928,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Visibility should be set for </param>
         /// <param name="newResourceVisibility">Visibility value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
@@ -858,6 +939,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resource">resource.Name of the resource that the Visibility should be set for </param>
         /// <param name="newResourceVisibility">Visibility value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the resource given containing only the change: 
         /// Visibility: which equals the newResourceVisibility
         /// </returns>
@@ -868,6 +950,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webApp">webApp.Name of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Visibility should be set for </param>
         /// <param name="newResourceVisibility">Visibility value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name: which equals the resourceName
         /// Visibility: which equals the newResourceVisibility
@@ -879,6 +962,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">webAppName of the webapp that contains the resource</param>
         /// <param name="resourceName">resourceName of the resource that the Visibility should be set for </param>
         /// <param name="newResourceVisibility">Visibility value the resource should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a a resource containing only the information: 
         /// Name: which equals the resourceName
         /// Visibility: which equals the newVisibility
@@ -889,6 +973,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webApp">webApp.Name of the webapp that state should be set for</param>
         /// <param name="apiWebAppState">State the WebApp should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and a copy of the webapp given containing only the change: 
         /// State: which equals the state
         /// </returns>
@@ -899,6 +984,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">Name of the webapp that the state should be set for</param>
         /// <param name="apiWebAppState">State the WebApp should have</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>This function will return the TrueOnSuccessResponse and webapp containing only the information: 
         /// Name:  which equals the webAppName
         /// State: which equals the state
@@ -921,6 +1007,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a WebServer.SetDefaultPage request
         /// </summary>
         /// <param name="defaultPage">Name of the default page</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Returns a TrueOnSuccessResponse</returns>
         Task<ApiTrueOnSuccessResponse> WebServerSetDefaultPageAsync(string defaultPage, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -973,6 +1060,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         ApiLoginResponse ApiLogin(string userName, string password, bool? includeWebApplicationCookie = null);
+
+        /// <summary>
+        /// Send a Api.Login Request 
+        /// </summary>
+        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
+        ApiLoginResponse ApiLogin(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null);
         /// <summary>
         /// Send an Api.Logout Request 
         /// </summary>
@@ -997,17 +1094,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Project.ReadLanguages Request
         /// </summary>
+        /// <param name="mode">Determines whether all or only active languages should be returned. Default is 'active'.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Languages Response containing a list of languages</returns>
-        Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiReadLanguagesResponse> ProjectReadLanguagesAsync(ApiReadLanguagesMode? mode = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a Project.ReadLanguages Request
         /// </summary>
+        /// <param name="mode">Determines whether all or only active languages should be returned. Default is 'active'.</param>
         /// <returns>Languages Response containing a list of languages</returns>
-        ApiReadLanguagesResponse ProjectReadLanguages();
+        ApiReadLanguagesResponse ProjectReadLanguages(ApiReadLanguagesMode? mode = null);
         /// <summary>
         /// Perform a service data download on the corresponding module with hwid
         /// </summary>
         /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket to use for downloading the service data</returns>
         Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -1095,7 +1196,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
         /// in Kapitel "Unterstützte Datentypen"
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
-        ApiResultResponse<T> PlcProgramRead<T>(ApiPlcProgramData var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null);
+        ApiResultResponse<T> PlcProgramRead<T>(ApiPlcProgramData var, ApiPlcDataRepresentation? plcProgramReadMode = null);
         /// <summary>
         /// Send a PlcProgram.Read Request 
         /// </summary>
@@ -1112,7 +1213,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
         /// in Kapitel "Unterstützte Datentypen"
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
-        ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcProgramReadOrWriteMode? plcProgramReadMode = null);
+        ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcDataRepresentation? plcProgramReadMode = null);
         /// <summary>
         /// Send a PlcProgram.Write Request 
         /// This function will build up the name with quotes from the parents given with the ApiPlcProgramDataand call PlcProgramWrite
@@ -1123,7 +1224,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="plcProgramWriteMode"></param>
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
-        ApiTrueOnSuccessResponse PlcProgramWrite(ApiPlcProgramData var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null);
+        ApiTrueOnSuccessResponse PlcProgramWrite(ApiPlcProgramData var, object valueToBeSet, ApiPlcDataRepresentation? plcProgramWriteMode = null);
         /// <summary>
         /// Send a PlcProgram.Write Request 
         /// </summary>
@@ -1133,31 +1234,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="plcProgramWriteMode"></param>
         /// <param name="valueToBeSet"></param>
         /// <returns>true to indicate success</returns>
-        ApiTrueOnSuccessResponse PlcProgramWrite(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? plcProgramWriteMode = null);
+        ApiTrueOnSuccessResponse PlcProgramWrite(string var, object valueToBeSet, ApiPlcDataRepresentation? plcProgramWriteMode = null);
         /// <summary>
         /// Send a Plc.ReadOperatingMode Request 
         /// </summary>
         /// <returns>The current Plc OperatingMode</returns>
-        ApiReadOperatingModeResponse PlcReadOperatingMode();
+        ApiReadOperatingModeResponse PlcReadOperatingMode(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC);
         /// <summary>
         /// Send a Plc.RequestChangeOperatingMode Request 
         /// Method to change the plc operating mode
         /// valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.
         /// </summary>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
-        ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode);
+        ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC);
+        /// <summary>
+        /// Send a Plc.ReadModeSelectorState request
+        /// </summary>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>Mode Selector state</returns>
+        Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send a Plc.ReadModeSelectorState request
         /// </summary>
         /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>Mode Selector state</returns>
-        Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid, CancellationToken cancellationToken = default(CancellationToken));
-        /// <summary>
-        /// Send a Plc.ReadModeSelectorState request
-        /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
-        /// <returns>Mode Selector state</returns>
-        ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId rhid);
+        ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC);
         /// <summary>
         /// Function to send the ByteArrayContent for a Ticket (e.g. CreateResource)
         /// MediaTypeHeaderValue: application/octet-stream
@@ -1765,6 +1867,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Plc.SetSystemTime Request
         /// </summary>
         /// <param name="timestamp">The timestamp of the system time to be set</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if time was set successfully</returns>
         Task<ApiTrueOnSuccessResponse> PlcSetSystemTimeAsync(DateTime timestamp, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -1790,6 +1893,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
         /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the settings are applied successfully</returns>
         Task<ApiTrueOnSuccessResponse> PlcSetTimeSettingsAsync(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
@@ -1804,6 +1908,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Path of the directory or file relative to the memory card root to fetch the entry list. 
         /// The resource name must start with a "/". The parameter may be omitted.In that case, it will default to "/".</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Browsed resources (files/dir/...)</returns>
         Task<ApiBrowseFilesResponse> FilesBrowseAsync(string resource = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1819,6 +1924,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Browse Request
         /// </summary>
         /// <param name="resource">resource to browse.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Browsed resources (files/dir/...)</returns>
         Task<ApiBrowseFilesResponse> FilesBrowseAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1833,6 +1939,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Download Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket ID</returns>
         Task<ApiTicketIdResponse> FilesDownloadAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1848,6 +1955,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Create Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket ID</returns>
         Task<ApiTicketIdResponse> FilesCreateAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1863,6 +1971,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Create Request
         /// </summary>
         /// <param name="resource">FileInfo for informations about the file to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket ID</returns>
         Task<ApiTicketIdResponse> FilesCreateAsync(FileInfo resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1878,6 +1987,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="resource">Current path of file/folder</param>
         /// <param name="new_resource">New path of file/folder</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the file or folder is renamed successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesRenameAsync(string resource, string new_resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1894,6 +2004,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Delete Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the file is deleted successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1908,6 +2019,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.Delete Request
         /// </summary>
         /// <param name="resource">the resource that shall be deleted.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the file is deleted successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1922,6 +2034,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.CreateDirectory Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is created successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1938,6 +2051,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.CreateDirectory Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is created successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(DirectoryInfo resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1953,6 +2067,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.CreateDirectory Request
         /// </summary>
         /// <param name="resource">The resource to create</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is created successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesCreateDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1968,6 +2083,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.DeleteDirectory Request
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is deleted successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1982,6 +2098,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Files.DeleteDirectory Request
         /// </summary>
         /// <param name="resource">the directory to delete.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is deleted successfully</returns>
         Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -1996,6 +2113,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Datalogs.DownloadAndClear Request
         /// </summary>
         /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the resource is downloaded and deleted successfully</returns>
         Task<ApiTicketIdResponse> DatalogsDownloadAndClearAsync(string resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -2046,6 +2164,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Failsafe.ReadParameters request
         /// </summary>
         /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Response with Failsafe parameters</returns>
         Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -2070,14 +2189,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send an Api.GetPasswordPolicy request
         /// </summary>
+        /// <param name="mode">The authentication mode that defines where the password policy shall be read from.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiGetPasswordPolicy response</returns>
-        Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync(ApiAuthenticationMode mode = ApiAuthenticationMode.Local, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Send an Api.GetPasswordPolicy request
         /// </summary>
         /// <returns>ApiGetPasswordPolicy response</returns>
-        ApiGetPasswordPolicyResponse ApiGetPasswordPolicy();
+        ApiGetPasswordPolicyResponse ApiGetPasswordPolicy(ApiAuthenticationMode mode = ApiAuthenticationMode.Local);
 
         /// <summary>
         /// Send an Api.GetAuthenticationMode request
@@ -2100,6 +2221,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
         /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
         ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiSyslogBrowseResponse</returns>
         Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -2121,6 +2243,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="id">The Acknowledgement ID of the alarm which shall be acknowledged. <br/>
         /// The acknowledgement ID can be found in the alarm object that was returned by method Alarms.Browse.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiTrueOnSuccessResponse</returns>
         Task<ApiTrueOnSuccessResponse> AlarmsAcknowledgeAsync(string id, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -2146,6 +2269,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///                     </param>
         /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no other parameters can be provided as filter.</param>
         /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -2169,6 +2293,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="language">The language in which the texts should be returned. If the language is valid, then the response must contain the texts in the requested language.An empty string shall be treated the same as an invalid language string.</param>
         /// <param name="count">(optional) The maximum number of diagnostic buffer entries to be requested. Default value: 50. A count of 0 will omit any diagnostic buffer entries from the response</param>
         /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
         Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language,
                                                                                uint? count = null,
@@ -2182,6 +2307,204 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
         /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
         ApiDiagnosticBufferBrowseResponse ApiDiagnosticBufferBrowse(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null);
+
+        /// <summary>
+        /// Send a Techology.Read Request 
+        /// </summary>
+        /// <param name="var">Name of the technology object to be read</param>
+        /// <param name="mode">Determines the response format for this method. See the param for more details</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>A generic ApiResultResponse: object with the value for the variables value to be read</returns>
+        Task<ApiResultResponse<T>> TechnologyReadAsync<T>(string var, ApiPlcDataRepresentation? mode = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Techology.Read Request 
+        /// </summary>
+        /// <param name="var">Name of the technology object to be read</param>
+        /// <param name="mode">Determines the response format for this method. See the param for more details</param>
+        /// <returns>A generic ApiResultResponse: object with the value for the variables value to be read</returns>
+        ApiResultResponse<T> TechnologyRead<T>(string var, ApiPlcDataRepresentation? mode = null);
+
+        /// <summary>
+        /// Send a WebServer.ReadResponseHeaders request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiWebServerReadResponseHeadersResponse</returns>
+        Task<ApiWebServerReadResponseHeadersResponse> ApiWebServerReadResponseHeadersAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send a WebServer.ReadResponseHeaders request
+        /// </summary>
+        /// <returns>ApiWebServerReadResponseHeadersResponse</returns>
+        ApiWebServerReadResponseHeadersResponse ApiWebServerReadResponseHeaders();
+
+        /// <summary>
+        /// Send a WebServer.ChangeResponseHeaders request
+        /// </summary>
+        /// <param name="header">The HTTP response header to be returned when accessing URLs that match the given pattern.</param>
+        /// <param name="pattern">The URL pattern for which the header must be returned. 
+        /// For now, this must always be set to /~**/*. Other values are not allowed.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        Task<ApiTrueOnSuccessResponse> ApiWebServerChangeResponseHeadersAsync(string header = null, string pattern = "~**/*", CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a WebServer.ChangeResponseHeaders request
+        /// </summary>
+        /// /// <param name="header">The HTTP response header to be returned when accessing URLs that match the given pattern.</param>
+        /// <param name="pattern">The URL pattern for which the header must be returned. 
+        /// For now, this must always be set to /~**/*. Other values are not allowed.</param>
+        ApiTrueOnSuccessResponse ApiWebServerChangeResponseHeaders(string header = null, string pattern = "~**/*");
+
+        /// <summary>
+        /// Send a Redundancy.ReadSyncupProgress request
+        /// </summary>
+        /// <returns>ApiRedundancyReadSyncupProgressResponse</returns>
+        Task<ApiRedundancyReadSyncupProgressResponse> ApiRedundancyReadSyncupProgressAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send a Redundancy.ReadSyncupProgress request
+        /// </summary>
+        /// <returns>ApiRedundancyReadSyncupProgressResponse</returns>
+        ApiRedundancyReadSyncupProgressResponse ApiRedundancyReadSyncupProgress();
+
+        /// <summary>
+        /// This method returns a complete list of all technology objects that are configured on the PLC.
+        /// </summary>
+        /// <returns>ApiTechnologyBrowseObjectsResponse</returns>
+        Task<ApiTechnologyBrowseObjectsResponse> TechnologyBrowseObjectsAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// This method returns a complete list of all technology objects that are configured on the PLC.
+        /// </summary>
+        /// <returns>ApiTechnologyBrowseObjectsResponse</returns>
+        ApiTechnologyBrowseObjectsResponse TechnologyBrowseObjects();
+
+        /// <summary>
+        /// Send a Redundancy.ReadSystemInformation request
+        /// </summary>
+        /// <returns>ApiRedundancyReadSystemInformationResponse</returns>
+        Task<ApiRedundancyReadSystemInformationResponse> ApiRedundancyReadSystemInformationAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send a Redundancy.ReadSystemInformation request
+        /// </summary>
+        /// <returns>ApiRedundancyReadSystemInformationResponse</returns>
+        ApiRedundancyReadSystemInformationResponse ApiRedundancyReadSystemInformation();
+
+        /// <summary>
+        /// Send a Redundancy.ReadSystemState request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiRedundancyReadSystemStateResponse</returns>
+        Task<ApiRedundancyReadSystemStateResponse> ApiRedundancyReadSystemStateAsync(CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send a Redundancy.ReadSystemState request
+        /// </summary>
+        /// <returns>ApiRedundancyReadSystemStateResponse</returns>
+        ApiRedundancyReadSystemStateResponse ApiRedundancyReadSystemState();
+
+        /// <summary>
+        /// Send a Redundancy.RequestChangeSystemState request
+        /// </summary>
+        /// <param name="state">The requested system state for the R/H system.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        Task<ApiTrueOnSuccessResponse> ApiRedundancyRequestChangeSystemStateAsync(ApiPlcRedundancySystemState state, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Redundancy.RequestChangeSystemState request
+        /// </summary>
+        /// <param name="state">The requested system state for the R/H system.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        ApiTrueOnSuccessResponse ApiRedundancyRequestChangeSystemState(ApiPlcRedundancySystemState state);
+
+        /// <summary>
+        /// Send a WebApp.SetVersion request
+        /// </summary>
+        /// <param name="webAppName">The application in which the resource is located.</param>
+        /// <param name="version">The version of the application. The string may be empty to reset the version string.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiTrueOnSuccessResponse> ApiWebAppSetVersionAsync(string webAppName, string version, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a WebApp.SetVersion request
+        /// </summary>
+        /// <param name="webAppName">The application in which the resource is located.</param>
+        /// <param name="version">The version of the application. The string may be empty to reset the version string.</param>
+        /// <returns></returns>
+        ApiTrueOnSuccessResponse ApiWebAppSetVersion(string webAppName, string version);
+
+        /// <summary>
+        /// Send a WebApp.SetUrlRedirectMode request
+        /// </summary>
+        /// <param name="app_name">The application for which the redirect mode shall be changed.</param>
+        /// <param name="redirect_mode">The redirect mode of the application. </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiTrueOnSuccessResponse> ApiWebAppSetUrlRedirectModeAsync(string app_name, ApiWebAppRedirectMode redirect_mode, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a WebApp.SetUrlRedirectMode request
+        /// </summary>
+        /// <param name="app_name">The application for which the redirect mode shall be changed.</param>
+        /// <param name="redirect_mode">The redirect mode of the application. </param>
+        /// <returns></returns>
+        ApiTrueOnSuccessResponse ApiWebAppSetUrlRedirectMode(string app_name, ApiWebAppRedirectMode redirect_mode);
+
+        /// <summary>
+        /// Send a Plc.ReadCpuType request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiPlcReadCpuTypeResponse> ApiGetPlcCpuTypeAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Plc.ReadCpuType request
+        /// </summary>
+        /// <returns></returns>
+        ApiPlcReadCpuTypeResponse ApiGetPlcCpuType();
+
+        /// <summary>
+        /// Send a Plc.ReadStationName request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiPlcReadStationNameResponse> ApiGetPlcStationNameAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Plc.ReadStationName request
+        /// </summary>
+        /// <returns></returns>
+        ApiPlcReadStationNameResponse ApiGetPlcStationName();
+
+        /// <summary>
+        /// Send a Plc.ReadModuleName request
+        /// </summary>
+        /// <param name="redundancy_id"></param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiPlcReadModuleNameResponse> ApiGetPlcModuleNameAsync(uint? redundancy_id = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a Plc.ReadModuleName request
+        /// </summary>
+        /// <param name="redundancy_id">
+        /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
+        /// On non-R/H PLCs, the parameter must not be part of the request.</param>
+        /// <returns></returns>
+        ApiPlcReadModuleNameResponse ApiGetPlcModuleName(uint? redundancy_id = null);
+
+        /// <summary>
+        /// Send a GetSessionInfo request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        Task<ApiSessionInfoResponse> ApiGetSessionInfoAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Send a GetSessionInfo request
+        /// </summary>
+        /// <returns></returns>
+        ApiSessionInfoResponse ApiGetSessionInfo();
+
 
         /// <summary>
         /// Cancel the outstanding Requests

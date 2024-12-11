@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -41,6 +41,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// the function will only upload the resource and its direct sub-resources
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
@@ -71,6 +72,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// Delete the given resource (and all its sub-resources)
         /// </summary>
         /// <param name="resource">the resource to delete</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task for deletion</returns>
         public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -117,6 +119,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// Get all Resources underneath the given resource
         /// </summary>
         /// <param name="resource">resouce to be browsed</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>A resource containing everything that is present underneath</returns>
         public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -160,6 +163,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task to update the resource</returns>
         public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -204,6 +208,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the file to be updated</param>
         /// <param name="browsedResource">the file returned by browsing the plc</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task to update the File</returns>
         public async Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -244,6 +249,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (amountOfTriesForResourceDeployment < 1)

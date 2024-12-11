@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Label="Globals">
 		<Platforms>x64</Platforms>
@@ -46,7 +46,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
+		<PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146" />
 	</ItemGroup>
 
 </Project>

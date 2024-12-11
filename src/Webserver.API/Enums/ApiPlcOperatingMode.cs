@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 
@@ -36,6 +36,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// STOP Firmware-Update
         /// </summary>
-        Stop_fwupdate = 6
+        Stop_fwupdate = 6,
+        /// <summary>
+        /// RH PLCs are in Run-Redundant mode.
+        /// </summary>
+        Run_redundant = 7,
+        /// <summary>
+        /// RH PLCs are in syncup state.
+        /// </summary>
+        Syncup = 8,
+        /// <summary>
+        /// RH PLCs are synchronizing.
+        /// </summary>
+        Run_syncup = 9,
+        /// <summary>
+        /// 
+        /// </summary>
+        Remote_unknown = 10,
     }
 }

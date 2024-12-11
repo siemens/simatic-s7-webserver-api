@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
@@ -6,8 +6,9 @@ using Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="backupName">will default to the backup name suggested by the plc</param> 
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
         public async Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
@@ -62,15 +64,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             => DownloadBackupAsync(pathToDownloadDirectory, backupName).GetAwaiter().GetResult();
 
         /// <summary>
-        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
+        /// Restores the PLC from a backup file
         /// </summary>
+        /// <remarks>
+        /// Works only if the PLC is in STOP! <br/>
+        /// Checks if the restore file can be found at the restoreFilePath. <br/>
+        /// Sends a PlcRestoreBackup then starts to upload the backup file with the response ticket. <br/>
+        /// If the PLC validated the restorebackup file header, the upload is cancelled and the PLC will reboot in 3 seconds. <br/>
+        /// After the reboot completed, sends a Login, then a PlcRestoreBackup request. <br/>
+        /// Uploads again the backup file with the response ticket. <br/> 
+        /// When the upload finished, the PLC will reboot again. After that sends a final login request.
+        /// </remarks>
         /// <param name="userName">Username for re-login</param>
         /// <param name="password">Password for re-login</param>
         /// <param name="restoreFilePath">path to the file to be restored</param>
         /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc. - defaults to 3 minutes</param>
+        /// <param name="externalCancellationToken">Optional token to cancel the async method</param>
         /// <returns>Task</returns>
         /// <exception cref="FileNotFoundException">File at restorefilepath has not been found</exception>
-        public async Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <exception cref="InvalidOperationException">Restore is not possible</exception>
+        public async Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken externalCancellationToken = default(CancellationToken))
         {
             var timeToWait = timeOut ?? TimeSpan.FromMinutes(3);
             if (restoreFilePath == null)
@@ -81,34 +94,66 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             {
                 throw new FileNotFoundException($"the given file at {Environment.NewLine}{restoreFilePath}{Environment.NewLine} has not been found!");
             }
-            string ticketResponse = (await ApiRequestHandler.PlcRestoreBackupAsync(password, cancellationToken)).Result;
-            try
-            {
-                await ApiTicketHandler.HandleUploadAsync(ticketResponse, restoreFilePath, cancellationToken);
-            }
-            // HttpRequestException is okay since during the upload the plc will power cycle and not "successfully answer" the request
-            catch (ApiTicketingEndpointUploadException e)
-            {
-                if (e.InnerException != null || !(e.InnerException is HttpRequestException))
-                    throw;
-            }
+
+            var browseResult = (await ApiRequestHandler.ApiBrowseAsync(externalCancellationToken)).Result;
+            bool restoreMode = !browseResult.Any(x => x.Name == "Plc.CreateBackup");
+            string uploadTicket;
             var waitHandler = new WaitHandler(timeToWait);
+
+            if (!restoreMode)
+            {
+                uploadTicket = (await ApiRequestHandler.PlcRestoreBackupAsync(password, externalCancellationToken)).Result;
+                CancellationTokenSource internalCancellationTokenSource = new CancellationTokenSource();
+                try
+                {
+                    Task<Models.ApiTicket> uploadTask = ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, internalCancellationTokenSource.Token);
+                    Stopwatch sw = Stopwatch.StartNew();
+                    while (sw.ElapsedMilliseconds < 60_000 || uploadTask.IsCompleted || uploadTask.IsFaulted)
+                    {
+                        var brTicketsResp = ApiRequestHandler.ApiBrowseTickets(uploadTicket);
+                        string apiTicketData = brTicketsResp.Result.Tickets.First().Data.ToString();
+                        if (apiTicketData.Contains("\"restore_state\": \"rebooting_format\"") || externalCancellationToken.IsCancellationRequested)
+                        {
+                            internalCancellationTokenSource.Cancel();
+                            break;
+                        }
+                    }
+                    sw.Stop();
+                    await uploadTask;
+                }
+                catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) { }
+                finally
+                {
+                    internalCancellationTokenSource.Dispose();
+                    externalCancellationToken.ThrowIfCancellationRequested();
+                }
+                WaitForPlcReboot(waitHandler);
+                await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
+            }
+            uploadTicket = (await ApiRequestHandler.PlcRestoreBackupAsync(password, externalCancellationToken)).Result;
+            await ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, externalCancellationToken);
             WaitForPlcReboot(waitHandler);
-            await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: cancellationToken);
-            ticketResponse = (await ApiRequestHandler.PlcRestoreBackupAsync(password, cancellationToken)).Result;
-            await ApiTicketHandler.HandleUploadAsync(ticketResponse, restoreFilePath, cancellationToken);
-            WaitForPlcReboot(waitHandler);
-            await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: cancellationToken);
+            await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
         }
 
         /// <summary>
-        /// Will send a DownloadbackupName, Downloadticket and Closeticket request to the API
+        /// Restores the PLC from a backup file
         /// </summary>
+        /// <remarks>
+        /// Works only if the PLC is in STOP! <br/>
+        /// Checks if the restore file can be found at the restoreFilePath. <br/>
+        /// Sends a PlcRestoreBackup then starts to upload the backup file with the response ticket. <br/>
+        /// If the PLC validated the restorebackup file header, the upload is cancelled and the PLC will reboot in 3 seconds. <br/>
+        /// After the reboot completed, sends a Login, then a PlcRestoreBackup request. <br/>
+        /// Uploads again the backup file with the response ticket. <br/> 
+        /// When the upload finished, the PLC will reboot again. After that sends a final login request.
+        /// </remarks>
         /// <param name="userName">Username for re-login</param>
         /// <param name="password">Password for re-login</param>
         /// <param name="restoreFilePath">path to the file to be restored</param>
-        /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
-        /// <returns>Task/void</returns>
+        /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc. - defaults to 3 minutes</param>
+        /// <returns>Task</returns>
+        /// <exception cref="FileNotFoundException">File at restorefilepath has not been found</exception>
         public void RestoreBackup(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null)
             => RestoreBackupAsync(restoreFilePath, userName, password, timeOut).GetAwaiter().GetResult();
 

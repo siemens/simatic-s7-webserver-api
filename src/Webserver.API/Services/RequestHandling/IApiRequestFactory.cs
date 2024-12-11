@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -56,17 +56,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
+        /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>an Api.ChangePassword request</returns>
-        IApiRequest GetApiChangePasswordRequest(string username, string currentPassword, string newPassword, string jsonRpc = null, string id = null);
+        IApiRequest GetApiChangePasswordRequest(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// Get an Api.GetPasswordPolicy request
         /// </summary>
+        /// <param name="mode">The authentication mode that defines where the password policy shall be read from.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>An Api.GetPasswordPolicy request</returns>
-        IApiRequest GetApiGetPasswordPolicyRequest(string jsonRpc = null, string id = null);
+        IApiRequest GetApiGetPasswordPolicyRequest(ApiAuthenticationMode mode = ApiAuthenticationMode.Local, string jsonRpc = null, string id = null);
         /// <summary>
         /// Get an Api.GetAuthenticationMode request
         /// </summary>
@@ -82,17 +84,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used</param>
         IApiRequest GetApiGetCertificateUrlRequest(string jsonRpc = null, string id = null);
         /// <summary>
-        /// get an Api.Login Request with the given "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)
+        /// get an Api.Login Request with the given "mode":mode, "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)
         /// </summary>
+        /// <param name="mode">The mode defines where the login shall be performed.
+        /// All available modes supported by API method Api.GetAuthenticationMode can be passed, except for umc_sso.</param>
         /// <param name="userName">username for login</param>
         /// <param name="password">password for login</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
         /// <returns>ApiLoginRequest with the given "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)</returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiLoginRequest(string userName, string password, bool? include_web_application_cookie = null,
+        IApiRequest GetApiLoginRequest(ApiAuthenticationMode mode, string userName, string password, bool? include_web_application_cookie = null,
            string jsonRpc = null, string id = null);
-
         /// <summary>
         /// get an Api.Logout Request without parameters
         /// </summary>
@@ -124,10 +127,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Get a Project.ReadLanguages request without parameters
         /// </summary>
+        /// <param name="mode">Determines whether all or only active languages should be returned. Default is 'active'.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>Project.ReadLanguages request without parameters</returns>
-        IApiRequest GetApiProjectReadLanguagesRequest(string jsonRpc = null, string id = null);
+        IApiRequest GetApiProjectReadLanguagesRequest(ApiReadLanguagesMode? mode = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an PlcProgram.Browse Request with parameter "mode": apiPlcProgramBrowseMode, "var" : var (might be null)
         /// </summary>
@@ -162,7 +166,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgram.Read Request with parameter "var" : var, "mode": apiPlcProgramReadMode (might be null) - </returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcProgramReadRequest(string var, ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode = null, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcProgramReadRequest(string var, ApiPlcDataRepresentation? apiPlcProgramReadMode = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an PlcProgram.Write Request with parameter "var" : var, "value":valueToBeSet, "mode": apiPlcProgramReadMode (might be null) - 
         /// </summary>
@@ -172,7 +176,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>PlcProgram.Write Request with parameter "var" : var, "value":valueToBeSet, "mode": apiPlcProgramReadMode (might be null) - </returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcProgramWriteRequest(string var, object valueToBeSet, ApiPlcProgramReadOrWriteMode? apiPlcProgramWriteMode = null, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcProgramWriteRequest(string var, object valueToBeSet, ApiPlcDataRepresentation? apiPlcProgramWriteMode = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// "Comfort" function to get the according Type object for a value the user Wants depending on the apiPlcProgramData
         /// </summary>
@@ -186,17 +190,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// get an Plc.ReadOperatingMode Request without parameters
         /// </summary>
         /// <returns>Plc.ReadOperatingMode Request without parameters</returns>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcReadOperatingModeRequest(string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcReadOperatingModeRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode
         /// </summary>
         /// <param name="apiPlcOperatingMode">Plc Operating mode wanted</param>
+        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode</returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// Get a Plc.ReadModeSelectorState Request with redundancy id parameter
         /// </summary>
@@ -204,7 +210,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>Plc.ReadModeSelectorState request with redundancy id parameter</returns>
-        IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId rhid, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// check new Etag value
         /// get an WebApp.SetResourceETag Request with parameter "app_name" : webAppName,"name": resourceName, "etag" : newETagValue
@@ -617,6 +623,125 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                                                         ApiDiagnosticBuffer_RequestFilters filters = null,
                                                         string jsonRpc = null,
                                                         string id = null);
+        /// <summary>
+        /// Get a Technology.Read request
+        /// </summary>
+        /// <param name="var">Name of the variable to read. The name must not be empty.</param>
+        /// <param name="mode">Enumeration that determines the response format</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Technology.Read request</returns>
+        IApiRequest GetTechnologyReadRequest(string var, ApiPlcDataRepresentation? mode = null, string jsonRpc = null, string id = null);
+        /// <summary>
+        /// Get a WebServer.ReadResponseHeaders request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiWebServerReadResponseHeadersRequest</returns>  
+        IApiRequest GetApiWebServerReadResponseHeadersRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a WebServer.ChangeResponseHeaders request
+        /// </summary>
+        /// <param name="header">The HTTP response header to be returned when accessing URLs that match the given pattern.</param>
+        /// <param name="pattern">The URL pattern for which the header must be returned. For now, this must always be set to /~**/*. Other values are not allowed. </param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiWebServerChangeResponseHeadersRequest</returns>  
+        IApiRequest GetApiWebServerChangeResponseHeadersRequest(string header = null, string pattern = "~**/*", string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Redundancy.ReadSyncupProgress request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiRedundancyReadSyncupProgressRequest</returns>  
+        IApiRequest GetApiRedundancyReadSyncupProgressRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Technology.BrowseObjects request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>Technology.BrowseObjects request</returns>
+        IApiRequest GetTechnologyBrowseObjectsRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Redundancy.ReadSystemInformation request
+        /// </summary>
+        IApiRequest GetApiRedundancyReadSystemInformationRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Redundancy.RequestChangeSystemState request
+        /// </summary>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiDiagnosticBufferBrowseRequest</returns>  
+        IApiRequest GetApiRedundancyReadSystemStateRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Redundancy.RequestChangeSystemState request
+        /// </summary>
+        /// <param name="state">The requested system state for the R/H system.</param>
+        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
+        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
+        /// <returns>ApiRedundancyRequestChangeSystemStateRequest</returns>  
+        IApiRequest GetApiRedundancyRequestChangeSystemStateRequest(ApiPlcRedundancySystemState state, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a WebApp.SetVersion request
+        /// </summary>
+        /// <param name="webAppName">The application in which the resource is located.</param>
+        /// <param name="version">The version of the application. The string may be empty to reset the version string.</param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiWebAppSetVersionRequest(string webAppName, string version, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a WebApp.SetUrlRedirectMode request
+        /// </summary>
+        /// <param name="webAppName">The application for which the redirect mode shall be changed.</param>
+        /// <param name="redirect_mode">The redirect mode of the application. </param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiWebAppSetUrlRedirectModeRequest(string webAppName, ApiWebAppRedirectMode redirect_mode, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Plc.ReadCpuType request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiPlcReadCpuTypeRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Plc.ReadStationName request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiPlcReadStationNameRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Plc.ReadModuleName request
+        /// </summary>
+        /// <param name="redundancy_id">
+        /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
+        /// On non-R/H PLCs, the parameter must not be part of the request.</param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiPlcReadModuleNameRequest(uint? redundancy_id = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a GetSessionInfo request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetApiGetSessionInfoRequest(string jsonRpc = null, string id = null);
     }
 
 }

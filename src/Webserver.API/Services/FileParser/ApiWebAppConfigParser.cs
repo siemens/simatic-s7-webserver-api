@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -86,6 +86,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
                 if (webApp.ProtectedResources == null)
                 {
                     webApp.ProtectedResources = new List<string>();
+                }
+                if (webApp.Redirect_mode == ApiWebAppRedirectMode.None) //config has no redirect mode or has "none"
+                {
+                    webApp.Redirect_mode = ApiWebAppRedirectMode.Redirect; //set to default
                 }
                 // get resources in Directory
                 webApp.ApplicationResources = RecursiveGetResources(PathToWebAppDirectory, webApp);

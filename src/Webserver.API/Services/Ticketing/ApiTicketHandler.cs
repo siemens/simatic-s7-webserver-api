@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 
@@ -494,7 +494,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         {
             try
             {
-                await ApiRequestHandler.UploadTicketAsync(ticketId, filePath);
+                await ApiRequestHandler.UploadTicketAsync(ticketId, filePath, cancellationToken);
                 return await CheckTicketAsync(ticketId, CheckAfterUpload, cancellationToken);
             }
             finally

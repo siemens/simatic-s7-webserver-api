@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using System;
@@ -39,6 +39,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public override int GetHashCode()
         {
             return (Timestamp, Warning).GetHashCode();
+        }
+
+        /// <summary>
+        /// ToString for ApiPasswordExpiration
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{nameof(Timestamp)}: {Timestamp} | " +
+                   $"{nameof(Warning)}: {Warning}";
         }
     }
 }

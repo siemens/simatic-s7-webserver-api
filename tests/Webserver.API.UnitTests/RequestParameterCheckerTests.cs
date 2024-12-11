@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using NUnit.Framework;
@@ -156,21 +156,21 @@ namespace Webserver.API.UnitTests
         public void CheckPlcProgramReadOrWriteMode()
         {
             var requestParameterChecker = new ApiRequestParameterChecker();
-            List<ApiPlcProgramReadOrWriteMode> invModes = new List<ApiPlcProgramReadOrWriteMode>() {
-                ApiPlcProgramReadOrWriteMode.None
+            List<ApiPlcDataRepresentation> invModes = new List<ApiPlcDataRepresentation>() {
+                ApiPlcDataRepresentation.None
             };
             foreach (var mode in invModes)
             {
                 Assert.Throws<ApiInvalidParametersException>(() =>
-                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true));
-                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
+                requestParameterChecker.CheckPlcDataRepresentationMode(mode, true));
+                requestParameterChecker.CheckPlcDataRepresentationMode(mode, false);
             }
-            List<ApiPlcProgramReadOrWriteMode?> validModes = new List<ApiPlcProgramReadOrWriteMode?>()
-            { ApiPlcProgramReadOrWriteMode.Raw, ApiPlcProgramReadOrWriteMode.Simple, null };
+            List<ApiPlcDataRepresentation?> validModes = new List<ApiPlcDataRepresentation?>()
+            { ApiPlcDataRepresentation.Raw, ApiPlcDataRepresentation.Simple, null };
             foreach (var mode in validModes)
             {
-                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, true);
-                requestParameterChecker.CheckPlcProgramReadOrWriteMode(mode, false);
+                requestParameterChecker.CheckPlcDataRepresentationMode(mode, true);
+                requestParameterChecker.CheckPlcDataRepresentationMode(mode, false);
             }
         }
 
@@ -260,7 +260,7 @@ namespace Webserver.API.UnitTests
             var requestParameterChecker = new ApiRequestParameterChecker();
             Assert.Throws<ApiInvalidParametersException>(() =>
                 requestParameterChecker.CheckUsername("", true));
-            Assert.Throws<ApiPasswordChangeNotAcceptedException>(() =>
+            Assert.Throws<ApiNotAcceptedException>(() =>
                 requestParameterChecker.CheckUsername("Anonymous", true));
         }
 

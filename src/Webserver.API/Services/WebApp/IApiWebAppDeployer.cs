@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MITusing System.Threading.Tasks;
 using Siemens.Simatic.S7.Webserver.API.Models;
@@ -27,6 +27,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// PathToWebAppDirectory
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         Task DeployAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// make very sure the given webapp contains all the data:
@@ -59,6 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away
         /// </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

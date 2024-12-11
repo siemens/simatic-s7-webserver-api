@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -41,7 +41,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="apiPlcProgramReadMode">PlcProgramReadMode  that should be checked for being valid</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        void CheckPlcProgramReadOrWriteMode(ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode, bool performCheck);
+        void CheckPlcDataRepresentationMode(ApiPlcDataRepresentation? apiPlcProgramReadMode, bool performCheck);
         /// <summary>
         /// None isnt valid (unsupported type = -1)
         /// </summary>

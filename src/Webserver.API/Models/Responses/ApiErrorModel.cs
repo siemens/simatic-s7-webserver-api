@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -102,8 +102,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidParametersException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.PasswordExpired:
                     throw new ApiPasswordExpiredException(new ApiException(this, apiRequestString));
-                case ApiErrorCode.PasswordChangeNotAccepted:
-                    throw new ApiPasswordChangeNotAcceptedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.NotAccepted:
+                    throw new ApiNotAcceptedException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.NewPasswordDoesNotFollowPolicy:
                     throw new ApiNewPasswordDoesNotFollowPolicyException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.NewPasswordMatchesOldPassword:
@@ -122,6 +122,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidTimeRuleException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidUTCOffset:
                     throw new ApiInvalidUTCOffsetException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.NotATechnologyObject:
+                    throw new ApiNotATechnologyObjectException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InfrastructureError:
+                    throw new ApiInfrastructureErrorException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidPattern:
+                    throw new ApiInvalidPatternException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.HTTPHeaderNotAllowed:
+                    throw new ApiHTTPHeaderNotAllowedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.HTTPHeaderInvalid:
+                    throw new ApiHTTPHeaderInvalidException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.TooManyHTTPHeaders:
+                    throw new ApiTooManyHTTPHeadersException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.RequestTooLarge:
+                    throw new ApiRequestTooLargeException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidVersionString:
+                    throw new ApiInvalidVersionStringException(new ApiException(this, apiRequestString));
                 default:
                     throw new ApiException(this, apiRequestString);
 

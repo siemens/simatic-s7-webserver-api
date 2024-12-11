@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
@@ -19,6 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -36,6 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="filePath">Path of the file to upload</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task</returns>
         Task DeployFileAsync(string resource, string filePath, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -51,6 +53,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// Creates a file on the PLC : creates a file ticket which the client can use to transfer a file to the PLC. This is referred to as "uploading" a file to the PLC.
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task</returns>
         Task DeployFileAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -68,6 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         Task<FileInfo> DataLogs_DownloadAndClearAsync(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
 

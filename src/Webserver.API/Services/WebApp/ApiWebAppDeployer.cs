@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -48,6 +48,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// PathToWebAppDirectory
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         public async Task DeployAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken))
         {
             var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
@@ -101,6 +102,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
@@ -191,6 +193,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     if (browsedWebApp.State != webApp.State)
                     {
                         await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
+                    }
+                    if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
+                    {
+                        if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
+                        {
+                            throw new ApiInvalidParametersException("Redirect mode should never be none!");
+                        }
+                        await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
                     }
                     browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                     browsedWebApp = browsedWebAppResp.Result.Applications.First();

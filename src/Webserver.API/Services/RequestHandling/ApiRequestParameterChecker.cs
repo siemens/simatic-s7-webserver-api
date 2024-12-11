@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -148,15 +148,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// None isnt valid!
         /// </summary>
-        /// <param name="apiPlcProgramReadMode">PlcProgramReadMode  that should be checked for being valid</param>
+        /// <param name="apiPlcProgramReadMode">Determines the response format for various methods that return data from the PLC</param>
         /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
-        public void CheckPlcProgramReadOrWriteMode(ApiPlcProgramReadOrWriteMode? apiPlcProgramReadMode, bool performCheck)
+        public void CheckPlcDataRepresentationMode(ApiPlcDataRepresentation? apiPlcProgramReadMode, bool performCheck)
         {
             if (performCheck)
             {
                 if (apiPlcProgramReadMode != null)
                 {
-                    if (apiPlcProgramReadMode == ApiPlcProgramReadOrWriteMode.None)
+                    if (apiPlcProgramReadMode == ApiPlcDataRepresentation.None)
                     {
                         throw new ApiInvalidParametersException($"PlcProgram.Read or Write shall not be called with {Environment.NewLine + apiPlcProgramReadMode.ToString().ToLower()}" +
                         $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
@@ -313,8 +313,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 }
                 if (username == "Anonymous")
                 {
-                    throw new ApiPasswordChangeNotAcceptedException($"Password can not be changed for the Anonymous user! {Environment.NewLine}" +
-                           $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.PasswordChangeNotAccepted, Message = "The password change cannot be performed" } }));
+                    throw new ApiNotAcceptedException($"Password can not be changed for the Anonymous user! {Environment.NewLine}" +
+                           $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.NotAccepted, Message = "The password change cannot be performed" } }));
                 }
             }
         }

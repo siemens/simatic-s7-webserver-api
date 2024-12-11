@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -149,7 +149,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
             httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
             httpClient.Timeout = connectionConfiguration.TimeOut;
-            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(connectionConfiguration.Username, connectionConfiguration.Password, include_web_application_cookie);
+            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(Enums.ApiAuthenticationMode.Local, connectionConfiguration.Username, connectionConfiguration.Password, include_web_application_cookie);
             if (apiLoginRequest.Params != null)
             {
                 apiLoginRequest.Params = apiLoginRequest.Params
@@ -225,7 +225,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
             httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
             httpClient.Timeout = connectionConfiguration.TimeOut;
-            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(connectionConfiguration.Username, connectionConfiguration.Password);
+            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(Enums.ApiAuthenticationMode.Local, connectionConfiguration.Username, connectionConfiguration.Password);
             if (apiLoginRequest.Params != null)
             {
                 apiLoginRequest.Params = apiLoginRequest.Params
@@ -279,6 +279,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {

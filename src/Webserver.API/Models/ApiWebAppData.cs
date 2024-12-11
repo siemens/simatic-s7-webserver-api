@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023, Siemens AG
+﻿// Copyright (c) 2024, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -75,6 +75,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         }
 
         /// <summary>
+        /// The version of the application.
+        /// </summary>
+        public string Version { get; set; }
+
+        private ApiWebAppRedirectMode redirect_mode;
+
+        /// <summary>
+        /// The URL redirect mode of the application.
+        /// </summary>
+        public ApiWebAppRedirectMode Redirect_mode
+        {
+            get
+            {
+                return redirect_mode;
+            }
+            set
+            {
+                if (value == ApiWebAppRedirectMode.None)
+                {
+                    throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
+                }
+                redirect_mode = value;
+            }
+        }
+
+        /// <summary>
         /// WebApps DefaultPage: The Page a user should be forwarded to in case he accesses the WebApp (https://plcIPOrDNSName/)~WebAppName or (https://plcIPOrDNSName/)~WebAppName/
         /// If this page is not present the user will be forwarded to the Not_found_page if that one is configured
         /// => e.g. index.html
@@ -137,8 +163,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             if (other is null)
                 return false;
-
-            return this.Name == other.Name && this.State == other.State && this.Type == other.Type
+            return this.Name == other.Name && this.State == other.State && this.Type == other.Type && this.Version == other.Version && this.Redirect_mode == other.Redirect_mode
                 && this.Default_page == other.Default_page && this.Not_found_page == other.Not_found_page && this.Not_authorized_page == other.Not_authorized_page;
         }
         /// <summary>
@@ -151,6 +176,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// GetHashCode => (Name, State, Type, Default_page, Not_found_page, Not_authorized_page).GetHashCode()
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => (Name, State, Type, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
+        public override int GetHashCode() => (Name, State, Type, Version, Redirect_mode, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
     }
 }

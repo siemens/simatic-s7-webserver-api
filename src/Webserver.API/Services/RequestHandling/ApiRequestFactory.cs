@@ -180,20 +180,23 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiLoginRequest with the given "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)</returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        public virtual IApiRequest GetApiLoginRequest(ApiAuthenticationMode mode, string userName, string password, bool? include_web_application_cookie = null,
+        public virtual IApiRequest GetApiLoginRequest(string userName, string password, bool? include_web_application_cookie = null, ApiAuthenticationMode? mode = null,
            string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             Dictionary<string, object> requestParams = new Dictionary<string, object>()
             {
-                { "mode", mode.ToString().ToLower() },
                 { "user", userName },
                 { "password", password }
             };
             if (include_web_application_cookie == true)
             {
                 requestParams.Add("include_web_application_cookie", include_web_application_cookie);
+            }
+            if(mode != null)
+            {
+                requestParams.Add("mode", mode.ToString().ToLower());
             }
             return new ApiRequest("Api.Login", jsonRpcReq, idReq, requestParams);
         }

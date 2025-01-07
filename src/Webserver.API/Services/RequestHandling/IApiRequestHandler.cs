@@ -101,10 +101,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
         /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode mode, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword);
         /// <summary>
         /// Send an Api.ChangePassword request
         /// </summary>
@@ -113,7 +130,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newPassword">The new password for the user</param>
         /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null);
+        ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword, ApiAuthenticationMode mode);
         /// <summary>
         /// Send an Api.GetCertificateUrl Request 
         /// </summary>
@@ -135,6 +152,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>A QuantityStructure object</returns>
         ApiGetQuantityStructuresResponse ApiGetQuantityStructures();
+        
         /// <summary>
         /// Send a Api.Login Request 
         /// </summary>
@@ -148,13 +166,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Api.Login Request 
         /// </summary>
-        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        Task<ApiLoginResponse> ApiLoginAsync(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <summary>
         /// Send an Api.Logout Request 
         /// </summary>
@@ -1064,12 +1082,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Api.Login Request 
         /// </summary>
-        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed.</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        ApiLoginResponse ApiLogin(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null);
+        ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null);
         /// <summary>
         /// Send an Api.Logout Request 
         /// </summary>
@@ -2158,7 +2176,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Re-login to the plc, set the header again in the connected service (e.g.HttpClient)!
         /// </summary>
+        Task<ApiLoginResponse> ReLoginAsync(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Re-login to the plc, set the header again in the connected service (e.g.HttpClient)!
+        /// </summary>
         ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null);
+
+        /// <summary>
+        /// Re-login to the plc, set the header again in the connected service (e.g.HttpClient)!
+        /// </summary>
+        ApiLoginResponse ReLogin(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null);
+
 
         /// <summary>
         /// Send a Failsafe.ReadParameters request

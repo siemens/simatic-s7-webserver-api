@@ -289,10 +289,37 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await ApiChangePasswordBaseAsync(username, currentPassword, newPassword, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
         /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode mode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await ApiChangePasswordBaseAsync(username, currentPassword, newPassword, mode, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        private async Task<ApiTrueOnSuccessResponse> ApiChangePasswordBaseAsync(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var req = _apiRequestFactory.GetApiChangePasswordRequest(username, currentPassword, newPassword, mode);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -307,8 +334,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="newPassword">The new password for the user</param>
         /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <returns>True if changing password for the user was successful</returns>
-        public ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword, ApiAuthenticationMode? mode = null) =>
+        public ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword, ApiAuthenticationMode mode) =>
             ApiChangePasswordAsync(username, currentPassword, newPassword, mode).GetAwaiter().GetResult();
+        /// <summary>
+        /// Send an Api.ChangePassword request
+        /// </summary>
+        /// <param name="username">The user account for which the password shall be changed</param>
+        /// <param name="currentPassword">The current password for the user</param>
+        /// <param name="newPassword">The new password for the user</param>
+        /// <returns>True if changing password for the user was successful</returns>
+        public ApiTrueOnSuccessResponse ApiChangePassword(string username, string currentPassword, string newPassword) =>
+            ApiChangePasswordAsync(username, currentPassword, newPassword).GetAwaiter().GetResult();
         /// <summary>
         /// Send an Api.GetCertificateUrl Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -2718,29 +2754,53 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             => UploadTicketAsync(ticket, pathToFile).GetAwaiter().GetResult();
 
         /// <summary>
-        /// Send a Api.Login Request using the Request from the ApiRequestFactory
+        /// Relogin
         /// </summary>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns></returns>
+        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var req = _apiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, userName, password, includeWebApplicationCookie);
-            string response = await SendPostRequestAsync(req, cancellationToken);
-            var responseObj = new ApiLoginResponse();
-            responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
-            if (!string.IsNullOrEmpty(responseObj.Result.Token))
-            {
-                if (_httpClient.DefaultRequestHeaders.Any(x => x.Key.Contains("X-Auth-Token")))
-                {
-                    _httpClient.DefaultRequestHeaders.Remove("X-Auth-Token");
-                }
-                _httpClient.DefaultRequestHeaders.Add("X-Auth-Token", responseObj.Result.Token);
-            }
-            return responseObj;
+            await ApiLogoutAsync(cancellationToken);
+            return await ApiLoginAsync(userName, password, includeWebApplicationCookie, cancellationToken);
         }
+
+        /// <summary>
+        /// Relogin
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns></returns>
+        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            await ApiLogoutAsync(cancellationToken);
+            return await ApiLoginAsync(userName, password, loginMode, includeWebApplicationCookie, cancellationToken);
+        }
+
+        /// <summary>
+        /// Relogin
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <returns></returns>
+        public ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Relogin
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns></returns>
+        public ApiLoginResponse ReLogin(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, loginMode, includeWebApplicationCookie).GetAwaiter().GetResult();
+
         /// <summary>
         /// Send a Api.Login Request using the Request from the ApiRequestFactory
         /// </summary>
@@ -2751,17 +2811,54 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public ApiLoginResponse ApiLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
+        /// Send a Api.Login Request using the Request from the ApiRequestFactory
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
+        public ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Send a Api.Login Request 
         /// </summary>
-        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public async Task<ApiLoginResponse> ApiLoginAsync(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var req = _apiRequestFactory.GetApiLoginRequest(mode, userName, password, includeWebApplicationCookie);
+            return await ApiLoginBaseAsync(userName, password, null, includeWebApplicationCookie, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Api.Login Request 
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
+        public async Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await ApiLoginBaseAsync(userName, password, mode, includeWebApplicationCookie, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Api.Login Request 
+        /// </summary>
+        /// <param name="userName">Username to login with</param>
+        /// <param name="password">Password for the user to login with</param>
+        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
+        private async Task<ApiLoginResponse> ApiLoginBaseAsync(string userName, string password, ApiAuthenticationMode? mode = null, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var req = _apiRequestFactory.GetApiLoginRequest(userName, password, includeWebApplicationCookie, mode);
             string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = new ApiLoginResponse();
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
@@ -2775,16 +2872,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             return responseObj;
         }
-
-        /// <summary>
-        /// Send a Api.Login Request 
-        /// </summary>
-        /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
-        /// <param name="userName">Username to login with</param>
-        /// <param name="password">Password for the user to login with</param>
-        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
-        /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public ApiLoginResponse ApiLogin(ApiAuthenticationMode mode, string userName, string password, bool? includeWebApplicationCookie = null) => ApiLoginAsync(mode, userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send an Api Bulk Request
@@ -3203,29 +3290,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="password"></param>
         /// <returns></returns>
         public ApiTicketIdResponse PlcRestoreBackup(string password = "") => PlcRestoreBackupAsync(password).GetAwaiter().GetResult();
-
-        /// <summary>
-        /// Relogin
-        /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        /// <param name="includeWebApplicationCookie"></param>
-        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            await ApiLogoutAsync(cancellationToken);
-            return await ApiLoginAsync(userName, password, includeWebApplicationCookie, cancellationToken);
-        }
-
-        /// <summary>
-        /// Relogin
-        /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        /// <param name="includeWebApplicationCookie"></param>
-        /// <returns></returns>
-        public ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Files.Delete Request

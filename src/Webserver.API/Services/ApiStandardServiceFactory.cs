@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using Siemens.Simatic.S7.Webserver.API.Services.Backup;
@@ -73,8 +74,33 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public async Task<HttpClient> GetHttpClientAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), cancellationToken);
+            return (await GetHttpClientBaseAsync(GetConnectionConfiguration(baseAddress, username, password), cancellationToken: cancellationToken)).HttpClient;
         }
+
+        /// <summary>
+        /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
+        public async Task<HttpClient> GetHttpClientAsync(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return (await GetHttpClientBaseAsync(GetConnectionConfiguration(baseAddress, username, password), loginMode, cancellationToken: cancellationToken)).HttpClient;
+        }
+
+        /// <summary>
+        /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
+        public HttpClient GetHttpClient(string baseAddress, string username, string password, ApiAuthenticationMode loginMode)
+            => GetHttpClientAsync(baseAddress, username, password, loginMode).GetAwaiter().GetResult();
 
         /// <summary>
         /// Get an httpclient using standard values for <see cref="HttpClientConnectionConfiguration"/>
@@ -106,12 +132,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
-        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetHttpClientAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie, cancellationToken);
+            return await GetHttpClientBaseAsync(GetConnectionConfiguration(baseAddress, username, password), loginMode, include_web_application_cookie, cancellationToken);
         }
 
         /// <summary>
@@ -121,9 +148,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
-        public HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, bool include_web_application_cookie)
-            => GetHttpClientAsync(baseAddress, username, password, include_web_application_cookie).GetAwaiter().GetResult();
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(string baseAddress, string username, string password, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await GetHttpClientBaseAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie: include_web_application_cookie, cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
+        public HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, bool include_web_application_cookie)
+            => GetHttpClientAsync(baseAddress, username, password, loginMode, include_web_application_cookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
@@ -131,8 +173,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
-        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<HttpClientAndWebAppCookie> GetHttpClientBaseAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode? loginMode = null, bool? include_web_application_cookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             HttpClientHandler httpClientHandler = new HttpClientHandler()
             {
@@ -149,7 +192,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
             httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
             httpClient.Timeout = connectionConfiguration.TimeOut;
-            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(Enums.ApiAuthenticationMode.Local, connectionConfiguration.Username, connectionConfiguration.Password, include_web_application_cookie);
+            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(connectionConfiguration.Username, connectionConfiguration.Password, include_web_application_cookie, loginMode);
             if (apiLoginRequest.Params != null)
             {
                 apiLoginRequest.Params = apiLoginRequest.Params
@@ -199,71 +242,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         public HttpClientAndWebAppCookie GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie)
-            => GetHttpClientAsync(connectionConfiguration, include_web_application_cookie).GetAwaiter().GetResult();
+            => GetHttpClientBaseAsync(connectionConfiguration, null, include_web_application_cookie).GetAwaiter().GetResult();
 
         /// <summary>
-        /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
-        /// <param name="cancellationToken">Token used to cancel requests without waiting for the response</param>
-        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
-        /// <exception cref="Exception"></exception>
-        public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            HttpClientHandler httpClientHandler = new HttpClientHandler()
-            {
-                AllowAutoRedirect = connectionConfiguration.AllowAutoRedirect
-            };
-#if NET6_0_OR_GREATER
-            // Ignoring SSL errors in net6.0 and greater
-            if (ServerCertificateCallback.CertificateCallback != null)
-            {
-                httpClientHandler.ServerCertificateCustomValidationCallback = ServerCertificateCallback.CertificateCallback;
-            }
-#endif
-            HttpClient httpClient = new HttpClient(httpClientHandler);
-            httpClient.DefaultRequestHeaders.ConnectionClose = connectionConfiguration.ConnectionClose;
-            httpClient.BaseAddress = new Uri("https://" + connectionConfiguration.BaseAddress);
-            httpClient.Timeout = connectionConfiguration.TimeOut;
-            var apiLoginRequest = _apiRequestFactory.GetApiLoginRequest(Enums.ApiAuthenticationMode.Local, connectionConfiguration.Username, connectionConfiguration.Password);
-            if (apiLoginRequest.Params != null)
-            {
-                apiLoginRequest.Params = apiLoginRequest.Params
-                    .Where(el => el.Value != null)
-                    .ToDictionary(x => x.Key, x => x.Value);
-            }
-            string apiLoginRequestString = JsonConvert.SerializeObject(apiLoginRequest,
-                new JsonSerializerSettings()
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                });
-            byte[] byteArr = Encoding.UTF8.GetBytes(apiLoginRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            // send the request
-            var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
-            var respString = await response.Content.ReadAsStringAsync();
-            _apiResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
-            var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
-            if (apiLoginResponse.Id != apiLoginRequest.Id)
-            {
-                throw new Exception("ids of request and response are not equal!");
-            }
-            if (apiLoginResponse.JsonRpc != apiLoginRequest.JsonRpc)
-            {
-                throw new Exception("jsonrpc of request and response are not equal!");
-            }
-            //add the authorization token to the httpclients request headers so all methods afterwards can be performed with the auth token
-            httpClient.DefaultRequestHeaders.Add("X-Auth-Token", apiLoginResponse.Result.Token);
-            if (connectionConfiguration.DiscardPasswordAfterConnect)
-            {
-                connectionConfiguration.DiscardPassword();
-            }
-            // return the authorized httpclient
-            return httpClient;
-        }
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
+        public HttpClientAndWebAppCookie GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode, bool include_web_application_cookie)
+            => GetHttpClientBaseAsync(connectionConfiguration, loginMode, include_web_application_cookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/> 
@@ -271,7 +260,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         public HttpClient GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration)
-            => GetHttpClientAsync(connectionConfiguration).GetAwaiter().GetResult();
+            => (GetHttpClientBaseAsync(connectionConfiguration).GetAwaiter().GetResult()).HttpClient;
+        /// <summary>
+        /// Get an httpclient using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
+        public HttpClient GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode)
+            => (GetHttpClientBaseAsync(connectionConfiguration, loginMode).GetAwaiter().GetResult()).HttpClient;
 
         /// <summary>
         /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
@@ -293,9 +290,35 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
         /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var httpClient = await GetHttpClientAsync(baseAddress, username, password, loginMode, cancellationToken);
+            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
+        }
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public IApiRequestHandler GetApiHttpClientRequestHandler(string baseAddress, string username, string password)
             => GetApiHttpClientRequestHandlerAsync(baseAddress, username, password).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using standard values for <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="baseAddress">ip address or dns name of your plc</param>
+        /// <param name="username">username to login with</param>
+        /// <param name="password">password to login with</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public IApiRequestHandler GetApiHttpClientRequestHandler(string baseAddress, string username, string password, ApiAuthenticationMode loginMode)
+            => GetApiHttpClientRequestHandlerAsync(baseAddress, username, password, loginMode).GetAwaiter().GetResult();
 
         /// <summary>
         /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
@@ -304,7 +327,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration)
         {
-            var httpClient = await GetHttpClientAsync(connectionConfiguration);
+            var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration)).HttpClient;
+            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
+        }
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode)
+        {
+            var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, loginMode)).HttpClient;
             return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
         }
 
@@ -316,7 +351,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var httpClient = await GetHttpClientAsync(connectionConfiguration, cancellationToken);
+            var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, cancellationToken: cancellationToken)).HttpClient;
+            return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
+        }
+
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, loginMode, cancellationToken: cancellationToken)).HttpClient;
             return new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker);
         }
 
@@ -327,6 +375,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration)
             => GetApiHttpClientRequestHandlerAsync(connectionConfiguration).GetAwaiter().GetResult();
+        
+        /// <summary>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
+        /// </summary>
+        /// <param name="connectionConfiguration">Connection configuration to use</param>
+        /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
+        /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
+        public IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode)
+            => GetApiHttpClientRequestHandlerAsync(connectionConfiguration, loginMode).GetAwaiter().GetResult();
 
         /// <summary>
         /// Get A apiPlcProgramHandler with the given requestHandler and the set apiRequestFactory
@@ -442,6 +499,36 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public IApiDirectoryBuilder GetApiDirectoryBuilder(string pathToLocalDirectory)
         {
             return new ApiDirectoryBuilder(pathToLocalDirectory, GetApiFileResourceBuilder(), false);
+        }
+
+        /// <summary cref ="IApiServiceFactory.GetHttpClientAsync(HttpClientConnectionConfiguration, CancellationToken)" />
+        public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default)
+        {
+            return (await GetHttpClientBaseAsync(connectionConfiguration, cancellationToken: cancellationToken)).HttpClient;
+        }
+
+        /// <summary cref ="IApiServiceFactory.GetHttpClientAsync(HttpClientConnectionConfiguration, ApiAuthenticationMode,  CancellationToken)" />
+        public async Task<HttpClient> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default)
+        {
+            return (await GetHttpClientBaseAsync(connectionConfiguration, loginMode, cancellationToken: cancellationToken)).HttpClient;
+        }
+
+        /// <summary cref ="IApiServiceFactory.GetHttpClient(string, string, string, bool)" />
+        public HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, bool include_web_application_cookie)
+        {
+            return (GetHttpClientBaseAsync(GetConnectionConfiguration(baseAddress, username, password), include_web_application_cookie: include_web_application_cookie).GetAwaiter().GetResult());
+        }
+
+        /// <summary cref ="IApiServiceFactory.GetHttpClientAsync(HttpClientConnectionConfiguration, bool, CancellationToken)" />
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie, CancellationToken cancellationToken = default)
+        {
+            return await GetHttpClientBaseAsync(connectionConfiguration, include_web_application_cookie: include_web_application_cookie, cancellationToken: cancellationToken);
+        }
+
+        /// <summary cref ="IApiServiceFactory.GetHttpClientAsync(HttpClientConnectionConfiguration,ApiAuthenticationMode, bool, CancellationToken)" />
+        public async Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode, bool include_web_application_cookie, CancellationToken cancellationToken = default)
+        {
+            return await GetHttpClientBaseAsync(connectionConfiguration, loginMode, include_web_application_cookie, cancellationToken);
         }
     }
 }

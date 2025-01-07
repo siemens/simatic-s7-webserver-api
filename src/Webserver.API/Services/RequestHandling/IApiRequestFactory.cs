@@ -94,8 +94,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiLoginRequest with the given "user":userName, "password": password,  "include_web_application_cookie" : include_web_application_cookie (might be null)</returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiLoginRequest(ApiAuthenticationMode mode, string userName, string password, bool? include_web_application_cookie = null,
-           string jsonRpc = null, string id = null);
+        IApiRequest GetApiLoginRequest(string userName, string password, bool? include_web_application_cookie = null,
+            ApiAuthenticationMode? mode = null, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an Api.Logout Request without parameters
         /// </summary>

@@ -468,7 +468,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Everybody", "wrong");
+            var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "wrong", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
 
@@ -487,7 +487,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Everybody", "");
+            var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<ApiAlreadyAuthenticatedException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
 
@@ -506,7 +506,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Everybody", "");
+            var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<ApiNoResourcesException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
 
@@ -525,7 +525,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Everybody", "");
+            var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
                 Assert.Fail("token is empty or null altough server returned with!");
@@ -548,7 +548,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Everybody", "", true);
+            var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", true, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
                 Assert.Fail("token is empty or null altough server returned with!");
@@ -571,7 +571,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var req = ApiRequestFactory.GetApiLoginRequest(ApiAuthenticationMode.Local, "Anonymous", "", true);
+            var req = ApiRequestFactory.GetApiLoginRequest("Anonymous", "", true, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
                 Assert.Fail("token is empty or null altough server returned with!");
@@ -601,7 +601,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            var result = (await TestHandler.ApiLoginAsync(ApiAuthenticationMode.Local, "Admin", "Siemens_1")).Result;
+            var result = (await TestHandler.ApiLoginAsync("Admin", "Siemens_1", ApiAuthenticationMode.Local)).Result;
             Assert.That(result.Token, Is.EqualTo("G8ejtdxTZ6fz8AIuwDG.tWf+6Cou"));
         }
 
@@ -620,7 +620,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
-            Assert.ThrowsAsync<ApiInfrastructureErrorException>(async () => await TestHandler.ApiLoginAsync(ApiAuthenticationMode.Umc, "Admin", "Siemens_1"));
+            Assert.ThrowsAsync<ApiInfrastructureErrorException>(async () => await TestHandler.ApiLoginAsync("Admin", "Siemens_1", ApiAuthenticationMode.Umc));
         }
 
         /// <summary>

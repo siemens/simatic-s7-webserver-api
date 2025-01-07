@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024, Siemens AG
+﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MITusing Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Models;

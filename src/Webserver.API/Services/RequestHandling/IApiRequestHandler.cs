@@ -101,7 +101,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="username">The user account for which the password shall be changed</param>
         /// <param name="currentPassword">The current password for the user</param>
         /// <param name="newPassword">The new password for the user</param>
-        /// <param name="mode">The mode defines where the password change shall be performed on. If null, the PLC will treat it as local.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if changing password for the user was successful</returns>
         Task<ApiTrueOnSuccessResponse> ApiChangePasswordAsync(string username, string currentPassword, string newPassword, CancellationToken cancellationToken = default(CancellationToken));

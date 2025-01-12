@@ -1,6 +1,6 @@
 ![1518F](./docs/screens/1518F.png)
 # WebserverApi Client Library for .NET
-This package targeting .NET Framework: 4.8, 6.0, 7.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
+This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
 
 * Package name: **Siemens.Simatic.S7.Webserver.API**
 

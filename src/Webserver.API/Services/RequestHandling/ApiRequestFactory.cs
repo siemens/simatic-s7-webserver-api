@@ -194,7 +194,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 requestParams.Add("include_web_application_cookie", include_web_application_cookie);
             }
-            if(mode != null)
+            if (mode != null)
             {
                 requestParams.Add("mode", mode.ToString().ToLower());
             }
@@ -1033,7 +1033,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            return new ApiRequest("Project.ReadLanguages", jsonRpcReq, idReq, mode == null ? null : new Dictionary<string, object>() { { "mode", mode } });
+            return new ApiRequest("Project.ReadLanguages", jsonRpcReq, idReq, mode == null ? null : new Dictionary<string, object>() { { "mode", mode.ToString().ToLower() } });
         }
 
         /// <summary>
@@ -1212,7 +1212,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "var", var } };
             if (mode != null)
             {
-                requestParams.Add("mode", mode);
+                requestParams.Add("mode", mode.ToString().ToLower());
             }
             return new ApiRequest("Technology.Read", jsonRpcReq, idReq, requestParams);
         }

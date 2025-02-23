@@ -38,21 +38,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <summary>
         /// Standard service factory: will use standard implementations for interfaces
         /// </summary>
-        public ApiStandardServiceFactory()
+        /// <param name="logger">Logger to be invoked</param>
+        public ApiStandardServiceFactory(ILogger logger = null)
         {
             _idGenerator = new GUIDGenerator();
             _apiRequestParameterChecker = new ApiRequestParameterChecker();
             _apiResponseChecker = new ApiResponseChecker();
-            _apiRequestFactory = new ApiRequestFactory(_idGenerator, _apiRequestParameterChecker);
+            _apiRequestFactory = new ApiRequestFactory(_idGenerator, _apiRequestParameterChecker, logger);
             _apiWebAppResourceBuilder = GetApiWebAppResourceBuilder();
-        }
-
-        /// <summary>
-        /// Standard service factory: will use standard implementations for interfaces
-        /// </summary>
-        /// <param name="logger">Logger to be invoked</param>
-        public ApiStandardServiceFactory(ILogger logger) : this()
-        {
             _logger = logger;
         }
 

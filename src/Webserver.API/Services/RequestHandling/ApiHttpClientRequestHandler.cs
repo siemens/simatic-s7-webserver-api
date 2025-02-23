@@ -174,7 +174,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var responseString = await response.Content.ReadAsStringAsync();
 #endif
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
-            if(_logger != null && !apiRequestString.Contains("Login") && !apiRequestString.Contains("ChangePassword"))
+            if(_logger != null && _logger.IsEnabled(LogLevel.Trace) && !apiRequestString.Contains("Login") && !apiRequestString.Contains("ChangePassword"))
             {
                 string maskedApiRequestString = MaskSensitiveInformation(apiRequestString);
                 string maskedResponseString = MaskSensitiveInformation(responseString);

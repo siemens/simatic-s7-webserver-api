@@ -65,7 +65,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="apiRequestFactory">request factory for request generation</param>
         /// <param name="apiWebAppResourceBuilder">resource builder for resource handler, deployer...</param>
         /// <param name="logger">Logger to be invoked</param>
-        /// <param name="dataProtector">Data protector (e.g. request response)</param>
         public ApiStandardServiceFactory(IIdGenerator idGenerator, IApiRequestParameterChecker apiRequestParameterChecker,
             IApiResponseChecker apiResponseChecker, IApiRequestFactory apiRequestFactory, IApiWebAppResourceBuilder apiWebAppResourceBuilder,
             ILogger logger = null)

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
@@ -21,16 +22,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
     {
         private readonly IApiRequestHandler _apiRequestHandler;
         private readonly IApiRequestFactory _requestFactory;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Api PlcProgram Handler
         /// </summary>
         /// <param name="asyncRequestHandler">Request Handler to send the Requests to the plc</param>
         /// <param name="requestFactory">Request Factory for request generation</param>
-        public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory)
+        /// <param name="logger">Logger to be used.</param>
+        public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory, ILogger logger = null)
         {
             this._apiRequestHandler = asyncRequestHandler ?? throw new ArgumentNullException(nameof(asyncRequestHandler));
             this._requestFactory = requestFactory ?? throw new ArgumentNullException(nameof(requestFactory));
+            this._logger = logger;
         }
 
         /// <summary>
@@ -50,6 +54,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 {
                     el.Parents = new List<ApiPlcProgramData>(var.Parents);
                     el.Parents.Add(var);
+                    _logger?.LogTrace($"add parent '{var.Name}' to '{el.Name}'");
                     if (var.Children == null)
                     {
                         var.Children = new List<ApiPlcProgramData>();
@@ -59,11 +64,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                         foreach (var arrayEl in el.ArrayElements)
                         {
                             arrayEl.Parents = el.Parents;
+                            _logger?.LogTrace($"add parent '{el.Name}' to '{arrayEl.Name}'");
                         }
                     }
                     if (!var.Children.Any(child => child.Equals(el)))
                     {
                         var.Children.Add(el);
+                        _logger?.LogTrace($"add child '{el.Name}' to '{var.Name}'");
                     }
                 });
             }
@@ -115,13 +122,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                         }
                         else
                         {
-                            requests.Add(_requestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode));
+                            var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode);
+                            _logger?.LogTrace($"Add PlcProgram Read request for '{arrayElement.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
+                            requests.Add(requestToAdd);
                         }
                     }
                 }
                 else if (child.Children?.Count == 0)
                 {
-                    requests.Add(_requestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode));
+                    var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode);
+                    _logger?.LogTrace($"Add PlcProgram Read request for '{child.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
+                    requests.Add(requestToAdd);
                 }
                 else
                 {
@@ -141,6 +152,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     var childOrArrayElementWithVarString = toReturn.Children.FirstOrDefault(el => el.GetVarNameForMethods() == (string)requestedVarString) ??
                         (toReturn.Children.First(el => el.ArrayElements.Any(arrEl => arrEl.GetVarNameForMethods() == (string)requestedVarString))
                             .ArrayElements.First(arrEl => arrEl.GetVarNameForMethods() == (string)requestedVarString));
+                    _logger?.LogDebug($"Apply value '{childval.Result}' to '{childOrArrayElementWithVarString.GetVarNameForMethods()}'");
                     childOrArrayElementWithVarString.Value = childval.Result;
                 }
             }

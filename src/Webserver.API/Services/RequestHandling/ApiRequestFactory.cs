@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
@@ -23,8 +24,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     public class ApiRequestFactory : IApiRequestFactory
     {
         private readonly IIdGenerator RequestIdGenerator;
-
         private readonly IApiRequestParameterChecker RequestParameterChecker;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Bool to determine wether to use local checks for Request Parameters or not
@@ -41,10 +42,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="requestGenerator">RequestGenerator - can be customized</param>
         /// <param name="requestParameterChecker">parameter checker for the requestfactory</param>
-        public ApiRequestFactory(IIdGenerator requestGenerator, IApiRequestParameterChecker requestParameterChecker)
+        /// <param name="logger">Logger to be used.</param>
+        public ApiRequestFactory(IIdGenerator requestGenerator, IApiRequestParameterChecker requestParameterChecker, ILogger logger = null)
         {
             RequestIdGenerator = requestGenerator ?? throw new ArgumentNullException(nameof(requestGenerator));
             RequestParameterChecker = requestParameterChecker ?? throw new ArgumentNullException(nameof(requestParameterChecker));
+            _logger = logger;
         }
 
         /// <summary>
@@ -721,14 +724,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 ignoreTimeOut = true;
             }
+            var counter = 0;
             while (requestsToReturn.GroupBy(el => el.Id).Count() != requestsToReturn.Count
                 && (((startTime + timeOut) > DateTime.Now) || ignoreTimeOut))
             {
+                if (counter > 1)
+                {
+                    _logger.LogTrace($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}'");
+                    if (counter % 10 == 0)
+                    {
+                        _logger.LogWarning($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}' " +
+                            $"time passed: '{DateTime.Now - startTime}', timeout: '{timeOut}', ignoreTimeout: '{ignoreTimeOut}'");
+                    }
+                }
                 IApiRequests.Where(el => IApiRequests.Any(el2 => el.Id == el2.Id))
                     .ToList().ForEach(el =>
                     {
                         el.Id = RequestIdGenerator.Generate();
                     });
+                counter++;
             }
             return requestsToReturn;
         }

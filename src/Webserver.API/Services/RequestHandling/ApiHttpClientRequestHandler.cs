@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -33,6 +34,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly HttpClient _httpClient;
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiResponseChecker _apiResponseChecker;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Should prob not be changed!
@@ -52,8 +54,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         public string JsonRpcApi => "api/jsonrpc";
 
-
-
         /// <summary>
         /// The ApiHttpClientRequestHandler will Send Post Requests,
         /// before sending the Request it'll remove those Parameters that have the value null for their keys 
@@ -62,11 +62,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker)
+        /// <param name="logger">Logger to be used.</param>
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            this._logger = logger;
         }
 
         /// <summary>
@@ -87,7 +89,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequest, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString, cancellationToken);
+            var started = DateTime.Now;
+            _logger?.LogDebug($"Start sending request {apiRequest.Id}");
+            var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
+            _logger?.LogDebug($"Got response for {apiRequest.Id} -> {DateTime.Now - started}");
+            return response;
         }
 
 
@@ -118,7 +124,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequestWithIntId, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString, cancellationToken);
+            var started = DateTime.Now;
+            _logger?.LogDebug($"Start sending request {apiRequestWithIntId.Id}");
+            var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
+            _logger?.LogDebug($"Got response for {apiRequestWithIntId.Id} -> {DateTime.Now - started}");
+            return response;
         }
 
         /// <summary>

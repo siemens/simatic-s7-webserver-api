@@ -59,7 +59,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public string JsonRpcApi => "api/jsonrpc";
 
         /// <summary>
-        /// Bool to control wether or not to mask sensitive information within the logger
+        /// Bool to control wether or not to mask sensitive information for e.g. logs
         /// </summary>
         public bool MaskSensitiveInformationControl { get; set; } = true;
 
@@ -104,7 +104,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequest, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString, cancellationToken);
+            var started = DateTime.Now;
+            _logger?.LogTrace($"Start sending request {apiRequest.Id}");
+            var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
+            _logger?.LogTrace($"Got response for {apiRequest.Id} -> {DateTime.Now - started}");
+            return response;
         }
 
 
@@ -135,7 +139,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequestWithIntId, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            return await SendPostRequestAsync(apiRequestString, cancellationToken);
+            var started = DateTime.Now;
+            _logger?.LogTrace($"Start sending request {apiRequestWithIntId.Id}");
+            var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
+            _logger?.LogTrace($"Got response for {apiRequestWithIntId.Id} -> {DateTime.Now - started}");
+            return response;
         }
 
         /// <summary>

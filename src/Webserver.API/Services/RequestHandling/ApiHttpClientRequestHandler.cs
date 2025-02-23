@@ -73,13 +73,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
         /// <param name="logger">Logger to be used.</param>
         /// <param name="dataProtector">Data Protector to be used for sensitive data</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, IDataProtector dataProtector = null, ILogger logger = null)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null, IDataProtector dataProtector = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
             this._logger = logger;
             this._dataProtector = dataProtector;
+            if (_logger != null && _dataProtector == null)
+            {
+                _logger.LogWarning($"Data protector has not been provided (at some places the logger might want to use it dependant on the configuration.) currently -> {MaskSensitiveInformationControl}!");
+            }
         }
 
         /// <summary>

@@ -73,7 +73,6 @@ NETStandard.Library   | https://www.nuget.org/packages/NETStandard.Library/	| ht
 Microsoft.SourceLink.GitHub   | https://www.nuget.org/packages/Microsoft.SourceLink.GitHub/	| https://github.com/dotnet/sourcelink
 System.Net.Http   | https://www.nuget.org/packages/system.net.http/	| https://dot.net/, https://github.com/microsoft/referencesource/tree/master/System/net/System/Net/Http
 Microsoft.Extensions.Logging.Abstractions | https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/ |  https://dot.net/, https://github.com/dotnet/runtime
-Microsoft.AspNetCore.DataProtection.Abstractions | https://www.nuget.org/packages/Microsoft.AspNetCore.DataProtection.Abstractions/ | https://dot.net/, https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/introduction?view=aspnetcore-9.0
 Newtonsoft.Json   | https://www.nuget.org/packages/Newtonsoft.Json/	| https://www.newtonsoft.com/json, https://github.com/JamesNK/Newtonsoft.Json
 GitVersioning   | https://www.nuget.org/packages/Nerdbank.GitVersioning/	| https://github.com/dotnet/Nerdbank.GitVersioning
 MimeMapping   | https://www.nuget.org/packages/MimeMapping/	| https://github.com/zone117x/MimeMapping

@@ -153,10 +153,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                             .ArrayElements.First(arrEl => arrEl.GetVarNameForMethods() == (string)requestedVarString));
                     childOrArrayElementWithVarString.Value = childval.Result;
                 }
-                foreach(var childval in childvalues.ErrorResponses)
-                {
-                    _logger?.LogError($"");
-                }
             }
             return toReturn;
         }

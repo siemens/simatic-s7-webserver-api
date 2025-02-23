@@ -24,6 +24,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -36,6 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiResponseChecker _apiResponseChecker;
         private readonly ILogger _logger;
+        private readonly IDataProtector _dataProtector;
 
         /// <summary>
         /// Should prob not be changed!
@@ -55,7 +58,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         public string JsonRpcApi => "api/jsonrpc";
 
-
+        /// <summary>
+        /// Bool to control wether or not to mask sensitive information within the logger
+        /// </summary>
+        public bool MaskSensitiveInformationControl { get; set; } = true;
 
         /// <summary>
         /// The ApiHttpClientRequestHandler will Send Post Requests,
@@ -66,12 +72,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
         /// <param name="logger">Logger to be used.</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
+        /// <param name="dataProtector">Data Protector to be used for sensitive data</param>
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, IDataProtector dataProtector = null, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
             this._logger = logger;
+            this._dataProtector = dataProtector;
         }
 
         /// <summary>
@@ -154,9 +162,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var responseString = await response.Content.ReadAsStringAsync();
 #endif
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
-            string maskedApiRequestString = MaskSensitiveInformation(apiRequestString);
-            string maskedResponseString = MaskSensitiveInformation(responseString);
-            _logger?.LogTrace($"Done processing '{maskedApiRequestString}' -> got result '{maskedResponseString}'");
+            if(_logger != null)
+            {
+                string maskedApiRequestString = MaskSensitiveInformation(apiRequestString);
+                string maskedResponseString = MaskSensitiveInformation(responseString);
+                _logger?.LogTrace($"Done processing '{maskedApiRequestString}' -> got result '{maskedResponseString}'");
+            }
             return responseString;
         }
 
@@ -166,9 +177,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 return input;
             }
-            // Example masking logic: replace passwords with asterisks
-            string pattern = "\"(password|currentPassword|newPassword)\":\"[^\"]*\"";
-            return Regex.Replace(input, pattern, "\"$1\":\"****\"");
+            if(!MaskSensitiveInformationControl)
+            {
+                return input;
+            }
+            if(_dataProtector == null)
+            {
+                throw new InvalidOperationException($"Cannot MaskSensitiveInformation for the " +
+                    $"provided input since the dataProtector has not been provided (c'tor)!");
+            }
+            var protectedString = _dataProtector.Protect(input);
+            return protectedString;
         }
 
         /// <summary>

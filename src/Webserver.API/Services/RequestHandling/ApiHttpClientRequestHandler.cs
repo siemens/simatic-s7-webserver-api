@@ -23,6 +23,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -153,8 +154,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var responseString = await response.Content.ReadAsStringAsync();
 #endif
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
-            _logger?.LogTrace($"Done processing '{apiRequestString}' -> got result '{responseString}'");
+            string maskedApiRequestString = MaskSensitiveInformation(apiRequestString);
+            string maskedResponseString = MaskSensitiveInformation(responseString);
+            _logger?.LogTrace($"Done processing '{maskedApiRequestString}' -> got result '{maskedResponseString}'");
             return responseString;
+        }
+
+        private string MaskSensitiveInformation(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            // Example masking logic: replace passwords with asterisks
+            string pattern = "\"(password|currentPassword|newPassword)\":\"[^\"]*\"";
+            return Regex.Replace(input, pattern, "\"$1\":\"****\"");
         }
 
         /// <summary>

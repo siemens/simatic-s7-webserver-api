@@ -1,9 +1,12 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
+using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Exceptions
 {
@@ -16,9 +19,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         {
             int allMessages = bulkResponse.ErrorResponses.Count() + bulkResponse.SuccessfulResponses.Count();
             int errorMessages = bulkResponse.ErrorResponses.Count();
-            string message = $"During Bulk request for {allMessages} there have been {errorMessages} Errors:" +
-                $"{Environment.NewLine}For details: Check the Property {nameof(BulkResponse)}";
-            return message;
+            StringBuilder message = new StringBuilder($"During Bulk request for {allMessages} there have been {errorMessages} Errors:" +
+                $"{Environment.NewLine}For details: Check the Property {nameof(BulkResponse)}, errors:");
+            foreach (var error in bulkResponse.ErrorResponses)
+            {
+                message.AppendLine($"{JsonConvert.SerializeObject(error.Error)}");
+            }
+            return message.ToString();
         }
 
         /// <summary>

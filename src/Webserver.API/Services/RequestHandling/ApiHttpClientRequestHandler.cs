@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -33,6 +34,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly HttpClient _httpClient;
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiResponseChecker _apiResponseChecker;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Should prob not be changed!
@@ -62,11 +64,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            this._logger = logger;
         }
 
         /// <summary>
@@ -149,6 +152,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var responseString = await response.Content.ReadAsStringAsync();
 #endif
             _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+            _logger?.LogTrace($"Done processing '{apiRequestString}' -> got result '{responseString}'");
             return responseString;
         }
 

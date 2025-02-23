@@ -152,7 +152,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>A QuantityStructure object</returns>
         ApiGetQuantityStructuresResponse ApiGetQuantityStructures();
-        
+
         /// <summary>
         /// Send a Api.Login Request 
         /// </summary>

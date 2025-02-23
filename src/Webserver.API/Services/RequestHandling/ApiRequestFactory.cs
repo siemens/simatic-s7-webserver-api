@@ -731,7 +731,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (counter > 1)
                 {
                     _logger.LogTrace($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}'");
-                    if (counter %10 == 0)
+                    if (counter % 10 == 0)
                     {
                         _logger.LogWarning($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}' " +
                             $"time passed: '{DateTime.Now - startTime}', timeout: '{timeOut}', ignoreTimeout: '{ignoreTimeOut}'");

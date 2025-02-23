@@ -23,9 +23,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {

@@ -4,7 +4,6 @@
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
-using System.Data;
 using System.Linq;
 using System.Text;
 

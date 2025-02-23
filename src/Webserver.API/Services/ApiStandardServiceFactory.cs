@@ -388,7 +388,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         public IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration)
             => GetApiHttpClientRequestHandlerAsync(connectionConfiguration).GetAwaiter().GetResult();
-        
+
         /// <summary>
         /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>

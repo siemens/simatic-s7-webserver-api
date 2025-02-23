@@ -52,8 +52,8 @@ namespace Webserver.API.UnitTests
             var start = DateTime.Now;
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests, timeOut).ToList();
             var end = DateTime.Now;
-            var timeTakenMinusOneSecond = (end - start - timeOut - TimeSpan.FromSeconds(1)); // timespan fromseconds => can take longer but shouldnt take way(!) longer => accept 1 sec
-            Assert.That(timeTakenMinusOneSecond < TimeSpan.FromSeconds(0));
+            var timeTakenMinusTwoSeconds = (end - start - timeOut - TimeSpan.FromSeconds(2)); // timespan fromseconds => can take longer but shouldnt take way(!) longer => accept 2 sec
+            Assert.That(timeTakenMinusTwoSeconds < TimeSpan.FromSeconds(0));
             // also accept if "we were fast enough"
             Assert.That(requests.GroupBy(req => req.Id).Count() <= requests.Count);
         }

@@ -64,6 +64,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
+        /// <param name="logger">Logger to be used.</param>
         public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));

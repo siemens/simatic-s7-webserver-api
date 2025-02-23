@@ -29,6 +29,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="asyncRequestHandler">Request Handler to send the Requests to the plc</param>
         /// <param name="requestFactory">Request Factory for request generation</param>
+        /// <param name="logger">Logger to be used.</param>
         public ApiPlcProgramHandler(IApiRequestHandler asyncRequestHandler, IApiRequestFactory requestFactory, ILogger logger = null)
         {
             this._apiRequestHandler = asyncRequestHandler ?? throw new ArgumentNullException(nameof(asyncRequestHandler));

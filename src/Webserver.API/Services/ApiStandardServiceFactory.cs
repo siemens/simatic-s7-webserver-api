@@ -42,14 +42,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// </summary>
         /// <param name="logger">Logger to be invoked</param>
         /// <param name="dataProtector">Data protector (e.g. request response)</param>
-        public ApiStandardServiceFactory(ILogger logger = null, IDataProtector dataProtector = null)
+        public ApiStandardServiceFactory(ILogger logger = null, IDataProtector dataProtector = null) 
         {
             _idGenerator = new GUIDGenerator();
             _apiRequestParameterChecker = new ApiRequestParameterChecker();
             _apiResponseChecker = new ApiResponseChecker();
             _apiRequestFactory = new ApiRequestFactory(_idGenerator, _apiRequestParameterChecker, logger);
             _apiWebAppResourceBuilder = GetApiWebAppResourceBuilder();
-
+            _logger = logger;
+            _dataProtector = dataProtector;
+            if (_logger != null && _dataProtector == null)
+            {
+                _logger.LogWarning($"Data protector has not been provided (at some places the logger might want to use it dependant on the configuration.)");
+            }
         }
 
         /// <summary>

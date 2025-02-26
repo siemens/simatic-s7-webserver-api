@@ -61,5 +61,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>The Struct containing the Children with their according Values</returns>
         Task<ApiBulkResponse> PlcProgramWriteStructByChildValuesAsync(ApiPlcProgramData structToWrite, ApiPlcDataRepresentation childrenWriteMode = ApiPlcDataRepresentation.Simple, CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Recursively Browse through everything 'underneath' the given block / Structure / block element
+        /// </summary>
+        /// <param name="rootNodeForRecursiveBrowse">The </param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        Task RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

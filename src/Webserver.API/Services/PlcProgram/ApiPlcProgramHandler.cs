@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
@@ -199,5 +200,82 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// <returns>The Struct containing the Children with their according Values</returns>
         public ApiBulkResponse PlcProgramWriteStructByChildValues(ApiPlcProgramData structToWrite, ApiPlcDataRepresentation childrenWriteMode = ApiPlcDataRepresentation.Simple)
             => PlcProgramWriteStructByChildValuesAsync(structToWrite, childrenWriteMode).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Recursively Browse through everything 'underneath' the given block / Structure / block element
+        /// </summary>
+        /// <param name="rootNodeForRecursiveBrowse">The </param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        public async Task RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            if (rootNodeForRecursiveBrowse.Has_children ?? false)
+            {
+                var items = (PlcProgramBrowseSetChildrenAndParents(ApiPlcProgramBrowseMode.Children, rootNodeForRecursiveBrowse)).Result;
+                foreach (var item in items)
+                {
+                    switch (item.Datatype)
+                    {
+                        case ApiPlcProgramDataType.Struct:
+                        case ApiPlcProgramDataType.DataBlock:
+                            if (item.ArrayElements.Any())
+                            {
+                                var requests = new List<IApiRequest>();
+                                foreach (var element in item.ArrayElements)
+                                {
+                                    var varNameForMethods = element.GetVarNameForMethods();
+                                    var requestToAdd = _requestFactory.GetApiPlcProgramBrowseRequest(ApiPlcProgramBrowseMode.Children, varNameForMethods);
+                                    _logger?.LogTrace($"Add PlcProgram Browse request for '{varNameForMethods}' -> mode '{ApiPlcProgramBrowseMode.Children}'");
+                                    requests.Add(requestToAdd);
+                                }
+                                requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+                                if (requests.Count > 0)
+                                {
+                                    var childvalues = await _apiRequestHandler.ApiBulkAsync(requests, cancellationToken);
+                                    foreach (var childval in childvalues.SuccessfulResponses) // as IEnumerable<ApiPlcProgramBrowseResponse>
+                                    {
+                                        _logger?.LogTrace($"{childval}");
+                                        var accordingObjects = (childval.Result as JArray).ToObject<List<ApiPlcProgramData>>();
+                                        accordingObjects.ForEach(el =>
+                                        {
+                                            el.Parents = new List<ApiPlcProgramData>(item.Parents);
+                                            el.Parents.Add(item);
+                                            _logger?.LogTrace($"add parent '{item.Name}' to '{el.Name}'");
+                                            if (item.Children == null)
+                                            {
+                                                item.Children = new List<ApiPlcProgramData>();
+                                            }
+                                            if (el.ArrayElements?.Count != 0)
+                                            {
+                                                foreach (var arrayEl in el.ArrayElements)
+                                                {
+                                                    arrayEl.Parents = el.Parents;
+                                                    _logger?.LogTrace($"add parent '{el.Name}' to '{arrayEl.Name}'");
+                                                }
+                                            }
+                                            if (!item.Children.Any(child => child.Equals(el)))
+                                            {
+                                                item.Children.Add(el);
+                                                _logger?.LogTrace($"add child '{el.Name}' to '{item.Name}'");
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                await RecursivePlcProgramBrowse(item);
+                            }
+                            break;
+                        default:
+                            // end element, no need to 'further browse'
+                            break;
+                    }
+                }
+            }
+        }
     }
 }

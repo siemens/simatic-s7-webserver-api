@@ -281,7 +281,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// Recursively Browse through everything 'underneath' the given block / Structure / block element
         /// </summary>
         /// <param name="rootNodeForRecursiveBrowse">The </param>
-        /// <param name="cancellationToken">Cancellation token for the operation</param>
         public void RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse)
             => RecursivePlcProgramBrowseAsync(rootNodeForRecursiveBrowse).GetAwaiter().GetResult();
     }

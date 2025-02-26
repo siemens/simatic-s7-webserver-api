@@ -206,7 +206,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="rootNodeForRecursiveBrowse">The </param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
-        public async Task RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task RecursivePlcProgramBrowseAsync(ApiPlcProgramData rootNodeForRecursiveBrowse, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (cancellationToken.IsCancellationRequested)
             {
@@ -237,7 +237,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                                     var childvalues = await _apiRequestHandler.ApiBulkAsync(requests, cancellationToken);
                                     foreach (var childval in childvalues.SuccessfulResponses) // as IEnumerable<ApiPlcProgramBrowseResponse>
                                     {
-                                        _logger?.LogTrace($"{childval}");
                                         var accordingObjects = (childval.Result as JArray).ToObject<List<ApiPlcProgramData>>();
                                         accordingObjects.ForEach(el =>
                                         {
@@ -267,7 +266,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                             }
                             else
                             {
-                                await RecursivePlcProgramBrowse(item);
+                                await RecursivePlcProgramBrowseAsync(item);
                             }
                             break;
                         default:
@@ -277,5 +276,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 }
             }
         }
+
+        /// <summary>
+        /// Recursively Browse through everything 'underneath' the given block / Structure / block element
+        /// </summary>
+        /// <param name="rootNodeForRecursiveBrowse">The </param>
+        /// <param name="cancellationToken">Cancellation token for the operation</param>
+        public void RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse)
+            => RecursivePlcProgramBrowseAsync(rootNodeForRecursiveBrowse).GetAwaiter().GetResult();
     }
 }

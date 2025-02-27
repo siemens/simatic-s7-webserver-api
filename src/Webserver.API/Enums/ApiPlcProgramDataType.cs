@@ -37,6 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
                 case ApiPlcProgramDataType.Error_struct:
                 case ApiPlcProgramDataType.Nref:
                 case ApiPlcProgramDataType.Cref:
+                case ApiPlcProgramDataType.Unsupported:
                     return false;
                 default:
                     return true;
@@ -445,6 +446,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// Struct
         /// </summary>
-        Struct = 81
+        Struct = 81,
+        /// <summary>
+        /// Unsupported
+        /// </summary>
+        Unsupported = 82
     }
 }

@@ -37,6 +37,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly ILogger _logger;
 
         /// <summary>
+        /// Max. Size of one 'single' Request (Bulk Request is also considered '1 request')
+        /// </summary>
+        public int MaxRequestSize { get; set; }
+
+        /// <summary>
         /// Should prob not be changed!
         /// appilication/json for requests to the jsonrpc api endpoint
         /// </summary>
@@ -69,7 +74,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
             this._logger = logger;
+            // default to 64 KiB
+            MaxRequestSize = 64 * 1024;
         }
+
+        /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        /// <returns>Initialization Task</returns>
+        public async Task InitAsync()
+        {
+            var version = await ApiVersionAsync();
+            throw new NotImplementedException($"Initialization for Api Version {version}");
+        }
+
+        /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        public void Init() => InitAsync().GetAwaiter().GetResult();
 
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
@@ -95,8 +117,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             _logger?.LogDebug($"Got response for {apiRequest.Id} -> {DateTime.Now - started}");
             return response;
         }
-
-
 
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
@@ -2907,23 +2927,51 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
-            var responseString = await response.Content.ReadAsStringAsync();
-            ApiBulkResponse bulkResponse = new ApiBulkResponse();
-            var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
-                .Where(el => el.Error != null);
-            bulkResponse.ErrorResponses = errorResponses;
-            var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
-                .Where(el => el.Result != null);
-            bulkResponse.SuccessfulResponses = successfulResponses;
-            if (bulkResponse.ContainsErrors)
+            var messageChunks = new List<byte[]>();
+            if (byteArr.Length >= MaxRequestSize)
             {
-                throw new ApiBulkRequestException(bulkResponse);
+                var amountOfChunks = byteArr.Length % MaxRequestSize;
+                _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into '{amountOfChunks}' requests.");
+                var chunkLen = 0;
+                for (int i = 0; i < amountOfChunks; i++)
+                {
+                    var toAdd = byteArr.Skip(i * MaxRequestSize).Take(MaxRequestSize).ToArray();
+                    chunkLen += toAdd.Length;
+                    messageChunks.Add(toAdd);
+                }
+                if(chunkLen != byteArr.Length)
+                {
+                    throw new InvalidOperationException($"Programming error in Message Chunking -> chunks len together: '{chunkLen}' but they should be '{byteArr.Length}'!");
+                }
             }
-            return bulkResponse;
+            else
+            {
+                messageChunks.Add(byteArr);
+            }
+            ApiBulkResponse result = new ApiBulkResponse();
+            var successResponses = new List<ApiResultResponse<object>>();
+            foreach (var messageChunk in messageChunks)
+            {
+                ByteArrayContent request_body = new ByteArrayContent(byteArr);
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
+                _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+                var responseString = await response.Content.ReadAsStringAsync();
+                ApiBulkResponse bulkResponse = new ApiBulkResponse();
+                var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
+                    .Where(el => el.Error != null);
+                bulkResponse.ErrorResponses = errorResponses;
+                var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
+                    .Where(el => el.Result != null);
+                bulkResponse.SuccessfulResponses = successfulResponses;
+                if (bulkResponse.ContainsErrors)
+                {
+                    throw new ApiBulkRequestException(bulkResponse);
+                }
+                successResponses.AddRange(bulkResponse.SuccessfulResponses);
+            }
+            result.SuccessfulResponses = successResponses;
+            return result;
         }
         /// <summary>
         /// Send an Api Bulk Request

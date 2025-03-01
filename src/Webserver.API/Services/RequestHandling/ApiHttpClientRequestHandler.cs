@@ -41,7 +41,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// prior or equal to fw version 3.0: 64KB (KiB?)
         /// after fw version 3.1: 128 KB (KiB?)
         /// </summary>
-        public int MaxRequestSize { get; set; } = 64 * 1024;
+        public long MaxRequestSize { 
+            get => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size;
+            set => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size = value;
+        } 
+
+        /// <summary>
+        /// Quantity Structure of the Server
+        /// </summary>
+        public ApiQuantityStructure ServerQuantityStructure { get; set; } = ApiQuantityStructure.MinimumQuantityStructure;
+
 
         /// <summary>
         /// Should prob not be changed!
@@ -82,18 +91,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
         /// </summary>
         /// <returns>Initialization Task</returns>
-        public async Task InitAsync()
+        public async Task InitAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var version = (await ApiVersionAsync()).Result;
-            if (version >= 4)
+            try
             {
-                MaxRequestSize = 128 * 1024;
+                var quantityStructure = (await ApiGetQuantityStructuresAsync(cancellationToken)).Result;
+                ServerQuantityStructure = quantityStructure;
+                _logger?.LogDebug($"Server quantity structure: {ServerQuantityStructure}");
             }
-            else
+            catch(ApiMethodNotFoundException)
             {
-                MaxRequestSize = 64 * 1024;
+                var version = (await ApiVersionAsync()).Result;
+                if (version >= 4)
+                {
+                    MaxRequestSize = 128 * 1024;
+                }
+                else
+                {
+                    MaxRequestSize = 64 * 1024;
+                }
+                _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
             }
-            _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
         }
 
         /// <summary>

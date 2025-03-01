@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+using Newtonsoft.Json;
+
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
     /// <summary>
@@ -21,6 +23,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// The number of parallel user sessions using the JSON-RPC endpoint.
         /// </summary>
         public int Webapi_Max_Parallel_User_Sessions { get; set; }
+
+        /// <summary>
+        /// Minimum Quantity Structure of Plc(s)
+        /// </summary>
+        public static ApiQuantityStructure MinimumQuantityStructure
+        {
+            get
+            {
+                return new ApiQuantityStructure { 
+                    Webapi_Max_Http_Request_Body_Size = 64 * 1024,
+                    Webapi_Max_Parallel_Requests = 1,
+                    Webapi_Max_Parallel_User_Sessions = 1
+                };
+            }
+        }
 
         /// <summary>
         /// Check whether properties match
@@ -51,9 +68,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Formatted string</returns>
         public override string ToString()
         {
-            return $"{nameof(Webapi_Max_Http_Request_Body_Size)}: {Webapi_Max_Http_Request_Body_Size} | " +
-                   $"{nameof(Webapi_Max_Parallel_Requests)}: {Webapi_Max_Parallel_Requests} | " +
-                   $"{nameof(Webapi_Max_Parallel_User_Sessions)}: {Webapi_Max_Parallel_User_Sessions}";
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

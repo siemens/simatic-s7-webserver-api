@@ -33,8 +33,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 return new ApiQuantityStructure { 
                     Webapi_Max_Http_Request_Body_Size = 64 * 1024,
-                    Webapi_Max_Parallel_Requests = 1,
-                    Webapi_Max_Parallel_User_Sessions = 1
+                    Webapi_Max_Parallel_Requests = 4,
+                    Webapi_Max_Parallel_User_Sessions = 100
                 };
             }
         }

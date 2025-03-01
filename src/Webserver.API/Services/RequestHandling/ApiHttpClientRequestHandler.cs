@@ -27,22 +27,6 @@ using System.Xml;
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// https://stackoverflow.com/questions/4015602/equivalent-of-stringbuilder-for-byte-arrays
-    /// </summary>
-    public static class MemoryStreamExtensions
-    {
-        public static void Append(this MemoryStream stream, byte value)
-        {
-            stream.Append(new[] { value });
-        }
-
-        public static void Append(this MemoryStream stream, byte[] values)
-        {
-            stream.Write(values, 0, values.Length);
-        }
-    }
-
-    /// <summary>
     /// Request Handlerusing the Microsoft.Net.HttpClient to send the requests to the API
     /// </summary>
     public class ApiHttpClientRequestHandler : IApiRequestHandler

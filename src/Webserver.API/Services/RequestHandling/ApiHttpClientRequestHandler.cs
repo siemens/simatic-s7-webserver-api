@@ -99,8 +99,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 ServerQuantityStructure = quantityStructure;
                 _logger?.LogDebug($"Server quantity structure: {ServerQuantityStructure}");
             }
-            catch(ApiMethodNotFoundException)
+            catch(ApiMethodNotFoundException e)
             {
+                _logger?.LogDebug(e, $"Server seems to not yet support the Method Api.GetQuantityStructures!" +
+                    $"Try to initialize MaxRequestSize dependant on ApiVersion");
                 var version = (await ApiVersionAsync()).Result;
                 if (version >= 4)
                 {

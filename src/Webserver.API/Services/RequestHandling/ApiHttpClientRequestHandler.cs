@@ -38,8 +38,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 
         /// <summary>
         /// Max. Size of one 'single' Request (Bulk Request is also considered '1 request')
+        /// prior or equal to fw version 3.0: 64KB (KiB?)
+        /// after fw version 3.1: 128 KB (KiB?)
         /// </summary>
-        public int MaxRequestSize { get; set; }
+        public int MaxRequestSize { get; set; } = 64 * 1000;
 
         /// <summary>
         /// Should prob not be changed!
@@ -74,8 +76,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
             this._logger = logger;
-            // default to 64 KiB
-            MaxRequestSize = 64 * 1024;
         }
 
         /// <summary>
@@ -84,8 +84,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>Initialization Task</returns>
         public async Task InitAsync()
         {
-            var version = await ApiVersionAsync();
-            throw new NotImplementedException($"Initialization for Api Version {version}");
+            var version = (await ApiVersionAsync()).Result;
+            if (version >= 4)
+            {
+                MaxRequestSize = 128 * 1000;
+            }
+            else
+            {
+                MaxRequestSize = 64 * 1000;
+            }
+            _logger?.LogDebug($"Api Version '{version}' -> ;ax Request Size limit determined: '{MaxRequestSize}'.");
         }
 
         /// <summary>

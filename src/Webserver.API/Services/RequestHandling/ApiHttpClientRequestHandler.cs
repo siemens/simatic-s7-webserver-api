@@ -2985,6 +2985,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             ApiBulkResponse result = new ApiBulkResponse();
             var successResponses = new List<ApiResultResponse<object>>();
+            _logger?.LogDebug($"Send '{messageChunks.Count}' chunks of ApiBulk Requests.");
             foreach (var messageChunk in messageChunks)
             {
                 ByteArrayContent request_body = new ByteArrayContent(byteArr);

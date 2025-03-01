@@ -93,7 +93,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 MaxRequestSize = 64 * 1000;
             }
-            _logger?.LogDebug($"Api Version '{version}' -> ;ax Request Size limit determined: '{MaxRequestSize}'.");
+            _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
         }
 
         /// <summary>

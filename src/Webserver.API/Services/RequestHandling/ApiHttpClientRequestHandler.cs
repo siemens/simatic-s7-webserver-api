@@ -2946,45 +2946,43 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var messageChunks = new List<byte[]>();
             if (byteArr.Length >= MaxRequestSize)
             {
-                //var amountOfChunks = (byteArr.Length / MaxRequestSize) + 1;
+                // comma needs to be added for multiple requests within Bulk
+                var commaBytes = Encoding.GetBytes(",");
                 _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into sub requests.");
                 var chunkLenSum = 0;
+                var commaMissingSum = 0;
                 var currentStream = new MemoryStream();
-                var currentRequests = new List<IApiRequest>();
-                foreach(var request in apiRequests)
+                foreach (var request in apiRequests)
                 {
                     string requestString = JsonConvert.SerializeObject(request, new JsonSerializerSettings()
                     { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
                     byte[] requestByteArr = Encoding.GetBytes(requestString);
-                    if(requestByteArr.Length > MaxRequestSize)
+                    if (requestByteArr.Length > MaxRequestSize)
                     {
                         throw new InvalidOperationException($"Request Size '{requestByteArr.Length}' is bigger than the " +
                             $"MaxRequestSize '{MaxRequestSize}'! -> Not Possible to Chunk this Message!");
                     }
-                    if(currentStream.Length + requestByteArr.Length < MaxRequestSize)
+                    if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
                     {
+                        currentStream.Append(commaBytes);
                         currentStream.Append(requestByteArr); // append it to the current stream
-                        currentRequests.Add(request);
                     }
                     else // save the current stream, add the current request to a new byte array
                     {
-                        string requestStringFromCurrentRequests = JsonConvert.SerializeObject(currentRequests, new JsonSerializerSettings()
-                        { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-                        byte[] requestByteArrFromRequests = Encoding.GetBytes(requestStringFromCurrentRequests);
                         var currentBuffer = currentStream.ToArray();
-                        // check for differences between buffers
                         messageChunks.Add(currentBuffer);
                         chunkLenSum += currentBuffer.Length;
                         currentStream = new MemoryStream();
                         currentStream.Append(requestByteArr);
-                        currentRequests = new List<IApiRequest>();
-                        currentRequests.Add(request);
+                        commaMissingSum += commaBytes.Length;
                     }
                 }
                 var currentBufferAfterwards = currentStream.ToArray();
                 messageChunks.Add(currentBufferAfterwards);
                 chunkLenSum += currentBufferAfterwards.Length;
-                if (chunkLenSum != byteArr.Length)
+                commaMissingSum += commaBytes.Length;
+                // check for differences between buffers and the 'original' byte array
+                if ((chunkLenSum + commaMissingSum) != byteArr.Length)
                 {
                     throw new InvalidOperationException($"Programming error in Message Chunking -> chunks len together: '{chunkLenSum}' but they should be '{byteArr.Length}'!");
                 }

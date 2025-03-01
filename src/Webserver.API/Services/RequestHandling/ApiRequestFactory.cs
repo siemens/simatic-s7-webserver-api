@@ -740,12 +740,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var sameIds = IApiRequests
                     .Where(el => IApiRequests.Any(el2 => el.Id == el2.Id));
                 _logger?.LogTrace($"Have '{sameIds.Count()}' requests with the same ids.");
-                foreach(var someId in sameIds)
+                foreach (var someId in sameIds)
                 {
-                    while(IApiRequests.Any(el => el.Id == someId.Id) && (((startTime + timeOut) > DateTime.Now) || ignoreTimeOut))
-                    {
-                        someId.Id = RequestIdGenerator.Generate();
-                    }
+                    someId.Id = RequestIdGenerator.Generate();
                 }
                 counter++;
             }

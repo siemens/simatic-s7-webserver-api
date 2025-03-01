@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// Copyright (c) 2025, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+using System.IO;
 
 namespace Siemens.Simatic.S7.Webserver.API.StaticHelpers
 {

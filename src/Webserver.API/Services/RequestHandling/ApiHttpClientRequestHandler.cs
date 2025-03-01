@@ -41,7 +41,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// prior or equal to fw version 3.0: 64KB (KiB?)
         /// after fw version 3.1: 128 KB (KiB?)
         /// </summary>
-        public int MaxRequestSize { get; set; } = 64 * 1000;
+        public int MaxRequestSize { get; set; } = 64 * 1024;
 
         /// <summary>
         /// Should prob not be changed!
@@ -87,11 +87,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var version = (await ApiVersionAsync()).Result;
             if (version >= 4)
             {
-                MaxRequestSize = 128 * 1000;
+                MaxRequestSize = 128 * 1024;
             }
             else
             {
-                MaxRequestSize = 64 * 1000;
+                MaxRequestSize = 64 * 1024;
             }
             _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
         }

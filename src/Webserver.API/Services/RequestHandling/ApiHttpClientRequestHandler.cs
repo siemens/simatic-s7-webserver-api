@@ -2943,13 +2943,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            var messageChunks = new List<List<byte[]>>();
+            var messageChunks = new List<byte[]>();
             if (byteArr.Length >= MaxRequestSize)
             {
                 //var amountOfChunks = (byteArr.Length / MaxRequestSize) + 1;
                 _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into sub requests.");
                 var chunkLenSum = 0;
-                var currentStream = new List<byte[]>();
+                var currentStream = new MemoryStream();
                 var currentRequests = new List<IApiRequest>();
                 foreach(var request in apiRequests)
                 {
@@ -2970,7 +2970,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     {
                         string requestStringFromCurrentRequests = JsonConvert.SerializeObject(currentRequests, new JsonSerializerSettings()
                         { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-                        byte[] requestByteArr = Encoding.GetBytes(requestStringFromCurrentRequests);
+                        byte[] requestByteArrFromRequests = Encoding.GetBytes(requestStringFromCurrentRequests);
                         var currentBuffer = currentStream.ToArray();
                         // check for differences between buffers
                         messageChunks.Add(currentBuffer);

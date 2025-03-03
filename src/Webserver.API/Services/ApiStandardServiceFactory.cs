@@ -33,6 +33,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         private readonly IApiResponseChecker _apiResponseChecker;
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiWebAppResourceBuilder _apiWebAppResourceBuilder;
+        private readonly IApiRequestSplitter _apiRequestSplitter;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             _apiResponseChecker = new ApiResponseChecker();
             _apiRequestFactory = new ApiRequestFactory(_idGenerator, _apiRequestParameterChecker, logger);
             _apiWebAppResourceBuilder = GetApiWebAppResourceBuilder();
+            _apiRequestSplitter = new ApiRequestSplitter(logger);
             _logger = logger;
         }
 
@@ -287,7 +289,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
             var httpClient = await GetHttpClientAsync(baseAddress, username, password, cancellationToken);
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }
@@ -304,7 +306,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             var httpClient = await GetHttpClientAsync(baseAddress, username, password, loginMode, cancellationToken);
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }
@@ -338,7 +340,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration)
         {
             var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration)).HttpClient;
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }
@@ -352,7 +354,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode)
         {
             var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, loginMode)).HttpClient;
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }
@@ -366,7 +368,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default(CancellationToken))
         {
             var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, cancellationToken: cancellationToken)).HttpClient;
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }
@@ -381,7 +383,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public async Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode, CancellationToken cancellationToken = default(CancellationToken))
         {
             var httpClient = (await GetHttpClientBaseAsync(connectionConfiguration, loginMode, cancellationToken: cancellationToken)).HttpClient;
-            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _logger);
+            var result = new ApiHttpClientRequestHandler(httpClient, _apiRequestFactory, _apiResponseChecker, _apiRequestSplitter, _logger);
             await result.InitAsync();
             return result;
         }

@@ -25,6 +25,7 @@ namespace Webserver.API.UnitTests
         public IApiRequestParameterChecker RequestParameterChecker;
 
         public IApiResponseChecker ApiResponseChecker;
+        public IApiRequestSplitter ApiRequestSplitter;
 
         public IApiBackupHandler BackupHandler;
 
@@ -44,6 +45,7 @@ namespace Webserver.API.UnitTests
             RequestParameterChecker = new ApiRequestParameterChecker();
             ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
             ApiResponseChecker = new ApiResponseChecker();
+            ApiRequestSplitter = new ApiRequestSplitter();
         }
     }
 }

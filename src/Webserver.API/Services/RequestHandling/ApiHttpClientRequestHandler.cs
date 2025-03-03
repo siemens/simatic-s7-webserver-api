@@ -34,6 +34,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly HttpClient _httpClient;
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiResponseChecker _apiResponseChecker;
+        private readonly IApiRequestSplitter _apiRequestSplitter;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -78,12 +79,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
+        /// <param name="apiRequestSplitter">Request splitter to be used for the Bulk requests (splitting according to MaxRequestSize).</param>
         /// <param name="logger">Logger to be used.</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, 
+            IApiRequestSplitter apiRequestSplitter, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            this._apiRequestSplitter = apiRequestSplitter ?? throw new ArgumentNullException(nameof(apiRequestSplitter));
             this._logger = logger;
         }
 
@@ -2945,85 +2949,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 throw new ArgumentException($"{nameof(apiRequests)} contains multiple requests with the same Id!");
             }
 
-            // Clean up null values from Params.
-            foreach (var apiRequest in apiRequests)
-            {
-                if (apiRequest.Params != null)
-                {
-                    apiRequest.Params = apiRequest.Params
-                        .Where(el => el.Value != null)
-                        .ToDictionary(x => x.Key, x => x.Value);
-                }
-            }
-
-            // Setup JSON serialization settings.
-            var jsonSettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            // Serialize each individual request.
-            var serializedRequests = apiRequests
-                .Select(request => JsonConvert.SerializeObject(request, jsonSettings))
-                .ToList();
-
-            // Build the full JSON array and determine its byte length.
-            string fullRequestJson = "[" + string.Join(",", serializedRequests) + "]";
-            byte[] fullRequestBytes = Encoding.UTF8.GetBytes(fullRequestJson);
-
-            var messageChunks = new List<byte[]>();
-
-            // If the full request is within the size limit, send it as one chunk.
-            if (fullRequestBytes.Length < MaxRequestSize)
-            {
-                messageChunks.Add(fullRequestBytes);
-            }
-            else
-            {
-                _logger?.LogInformation($"Chunking requests: total size {fullRequestBytes.Length} bytes exceeds maximum allowed {MaxRequestSize} bytes.");
-
-                // Build chunks that are valid JSON arrays.
-                var currentChunkRequests = new List<string>();
-                foreach (var requestJson in serializedRequests)
-                {
-                    // Create a candidate chunk that would include the next request.
-                    string candidateChunk = "[" + string.Join(",", currentChunkRequests.Concat(new[] { requestJson })) + "]";
-                    byte[] candidateBytes = Encoding.UTF8.GetBytes(candidateChunk);
-
-                    // If adding the next request exceeds the max, finish this chunk.
-                    if (candidateBytes.Length > MaxRequestSize)
-                    {
-                        if (!currentChunkRequests.Any())
-                        {
-                            // If a single request exceeds the limit, throw.
-                            byte[] singleRequestBytes = Encoding.UTF8.GetBytes("[" + requestJson + "]");
-                            throw new InvalidOperationException($"Request size {singleRequestBytes.Length} exceeds MaxRequestSize {MaxRequestSize}.");
-                        }
-                        // Finalize the current chunk.
-                        string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
-                        messageChunks.Add(Encoding.UTF8.GetBytes(chunkJson));
-
-                        // Start a new chunk with the current request.
-                        currentChunkRequests = new List<string> { requestJson };
-                    }
-                    else
-                    {
-                        // Otherwise, add the request to the current chunk.
-                        currentChunkRequests.Add(requestJson);
-                    }
-                }
-                // Add any remaining requests as the last chunk.
-                if (currentChunkRequests.Any())
-                {
-                    string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
-                    messageChunks.Add(Encoding.UTF8.GetBytes(chunkJson));
-                }
-            }
+            var messageChunks = _apiRequestSplitter.GetMessageChunks(apiRequests, MaxRequestSize);
 
             // Send each chunk and aggregate successful responses.
             var successResponses = new List<ApiResultResponse<object>>();
-            _logger?.LogDebug($"Sending {messageChunks.Count} chunk(s) of API bulk requests.");
+            _logger?.LogDebug($"Sending {messageChunks.Count()} chunk(s) of API bulk requests.");
 
             foreach (var chunk in messageChunks)
             {
@@ -3031,7 +2961,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 {
                     requestBody.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
                     var response = await _httpClient.PostAsync(JsonRpcApi, requestBody, cancellationToken);
-                    _apiResponseChecker.CheckHttpResponseForErrors(response, fullRequestJson);
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, Encoding.UTF8.GetString(chunk));
                     var responseString = await response.Content.ReadAsStringAsync();
 
                     // Deserialize error and success responses.

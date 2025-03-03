@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
@@ -28,7 +29,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var requests = new List<ApiRequest>();
             for (int i = 0; i < 100; i++)
@@ -49,7 +50,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<ApiRequest>();
             for (int i = 0; i < 100; i++)
             {
@@ -69,7 +70,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
             var sampleReq = new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate());
@@ -89,11 +90,106 @@ namespace Webserver.API.UnitTests
             TestHandler.MaxRequestSize = 5; // -> 20 chunks
             requests.Add(sampleReq);
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
-            var exc = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
             {
                 var response = await TestHandler.ApiBulkAsync(requests);
             });
-            Assert.That(exc.Message, Contains.Substring("bigger than the MaxRequestSize"));
+        }
+
+        [Test]
+        public async Task ApiBulk_SecondAndTherebyLastRequestBiggerThanMaxReqSize_Throws()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var requests = new List<IApiRequest>();
+
+            var sampleReqLittleBytes = new ApiRequest("Api.Ping", "2.0", ReqIdGenerator.Generate());
+            if (sampleReqLittleBytes.Params != null)
+            {
+                sampleReqLittleBytes.Params = sampleReqLittleBytes.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            string sampleReqLittleBytesSerialized = JsonConvert.SerializeObject(sampleReqLittleBytes, new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArrLittleBytes = Encoding.UTF8.GetBytes(sampleReqLittleBytesSerialized);
+
+            var sampleReq = new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate());
+            if (sampleReq.Params != null)
+            {
+                sampleReq.Params = sampleReq.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            string serialized = JsonConvert.SerializeObject(sampleReq, new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArr = Encoding.UTF8.GetBytes(serialized);
+
+            TestHandler.MaxRequestSize = byteArrLittleBytes.Length + 5;
+            Assert.That(byteArr.Length, Is.GreaterThan(TestHandler.MaxRequestSize));
+            requests.Add(sampleReqLittleBytes);
+            requests.Add(sampleReq);
+            requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+            var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
+            {
+                var response = await TestHandler.ApiBulkAsync(requests);
+            });
+            Assert.That(exc.Message, Contains.Substring("exceeds MaxRequestSize"));
+        }
+
+        [Test]
+        public async Task ApiBulk_SecondRequestBiggerThanMaxReqSize_ThirdValid_Throws()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var requests = new List<IApiRequest>();
+
+            var sampleReqLittleBytes = new ApiRequest("Api.Ping", "2.0", ReqIdGenerator.Generate());
+            if (sampleReqLittleBytes.Params != null)
+            {
+                sampleReqLittleBytes.Params = sampleReqLittleBytes.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            string sampleReqLittleBytesSerialized = JsonConvert.SerializeObject(sampleReqLittleBytes, new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArrLittleBytes = Encoding.UTF8.GetBytes(sampleReqLittleBytesSerialized);
+
+            var sampleReq = new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate());
+            if (sampleReq.Params != null)
+            {
+                sampleReq.Params = sampleReq.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+            string serialized = JsonConvert.SerializeObject(sampleReq, new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            byte[] byteArr = Encoding.UTF8.GetBytes(serialized);
+
+            TestHandler.MaxRequestSize = byteArrLittleBytes.Length + 5;
+            Assert.That(byteArr.Length, Is.GreaterThan(TestHandler.MaxRequestSize));
+            requests.Add(sampleReqLittleBytes);
+            requests.Add(sampleReq);
+            var sampleReqLittleBytes2 = new ApiRequest("Api.Ping", "2.0", ReqIdGenerator.Generate());
+            requests.Add(sampleReqLittleBytes2);
+            requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+            var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
+            {
+                var response = await TestHandler.ApiBulkAsync(requests);
+            });
+            Assert.That(exc.Message, Contains.Substring("exceeds MaxRequestSize"));
         }
 
         [Test]
@@ -106,7 +202,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
             var sampleReq = new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate());
@@ -143,7 +239,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
             var sampleReq = new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate());

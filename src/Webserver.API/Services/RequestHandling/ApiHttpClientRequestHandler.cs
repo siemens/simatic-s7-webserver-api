@@ -2939,10 +2939,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
         public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if ((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
+            // Ensure unique request Ids.
+            if (apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count())
             {
                 throw new ArgumentException($"{nameof(apiRequests)} contains multiple requests with the same Id!");
             }
+
+            // Clean up null values from Params.
             foreach (var apiRequest in apiRequests)
             {
                 if (apiRequest.Params != null)
@@ -2952,82 +2955,105 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                         .ToDictionary(x => x.Key, x => x.Value);
                 }
             }
-            string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
-            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            var messageChunks = new List<byte[]>();
-            if (byteArr.Length >= MaxRequestSize)
+
+            // Setup JSON serialization settings.
+            var jsonSettings = new JsonSerializerSettings
             {
-                // comma needs to be added for multiple requests within Bulk
-                var commaBytes = Encoding.GetBytes(",");
-                _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into sub requests.");
-                var chunkLenSum = 0;
-                var commaMissingSum = 0;
-                var currentStream = new MemoryStream();
-                foreach (var request in apiRequests)
-                {
-                    string requestString = JsonConvert.SerializeObject(request, new JsonSerializerSettings()
-                    { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-                    byte[] requestByteArr = Encoding.GetBytes(requestString);
-                    if (requestByteArr.Length > MaxRequestSize)
-                    {
-                        throw new InvalidOperationException($"Request Size '{requestByteArr.Length}' is bigger than the " +
-                            $"MaxRequestSize '{MaxRequestSize}'! -> Not Possible to Chunk this Message!");
-                    }
-                    if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
-                    {
-                        currentStream.Append(commaBytes);
-                        currentStream.Append(requestByteArr); // append it to the current stream
-                    }
-                    else // save the current stream, add the current request to a new byte array
-                    {
-                        var currentBuffer = currentStream.ToArray();
-                        messageChunks.Add(currentBuffer);
-                        chunkLenSum += currentBuffer.Length;
-                        currentStream = new MemoryStream();
-                        currentStream.Append(requestByteArr);
-                        commaMissingSum += commaBytes.Length;
-                    }
-                }
-                var currentBufferAfterwards = currentStream.ToArray();
-                messageChunks.Add(currentBufferAfterwards);
-                chunkLenSum += currentBufferAfterwards.Length;
-                commaMissingSum += commaBytes.Length;
-                // check for differences between buffers and the 'original' byte array
-                if ((chunkLenSum + commaMissingSum) != byteArr.Length)
-                {
-                    throw new InvalidOperationException($"Programming error in Message Chunking -> chunks len together: '{chunkLenSum}' but they should be '{byteArr.Length}'!");
-                }
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            // Serialize each individual request.
+            var serializedRequests = apiRequests
+                .Select(request => JsonConvert.SerializeObject(request, jsonSettings))
+                .ToList();
+
+            // Build the full JSON array and determine its byte length.
+            string fullRequestJson = "[" + string.Join(",", serializedRequests) + "]";
+            byte[] fullRequestBytes = Encoding.UTF8.GetBytes(fullRequestJson);
+
+            var messageChunks = new List<byte[]>();
+
+            // If the full request is within the size limit, send it as one chunk.
+            if (fullRequestBytes.Length < MaxRequestSize)
+            {
+                messageChunks.Add(fullRequestBytes);
             }
             else
             {
-                messageChunks.Add(byteArr);
-            }
-            ApiBulkResponse result = new ApiBulkResponse();
-            var successResponses = new List<ApiResultResponse<object>>();
-            _logger?.LogDebug($"Send '{messageChunks.Count}' chunks of ApiBulk Requests.");
-            foreach (var messageChunk in messageChunks)
-            {
-                ByteArrayContent request_body = new ByteArrayContent(byteArr);
-                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-                var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
-                _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
-                var responseString = await response.Content.ReadAsStringAsync();
-                ApiBulkResponse bulkResponse = new ApiBulkResponse();
-                var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
-                    .Where(el => el.Error != null);
-                bulkResponse.ErrorResponses = errorResponses;
-                var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
-                    .Where(el => el.Result != null);
-                bulkResponse.SuccessfulResponses = successfulResponses;
-                if (bulkResponse.ContainsErrors)
+                _logger?.LogInformation($"Chunking requests: total size {fullRequestBytes.Length} bytes exceeds maximum allowed {MaxRequestSize} bytes.");
+
+                // Build chunks that are valid JSON arrays.
+                var currentChunkRequests = new List<string>();
+                foreach (var requestJson in serializedRequests)
                 {
-                    throw new ApiBulkRequestException(bulkResponse);
+                    // Create a candidate chunk that would include the next request.
+                    string candidateChunk = "[" + string.Join(",", currentChunkRequests.Concat(new[] { requestJson })) + "]";
+                    byte[] candidateBytes = Encoding.UTF8.GetBytes(candidateChunk);
+
+                    // If adding the next request exceeds the max, finish this chunk.
+                    if (candidateBytes.Length > MaxRequestSize)
+                    {
+                        if (!currentChunkRequests.Any())
+                        {
+                            // If a single request exceeds the limit, throw.
+                            byte[] singleRequestBytes = Encoding.UTF8.GetBytes("[" + requestJson + "]");
+                            throw new InvalidOperationException($"Request size {singleRequestBytes.Length} exceeds MaxRequestSize {MaxRequestSize}.");
+                        }
+                        // Finalize the current chunk.
+                        string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
+                        messageChunks.Add(Encoding.UTF8.GetBytes(chunkJson));
+
+                        // Start a new chunk with the current request.
+                        currentChunkRequests = new List<string> { requestJson };
+                    }
+                    else
+                    {
+                        // Otherwise, add the request to the current chunk.
+                        currentChunkRequests.Add(requestJson);
+                    }
                 }
-                successResponses.AddRange(bulkResponse.SuccessfulResponses);
+                // Add any remaining requests as the last chunk.
+                if (currentChunkRequests.Any())
+                {
+                    string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
+                    messageChunks.Add(Encoding.UTF8.GetBytes(chunkJson));
+                }
             }
-            result.SuccessfulResponses = successResponses;
-            return result;
+
+            // Send each chunk and aggregate successful responses.
+            var successResponses = new List<ApiResultResponse<object>>();
+            _logger?.LogDebug($"Sending {messageChunks.Count} chunk(s) of API bulk requests.");
+
+            foreach (var chunk in messageChunks)
+            {
+                using (var requestBody = new ByteArrayContent(chunk))
+                {
+                    requestBody.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                    var response = await _httpClient.PostAsync(JsonRpcApi, requestBody, cancellationToken);
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, fullRequestJson);
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    // Deserialize error and success responses.
+                    var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
+                        .Where(el => el.Error != null);
+                    var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
+                        .Where(el => el.Result != null);
+
+                    if (errorResponses.Any())
+                    {
+                        var bulkResponse = new ApiBulkResponse
+                        {
+                            ErrorResponses = errorResponses,
+                            SuccessfulResponses = successfulResponses
+                        };
+                        throw new ApiBulkRequestException(bulkResponse);
+                    }
+                    successResponses.AddRange(successfulResponses);
+                }
+            }
+
+            return new ApiBulkResponse { SuccessfulResponses = successResponses };
         }
         /// <summary>
         /// Send an Api Bulk Request

@@ -37,6 +37,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly ILogger _logger;
 
         /// <summary>
+        /// Max. Size of one 'single' Request (Bulk Request is also considered '1 request')
+        /// prior or equal to fw version 3.0: 64KB (KiB?)
+        /// after fw version 3.1: 128 KB (KiB?)
+        /// </summary>
+        public long MaxRequestSize { 
+            get => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size;
+            set => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size = value;
+        } 
+
+        /// <summary>
+        /// Quantity Structure of the Server
+        /// </summary>
+        public ApiQuantityStructure ServerQuantityStructure { get; set; } = ApiQuantityStructure.MinimumQuantityStructure;
+
+
+        /// <summary>
         /// Should prob not be changed!
         /// appilication/json for requests to the jsonrpc api endpoint
         /// </summary>
@@ -72,6 +88,40 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        /// <returns>Initialization Task</returns>
+        public async Task InitAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var quantityStructure = (await ApiGetQuantityStructuresAsync(cancellationToken)).Result;
+                ServerQuantityStructure = quantityStructure;
+                _logger?.LogDebug($"Server quantity structure: {ServerQuantityStructure}");
+            }
+            catch(ApiMethodNotFoundException e)
+            {
+                _logger?.LogDebug(e, $"Server seems to not yet support the Method Api.GetQuantityStructures!" +
+                    $"Try to initialize MaxRequestSize dependant on ApiVersion");
+                var version = (await ApiVersionAsync()).Result;
+                if (version >= 4)
+                {
+                    MaxRequestSize = 128 * 1024;
+                }
+                else
+                {
+                    MaxRequestSize = 64 * 1024;
+                }
+                _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
+            }
+        }
+
+        /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        public void Init() => InitAsync().GetAwaiter().GetResult();
+
+        /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
         /// will remove those Params that have the value Null and send the request using the HttpClient.
         /// </summary>
@@ -95,8 +145,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             _logger?.LogDebug($"Got response for {apiRequest.Id} -> {DateTime.Now - started}");
             return response;
         }
-
-
 
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
@@ -2907,23 +2955,79 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
-            var responseString = await response.Content.ReadAsStringAsync();
-            ApiBulkResponse bulkResponse = new ApiBulkResponse();
-            var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
-                .Where(el => el.Error != null);
-            bulkResponse.ErrorResponses = errorResponses;
-            var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
-                .Where(el => el.Result != null);
-            bulkResponse.SuccessfulResponses = successfulResponses;
-            if (bulkResponse.ContainsErrors)
+            var messageChunks = new List<byte[]>();
+            if (byteArr.Length >= MaxRequestSize)
             {
-                throw new ApiBulkRequestException(bulkResponse);
+                // comma needs to be added for multiple requests within Bulk
+                var commaBytes = Encoding.GetBytes(",");
+                _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into sub requests.");
+                var chunkLenSum = 0;
+                var commaMissingSum = 0;
+                var currentStream = new MemoryStream();
+                foreach (var request in apiRequests)
+                {
+                    string requestString = JsonConvert.SerializeObject(request, new JsonSerializerSettings()
+                    { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+                    byte[] requestByteArr = Encoding.GetBytes(requestString);
+                    if (requestByteArr.Length > MaxRequestSize)
+                    {
+                        throw new InvalidOperationException($"Request Size '{requestByteArr.Length}' is bigger than the " +
+                            $"MaxRequestSize '{MaxRequestSize}'! -> Not Possible to Chunk this Message!");
+                    }
+                    if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
+                    {
+                        currentStream.Append(commaBytes);
+                        currentStream.Append(requestByteArr); // append it to the current stream
+                    }
+                    else // save the current stream, add the current request to a new byte array
+                    {
+                        var currentBuffer = currentStream.ToArray();
+                        messageChunks.Add(currentBuffer);
+                        chunkLenSum += currentBuffer.Length;
+                        currentStream = new MemoryStream();
+                        currentStream.Append(requestByteArr);
+                        commaMissingSum += commaBytes.Length;
+                    }
+                }
+                var currentBufferAfterwards = currentStream.ToArray();
+                messageChunks.Add(currentBufferAfterwards);
+                chunkLenSum += currentBufferAfterwards.Length;
+                commaMissingSum += commaBytes.Length;
+                // check for differences between buffers and the 'original' byte array
+                if ((chunkLenSum + commaMissingSum) != byteArr.Length)
+                {
+                    throw new InvalidOperationException($"Programming error in Message Chunking -> chunks len together: '{chunkLenSum}' but they should be '{byteArr.Length}'!");
+                }
             }
-            return bulkResponse;
+            else
+            {
+                messageChunks.Add(byteArr);
+            }
+            ApiBulkResponse result = new ApiBulkResponse();
+            var successResponses = new List<ApiResultResponse<object>>();
+            _logger?.LogDebug($"Send '{messageChunks.Count}' chunks of ApiBulk Requests.");
+            foreach (var messageChunk in messageChunks)
+            {
+                ByteArrayContent request_body = new ByteArrayContent(byteArr);
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
+                _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+                var responseString = await response.Content.ReadAsStringAsync();
+                ApiBulkResponse bulkResponse = new ApiBulkResponse();
+                var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
+                    .Where(el => el.Error != null);
+                bulkResponse.ErrorResponses = errorResponses;
+                var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
+                    .Where(el => el.Result != null);
+                bulkResponse.SuccessfulResponses = successfulResponses;
+                if (bulkResponse.ContainsErrors)
+                {
+                    throw new ApiBulkRequestException(bulkResponse);
+                }
+                successResponses.AddRange(bulkResponse.SuccessfulResponses);
+            }
+            result.SuccessfulResponses = successResponses;
+            return result;
         }
         /// <summary>
         /// Send an Api Bulk Request

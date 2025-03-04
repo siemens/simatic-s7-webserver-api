@@ -56,6 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var chunkLenSum = 0;
                 var commaMissingSum = 0;
                 var currentStream = new MemoryStream();
+                currentStream.Append(beginBytes);
                 foreach (var request in apiRequests)
                 {
                     string requestString = JsonConvert.SerializeObject(request, jsonSettings);

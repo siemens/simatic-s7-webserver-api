@@ -67,7 +67,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     }
                     if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
                     {
-                        currentStream.Append(commaBytes);
+                        if(currentStream.Length > 5)
+                        {
+                            // only append the comma if there already is one inside
+                            currentStream.Append(commaBytes);
+                        }
                         currentStream.Append(requestByteArr); // append it to the current stream
                     }
                     else // save the current stream, add the current request to a new byte array

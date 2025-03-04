@@ -35,6 +35,7 @@ namespace Webserver.API.UnitTests
             {
                 requests.Add(new ApiRequest("Api.Ping", "2.0", i.ToString()));
             }
+            CheckSplitter_SameResults(requests, 150);
             CheckSplitter_SameResults(requests, 64 * 1024);
             CheckSplitter_SameResults(requests, 128 * 1024);
         }

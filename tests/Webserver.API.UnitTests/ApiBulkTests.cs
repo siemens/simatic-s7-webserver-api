@@ -61,7 +61,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public async Task ApiBulk_RequestBiggerThanMaxReqSize_Throws()
+        public void ApiBulk_RequestBiggerThanMaxReqSize_Throws()
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
@@ -97,7 +97,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public async Task ApiBulk_SecondAndTherebyLastRequestBiggerThanMaxReqSize_Throws()
+        public void ApiBulk_SecondAndTherebyLastRequestBiggerThanMaxReqSize_Throws()
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
@@ -144,7 +144,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public async Task ApiBulk_SecondRequestBiggerThanMaxReqSize_ThirdValid_Throws()
+        public void ApiBulk_SecondRequestBiggerThanMaxReqSize_ThirdValid_Throws()
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)

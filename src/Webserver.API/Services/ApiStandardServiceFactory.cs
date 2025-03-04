@@ -47,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             _apiResponseChecker = new ApiResponseChecker();
             _apiRequestFactory = new ApiRequestFactory(_idGenerator, _apiRequestParameterChecker, logger);
             _apiWebAppResourceBuilder = GetApiWebAppResourceBuilder();
-            _apiRequestSplitter = new ApiRequestSplitter(logger);
+            _apiRequestSplitter = new ApiRequestSplitterByBytes(logger);
             _logger = logger;
         }
 

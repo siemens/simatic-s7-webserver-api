@@ -7,12 +7,12 @@ using System.Collections.Generic;
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Split the provided Bulk Request into multiple Message chunks
+    /// Split the provided Api Requests into multiple Message chunks
     /// </summary>
     public interface IApiRequestSplitter
     {
         /// <summary>
-        /// Get Requests (byte[] to send to the server) for the given api Requests so that the byte[] built will be within the MaxRequestSize
+        /// Split the provided Api Requests into multiple Message chunks
         /// </summary>
         /// <param name="apiRequests">Api Requests to be sent</param>
         /// <param name="MaxRequestSize">Max Request size for the Bulk Requests to be created.</param>

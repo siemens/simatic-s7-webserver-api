@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿// Copyright (c) 2025, Siemens AG
+//
+// SPDX-License-Identifier: MIT
+using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using System;
@@ -6,23 +9,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
+    /// <summary cref="IApiRequestSplitter" />
     public class ApiRequestSplitterByBytes : IApiRequestSplitter
     {
         private readonly ILogger _logger;
+
+        /// <summary cref="IApiRequestSplitter" />
         public ApiRequestSplitterByBytes(ILogger logger = null)
         {
             _logger = logger;
         }
 
+        /// <summary cref="GetMessageChunks(IEnumerable{IApiRequest}, long)" />
         public IEnumerable<byte[]> GetMessageChunks(IEnumerable<IApiRequest> apiRequests, long MaxRequestSize)
         {
+            // Clean up null values from Params.
             foreach (var apiRequest in apiRequests)
             {
                 if (apiRequest.Params != null)
@@ -32,13 +39,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                         .ToDictionary(x => x.Key, x => x.Value);
                 }
             }
-            string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
-            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            var jsonSettings = new JsonSerializerSettings()
+            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() };
+            // serialize all
+            string apiRequestString = JsonConvert.SerializeObject(apiRequests, jsonSettings);
             byte[] byteArr = Encoding.UTF8.GetBytes(apiRequestString);
             var messageChunks = new List<byte[]>();
+            // in case the message would be bigger than the max size -> chunk them
             if (byteArr.Length >= MaxRequestSize)
             {
-                // comma needs to be added for multiple requests within Bulk
+                // comma needs to be added for multiple requests within Bulk, [ at start, ] at end
                 var commaBytes = Encoding.UTF8.GetBytes(",");
                 var beginBytes = Encoding.UTF8.GetBytes("[");
                 var endBytes = Encoding.UTF8.GetBytes("]");
@@ -48,13 +58,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var currentStream = new MemoryStream();
                 foreach (var request in apiRequests)
                 {
-                    string requestString = JsonConvert.SerializeObject(request, new JsonSerializerSettings()
-                    { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
+                    string requestString = JsonConvert.SerializeObject(request, jsonSettings);
                     byte[] requestByteArr = Encoding.UTF8.GetBytes(requestString);
                     if (requestByteArr.Length > MaxRequestSize)
                     {
-                        throw new ApiRequestBiggerThanMaxMessageSizeException($"Request Size '{requestByteArr.Length}' is bigger than the " +
-                            $"MaxRequestSize '{MaxRequestSize}'! -> Not Possible to Chunk this Message!");
+                        throw new ApiRequestBiggerThanMaxMessageSizeException($"Request size {requestByteArr.Length} exceeds MaxRequestSize {MaxRequestSize}.");
                     }
                     if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
                     {
@@ -81,11 +89,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     messageChunks.Add(currentBufferAfterwards);
                     chunkLenSum += currentBufferAfterwards.Length;
                     commaMissingSum += commaBytes.Length;
-                }
-                // check for differences between buffers and the 'original' byte array
-                if ((chunkLenSum + commaMissingSum) != byteArr.Length)
-                {
-                    throw new InvalidOperationException($"Programming error in Message Chunking -> chunks len together: '{chunkLenSum}' but they should be '{byteArr.Length}'!");
                 }
             }
             else

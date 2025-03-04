@@ -45,7 +45,8 @@ namespace Webserver.API.UnitTests
             RequestParameterChecker = new ApiRequestParameterChecker();
             ApiRequestFactory = new ApiRequestFactory(ReqIdGenerator, RequestParameterChecker);
             ApiResponseChecker = new ApiResponseChecker();
-            ApiRequestSplitter = new ApiRequestSplitter();
+            //ApiRequestSplitter = new ApiRequestSplitter();
+            ApiRequestSplitter = new ApiRequestSplitterByBytes();
         }
     }
 }

@@ -12,16 +12,20 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
+    /// <summary cref="IApiRequestSplitter" />
     public class ApiRequestSplitter : IApiRequestSplitter
     {
         private readonly ILogger _logger;
 
-        
+
+        /// <summary cref="IApiRequestSplitter" />
+        /// <param name="logger">Logger for the Request Splitter</param>
         public ApiRequestSplitter(ILogger logger = null)
         {
             _logger = logger;
         }
 
+        /// <summary cref="GetMessageChunks(IEnumerable{IApiRequest}, long)" />
         public IEnumerable<byte[]> GetMessageChunks(IEnumerable<IApiRequest> apiRequests, long MaxRequestSize)
         {
             // Clean up null values from Params.
@@ -105,11 +109,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 {
                     string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
                     var lastChunkBytes = Encoding.UTF8.GetBytes(chunkJson);
-                    if (lastChunkBytes.Length > MaxRequestSize)
-                    {
-                        // If a single request exceeds the limit, throw.
-                        throw new ApiRequestBiggerThanMaxMessageSizeException($"Last Request size {lastChunkBytes.Length} exceeds MaxRequestSize {MaxRequestSize}.");
-                    }
                     messageChunks.Add(lastChunkBytes);
                 }
             }

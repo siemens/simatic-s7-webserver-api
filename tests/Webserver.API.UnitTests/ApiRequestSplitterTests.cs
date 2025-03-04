@@ -23,7 +23,7 @@ namespace Webserver.API.UnitTests
         }
 
         [Test]
-        public void ApiRequestSplitter_AndByBytes_SameResult([Values(1, 10, 20, 50, 1000, 100_000)] int loopAmount)
+        public void ApiRequestSplitter_AndByBytes_SameResult([Values(5000, 100_000, 500_000)] int loopAmount)
         {
             var requests = new List<ApiRequest>();
             for (int i = 0; i < loopAmount; i++)
@@ -44,6 +44,15 @@ namespace Webserver.API.UnitTests
             var res2 = splitter2.GetMessageChunks(requests, maxRequestSize);
             var time2 = sw.Elapsed;
             Console.WriteLine($"time taken {splitter2.GetType()}: {time2}");
+            // determine 'betterness in percent'
+            var ticks1 = time1.Ticks;
+            var ticks2 = time2.Ticks;
+            var greater = ticks1 > ticks2 ? ticks1 : ticks2;
+            var less = ticks1 < ticks2 ? ticks1 : ticks2;
+            var factor = (double)greater / (double)less;
+            factor -= 1;
+            factor *= 100;
+            Console.WriteLine($"{(ticks1 < ticks2 ? $"{splitter.GetType()}" : $"{splitter2.GetType()}")} is better by {factor}%!");
             CheckEquality(res1, res2);
         }
 

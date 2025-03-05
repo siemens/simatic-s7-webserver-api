@@ -73,5 +73,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             CreateDirectoryIfNotExists = createDirectoryIfNotExists;
             JsonSerializerSetting = jsonSerializerSetting;
         }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

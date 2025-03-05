@@ -177,5 +177,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode() => (Name, State, Type, Version, Redirect_mode, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

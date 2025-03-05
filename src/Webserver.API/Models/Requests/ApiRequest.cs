@@ -23,6 +23,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
             : base(method, jsonRpc, id, requestParams)
         {
         }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 
     /// <summary>
@@ -30,7 +39,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
     /// </summary>
     public class ApiRequestIntId : ApiBaseRequest<int>, IApiRequestIntId, IApiBaseRequest<int>
     {
-
         /// <summary>
         /// Get the ApiRequest (e.g. Api.Browse) with the given parameters
         /// </summary>
@@ -41,6 +49,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
         public ApiRequestIntId(string method, string jsonRpc, int id, Dictionary<string, object> requestParams = null)
             : base(method, jsonRpc, id, requestParams)
         {
+
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 
@@ -81,6 +99,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Requests
             this.JsonRpc = jsonRpc;
             this.Id = id;
         }
-    }
 
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
 }

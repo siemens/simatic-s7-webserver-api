@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 
@@ -55,6 +56,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             hashCode = hashCode * -1521134295 + EqualityComparer<HttpClient>.Default.GetHashCode(HttpClient);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(WebApplicationCookie);
             return hashCode;
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

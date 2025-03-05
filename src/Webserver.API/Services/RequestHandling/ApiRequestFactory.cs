@@ -730,18 +730,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (counter > 1)
                 {
-                    _logger.LogTrace($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}'");
+                    _logger?.LogTrace($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}'");
                     if (counter % 10 == 0)
                     {
-                        _logger.LogWarning($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}' " +
+                        _logger?.LogWarning($"In '{nameof(GetApiBulkRequestWithUniqueIds)}' -> counter '{counter}' -> regenerate using '{nameof(RequestIdGenerator)}' -> type:'{RequestIdGenerator.GetType()}' " +
                             $"time passed: '{DateTime.Now - startTime}', timeout: '{timeOut}', ignoreTimeout: '{ignoreTimeOut}'");
                     }
                 }
-                IApiRequests.Where(el => IApiRequests.Any(el2 => el.Id == el2.Id))
-                    .ToList().ForEach(el =>
-                    {
-                        el.Id = RequestIdGenerator.Generate();
-                    });
+                var sameIds = IApiRequests
+                    .Where(el => IApiRequests.Any(el2 => el.Id == el2.Id));
+                _logger?.LogTrace($"Have '{sameIds.Count()}' requests with the same ids.");
+                foreach (var someId in sameIds)
+                {
+                    someId.Id = RequestIdGenerator.Generate();
+                }
                 counter++;
             }
             return requestsToReturn;

@@ -34,5 +34,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults
         /// </summary>
         [JsonConverter(typeof(TimeSpanISO8601Converter))]
         public TimeSpan Runtime_timeout { get; set; }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

@@ -66,5 +66,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             return (Name, Signature, Cycle_time_current, Cycle_time_Max, Runtime_current, Runtime_max).GetHashCode();
         }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

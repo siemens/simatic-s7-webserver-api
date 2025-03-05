@@ -27,5 +27,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults
         /// If the requested hardware identifier represents any other safety module than the Safety PLC itself, this object must be present using data structure 'FailsafeModule'
         /// </summary>
         public FailsafeHardware Parameters { get; set; }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

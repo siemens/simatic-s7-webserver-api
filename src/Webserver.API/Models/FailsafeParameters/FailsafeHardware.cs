@@ -13,6 +13,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
     [JsonConverter(typeof(FailsafeHardwareConverter))]
     public class FailsafeHardware
     {
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 
     /// <summary>
@@ -56,6 +64,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
         public override int GetHashCode()
         {
             return (Last_f_program_modification, Collective_signature, Remaining_time).GetHashCode();
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 
@@ -103,6 +120,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
         public override int GetHashCode()
         {
             return (F_monitoring_time, F_par_crc, F_destination_address, F_source_address).GetHashCode();
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

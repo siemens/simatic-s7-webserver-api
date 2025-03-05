@@ -42,10 +42,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// prior or equal to fw version 3.0: 64KB (KiB?)
         /// after fw version 3.1: 128 KB (KiB?)
         /// </summary>
-        public long MaxRequestSize { 
+        public long MaxRequestSize
+        {
             get => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size;
             set => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size = value;
-        } 
+        }
 
         /// <summary>
         /// Quantity Structure of the Server
@@ -81,7 +82,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
         /// <param name="apiRequestSplitter">Request splitter to be used for the Bulk requests (splitting according to MaxRequestSize).</param>
         /// <param name="logger">Logger to be used.</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, 
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker,
             IApiRequestSplitter apiRequestSplitter, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -103,20 +104,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 ServerQuantityStructure = quantityStructure;
                 _logger?.LogDebug($"Server quantity structure: {ServerQuantityStructure}");
             }
-            catch(ApiMethodNotFoundException e)
+            catch (ApiMethodNotFoundException e)
             {
                 _logger?.LogDebug(e, $"Server seems to not yet support the Method Api.GetQuantityStructures!" +
-                    $"Try to initialize MaxRequestSize dependant on ApiVersion");
-                var version = (await ApiVersionAsync()).Result;
-                if (version >= 4)
-                {
-                    MaxRequestSize = 128 * 1024;
-                }
-                else
-                {
-                    MaxRequestSize = 64 * 1024;
-                }
-                _logger?.LogDebug($"Api Version '{version}' -> Max Request Size limit determined: '{MaxRequestSize}'.");
+                    $"Initialize to 64K MaxRequestSize since that 'always works' and also 3.0 did not yet have" +
+                    $"GetQuantityStructures and did not yet support > 64 KiB MaxRequestSize");
+                MaxRequestSize = 64 * 1024;
             }
         }
 

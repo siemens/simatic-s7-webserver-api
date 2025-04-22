@@ -284,7 +284,9 @@ See Also:
 - SIMATIC S7-1500 Manual Collection: https://support.industry.siemens.com/cs/us/en/view/86140384
 
 
+## SIMATIC S7-1200 G2:
+- SIMATIC S7-1200 G2 Manual: https://support.industry.siemens.com/cs/de/de/view/109972011
+
 ## SIMATIC S7-1200:
-- SIMATIC S7-1200: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/s7-1200.html
 - SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/ch/en/view/109797241
 - SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/us/en/view/91696622/45063671307

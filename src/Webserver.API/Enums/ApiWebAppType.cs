@@ -24,6 +24,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// System built in Web Application
         /// </summary>
-        system_builtin = 3
+        System_BuiltIn = 3
     }
 }

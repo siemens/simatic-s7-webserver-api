@@ -450,6 +450,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// Unsupported
         /// </summary>
-        Unsupported = 82
+        Unsupported = 82,
+        /// <summary>
+        /// Opc Ua Localized text encoding mask
+        /// </summary>
+        Opc_Ua_LocalizedTextEncodingMask = 83,
+        /// <summary>
+        /// Opc Ua ByteString actual length
+        /// </summary>
+        Opc_Ua_ByteStringActualLength = 84,
     }
 }

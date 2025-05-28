@@ -38,6 +38,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
                 case ApiPlcProgramDataType.Nref:
                 case ApiPlcProgramDataType.Cref:
                 case ApiPlcProgramDataType.Unsupported:
+                case ApiPlcProgramDataType.Opc_Ua_LocalizedTextEncodingMask:
+                case ApiPlcProgramDataType.Opc_Ua_ByteStringActualLength:
                     return false;
                 default:
                     return true;

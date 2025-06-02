@@ -56,7 +56,6 @@ namespace Webserver.API.UnitTests
                 }
                 Assert.Fail(assertString);
             }
-
         }
 
         /// <summary>
@@ -4248,5 +4247,102 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T090_ApiLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiLoginAsync(username, password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T091_ReLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ReLoginAsync(username, password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T092_ApiChangePassword_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var nextPassword = "ThisIsTheNewPasswordToBeApplied";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiChangePasswordAsync(username, password, nextPassword));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
     }
 }

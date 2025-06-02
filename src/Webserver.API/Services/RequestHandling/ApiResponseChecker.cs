@@ -6,6 +6,7 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
 using System;
 using System.Net.Http;
+using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -33,6 +34,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     case System.Net.HttpStatusCode.BadRequest:
                     case System.Net.HttpStatusCode.Forbidden:
                     default:
+                        StringBuilder errorMessage = new StringBuilder($"Request:");
+
+
                         var messageForException = $"Request:{apiRequestString.ToString() + Environment.NewLine}" +
                         $"has been responded with{((int)message.StatusCode).ToString() + message.ReasonPhrase}";
                         throw new InvalidHttpRequestException(messageForException);

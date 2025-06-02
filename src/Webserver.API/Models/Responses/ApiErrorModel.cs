@@ -25,6 +25,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         /// <param name="responseString"></param>
         public void ThrowAccordingException(string apiRequestString, string responseString)
         {
+            var loweredString = apiRequestString.ToLower();
+            if (loweredString.Contains("login") || loweredString.Contains("changepassword"))
+            {
+                apiRequestString = "not provided since it might contain credentials!";
+            }
             if (Error == null)
             {
                 throw new NullReferenceException($"Api Error with errorcode has been expected but error in model was null - response from server:{responseString}");

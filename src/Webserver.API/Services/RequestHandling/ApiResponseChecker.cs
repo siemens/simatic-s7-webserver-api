@@ -33,6 +33,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     case System.Net.HttpStatusCode.BadRequest:
                     case System.Net.HttpStatusCode.Forbidden:
                     default:
+                        var loweredString = apiRequestString.ToLower();
+                        if (loweredString.Contains("login") || loweredString.Contains("changepassword"))
+                        {
+                            apiRequestString = "not provided since it might contain credentials!";
+                        }
                         var messageForException = $"Request:{apiRequestString.ToString() + Environment.NewLine}" +
                         $"has been responded with{((int)message.StatusCode).ToString() + message.ReasonPhrase}";
                         throw new InvalidHttpRequestException(messageForException);

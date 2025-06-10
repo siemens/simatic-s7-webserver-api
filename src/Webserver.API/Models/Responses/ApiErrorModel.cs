@@ -26,7 +26,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
         public void ThrowAccordingException(string apiRequestString, string responseString)
         {
             var loweredString = apiRequestString.ToLower();
-            if (loweredString.Contains("login") || loweredString.Contains("changepassword"))
+            if (loweredString.Contains("\"password\""))
             {
                 apiRequestString = "not provided since it might contain credentials!";
             }

@@ -4380,5 +4380,33 @@ namespace Webserver.API.UnitTests
             });
         }
 
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T093_RestoreBackup_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.PlcRestoreBackupAsync(password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(password), $"Password has been provided in the exception thrown!{Environment.NewLine}{exc.Message}");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(password), $"Password has been provided in the exception thrown!{Environment.NewLine}{currentExc.Message}");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
     }
 }

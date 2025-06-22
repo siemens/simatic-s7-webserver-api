@@ -34,7 +34,25 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly HttpClient _httpClient;
         private readonly IApiRequestFactory _apiRequestFactory;
         private readonly IApiResponseChecker _apiResponseChecker;
+        private readonly IApiRequestSplitter _apiRequestSplitter;
         private readonly ILogger _logger;
+
+        /// <summary>
+        /// Max. Size of one 'single' Request (Bulk Request is also considered '1 request')
+        /// prior or equal to fw version 3.0: 64KB (KiB?)
+        /// after fw version 3.1: 128 KB (KiB?)
+        /// </summary>
+        public long MaxRequestSize
+        {
+            get => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size;
+            set => ServerQuantityStructure.Webapi_Max_Http_Request_Body_Size = value;
+        }
+
+        /// <summary>
+        /// Quantity Structure of the Server
+        /// </summary>
+        public ApiQuantityStructure ServerQuantityStructure { get; set; } = ApiQuantityStructure.MinimumQuantityStructure;
+
 
         /// <summary>
         /// Should prob not be changed!
@@ -62,14 +80,43 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="httpClient">authorized httpClient with set Header: 'X-Auth-Token'</param>
         /// <param name="apiRequestFactory"></param>
         /// <param name="apiResponseChecker">response checker for the requestfactory and requesthandler...</param>
+        /// <param name="apiRequestSplitter">Request splitter to be used for the Bulk requests (splitting according to MaxRequestSize).</param>
         /// <param name="logger">Logger to be used.</param>
-        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker, ILogger logger = null)
+        public ApiHttpClientRequestHandler(HttpClient httpClient, IApiRequestFactory apiRequestFactory, IApiResponseChecker apiResponseChecker,
+            IApiRequestSplitter apiRequestSplitter, ILogger logger = null)
         {
             this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this._apiRequestFactory = apiRequestFactory ?? throw new ArgumentNullException(nameof(apiRequestFactory));
             this._apiResponseChecker = apiResponseChecker ?? throw new ArgumentNullException(nameof(apiResponseChecker));
+            this._apiRequestSplitter = apiRequestSplitter ?? throw new ArgumentNullException(nameof(apiRequestSplitter));
             this._logger = logger;
         }
+
+        /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        /// <returns>Initialization Task</returns>
+        public async Task InitAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var quantityStructure = (await ApiGetQuantityStructuresAsync(cancellationToken)).Result;
+                ServerQuantityStructure = quantityStructure;
+                _logger?.LogDebug($"Server quantity structure: {ServerQuantityStructure}");
+            }
+            catch (ApiMethodNotFoundException e)
+            {
+                _logger?.LogDebug(e, $"Server seems to not yet support the Method Api.GetQuantityStructures!" +
+                    $"Initialize to 64K MaxRequestSize since that 'always works' and also 3.0 did not yet have" +
+                    $"GetQuantityStructures and did not yet support > 64 KiB MaxRequestSize");
+                MaxRequestSize = 64 * 1024;
+            }
+        }
+
+        /// <summary>
+        /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
+        /// </summary>
+        public void Init() => InitAsync().GetAwaiter().GetResult();
 
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
@@ -95,8 +142,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             _logger?.LogDebug($"Got response for {apiRequest.Id} -> {DateTime.Now - started}");
             return response;
         }
-
-
 
         /// <summary>
         /// only use this function if you know how to build up apiRequests on your own!
@@ -2891,39 +2936,47 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>List of ApiResultResponses with Result as object - not "directly" casted to the expected Result type</returns>
         public async Task<ApiBulkResponse> ApiBulkAsync(IEnumerable<IApiRequest> apiRequests, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if ((apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count()))
+            // Ensure unique request Ids.
+            if (apiRequests.GroupBy(el => el.Id).Count() != apiRequests.Count())
             {
                 throw new ArgumentException($"{nameof(apiRequests)} contains multiple requests with the same Id!");
             }
-            foreach (var apiRequest in apiRequests)
+
+            var messageChunks = _apiRequestSplitter.GetMessageChunks(apiRequests, MaxRequestSize);
+
+            // Send each chunk and aggregate successful responses.
+            var successResponses = new List<ApiResultResponse<object>>();
+            _logger?.LogDebug($"Sending {messageChunks.Count()} chunk(s) of API bulk requests.");
+
+            foreach (var chunk in messageChunks)
             {
-                if (apiRequest.Params != null)
+                using (var requestBody = new ByteArrayContent(chunk))
                 {
-                    apiRequest.Params = apiRequest.Params
-                        .Where(el => el.Value != null)
-                        .ToDictionary(x => x.Key, x => x.Value);
+                    requestBody.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                    var response = await _httpClient.PostAsync(JsonRpcApi, requestBody, cancellationToken);
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, Encoding.UTF8.GetString(chunk));
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    // Deserialize error and success responses.
+                    var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
+                        .Where(el => el.Error != null);
+                    var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
+                        .Where(el => el.Result != null);
+
+                    if (errorResponses.Any())
+                    {
+                        var bulkResponse = new ApiBulkResponse
+                        {
+                            ErrorResponses = errorResponses,
+                            SuccessfulResponses = successfulResponses
+                        };
+                        throw new ApiBulkRequestException(bulkResponse);
+                    }
+                    successResponses.AddRange(successfulResponses);
                 }
             }
-            string apiRequestString = JsonConvert.SerializeObject(apiRequests, new JsonSerializerSettings()
-            { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
-            var responseString = await response.Content.ReadAsStringAsync();
-            ApiBulkResponse bulkResponse = new ApiBulkResponse();
-            var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
-                .Where(el => el.Error != null);
-            bulkResponse.ErrorResponses = errorResponses;
-            var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
-                .Where(el => el.Result != null);
-            bulkResponse.SuccessfulResponses = successfulResponses;
-            if (bulkResponse.ContainsErrors)
-            {
-                throw new ApiBulkRequestException(bulkResponse);
-            }
-            return bulkResponse;
+
+            return new ApiBulkResponse { SuccessfulResponses = successResponses };
         }
         /// <summary>
         /// Send an Api Bulk Request

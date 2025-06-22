@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Newtonsoft.Json;
 using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
@@ -196,6 +197,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
                 return false;
             return this.Year == other.Year && this.Month == other.Month && this.Day == other.Day && this.Hour == other.Hour
                 && this.Minute == other.Minute && this.Second == other.Second;
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
 
         /// <summary>

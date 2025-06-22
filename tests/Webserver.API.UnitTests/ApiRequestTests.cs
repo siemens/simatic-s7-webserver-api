@@ -37,7 +37,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var browseResExpectedList = new List<ApiClass>() { new ApiClass() { Name = "Api.Browse" }, new ApiClass() { Name = "Api.CloseTicket" }, new ApiClass() { Name = "Api.GetCertificateUrl" }, new ApiClass() { Name = "Api.GetPermissions" }, new ApiClass() { Name = "Api.BrowseTickets" }, new ApiClass() { Name = "Api.Login" }, new ApiClass() { Name = "Api.Logout" }, new ApiClass() { Name = "Api.Ping" }, new ApiClass() { Name = "Api.Version" }, new ApiClass() { Name = "Plc.ReadOperatingMode" }, new ApiClass() { Name = "Plc.RequestChangeOperatingMode" }, new ApiClass() { Name = "PlcProgram.Browse" }, new ApiClass() { Name = "PlcProgram.Read" }, new ApiClass() { Name = "PlcProgram.Write" }, new ApiClass() { Name = "WebApp.Browse" }, new ApiClass() { Name = "WebApp.BrowseResources" }, new ApiClass() { Name = "WebApp.Create" }, new ApiClass() { Name = "WebApp.CreateResource" }, new ApiClass() { Name = "WebApp.Delete" }, new ApiClass() { Name = "WebApp.DeleteResource" }, new ApiClass() { Name = "WebApp.DownloadResource" }, new ApiClass() { Name = "WebApp.Rename" }, new ApiClass() { Name = "WebApp.RenameResource" }, new ApiClass() { Name = "WebApp.SetDefaultPage" }, new ApiClass() { Name = "WebApp.SetNotAuthorizedPage" }, new ApiClass() { Name = "WebApp.SetNotFoundPage" }, new ApiClass() { Name = "WebApp.SetResourceETag" }, new ApiClass() { Name = "WebApp.SetResourceMediaType" }, new ApiClass() { Name = "WebApp.SetResourceModificationTime" }, new ApiClass() { Name = "WebApp.SetResourceVisibility" }, new ApiClass() { Name = "WebApp.SetState" } };
             var browseRes = (await TestHandler.ApiBrowseAsync()).Result;
             if (!browseResExpectedList.SequenceEqual(browseRes))
@@ -56,7 +56,6 @@ namespace Webserver.API.UnitTests
                 }
                 Assert.Fail(assertString);
             }
-
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiCloseTicketAsync(""));
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiCloseTicketAsync("abc"));
             string chars29 = "abcdefghijklmnopqrstuvwxyzabc";
@@ -94,7 +93,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             Assert.ThrowsAsync<ApiTicketNotFoundException>(async () => await TestHandler.ApiCloseTicketAsync(chars28));
         }
@@ -113,7 +112,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             Assert.ThrowsAsync<ApiSystemIsBusyException>(async () => await TestHandler.ApiCloseTicketAsync(chars28));
         }
@@ -134,7 +133,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = await TestHandler.ApiCloseTicketAsync(chars28);
             if (!resp.Result)
@@ -155,7 +154,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string expString = "/MiniWebCA_Cer.crt";
             var resp = await TestHandler.ApiGetCertificateUrlAsync();
             if (resp.Result != expString)
@@ -176,7 +175,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             List<ApiClass> expRes = new List<ApiClass>() {
                 new ApiClass() { Name = "read_diagnostics" },
                 new ApiClass() { Name = "read_value" },
@@ -218,7 +217,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             List<ApiClass> expRes = new List<ApiClass>();
             var resp = await TestHandler.ApiGetPermissionsAsync();
             Assert.That(resp.Result.SequenceEqual(expRes), $"Permission don't match, missing: {string.Join(",", expRes.Except(resp.Result))}{string.Join(",", resp.Result.Except(expRes))}");
@@ -238,7 +237,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiBrowseTicketsAsync("abc"));
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiCloseTicketAsync("abc"));
             string chars29 = "abcdefghijklmnopqrstuvwxyzabc";
@@ -260,7 +259,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiBrowseTicketsAsync("abc"));
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiCloseTicketAsync("abc"));
             string chars29 = "abcdefghijklmnopqrstuvwxyzabc";
@@ -282,7 +281,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             Assert.ThrowsAsync<ApiTicketNotFoundException>(async () => await TestHandler.ApiCloseTicketAsync(chars28));
         }
@@ -300,7 +299,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = (await TestHandler.ApiBrowseTicketsAsync(chars28)).Result.Tickets.First();
             if (resp.State != ApiTicketState.Created)
@@ -321,7 +320,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = (await TestHandler.ApiBrowseTicketsAsync(chars28)).Result.Tickets.First();
             if (resp.State != ApiTicketState.Active)
@@ -342,7 +341,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = (await TestHandler.ApiBrowseTicketsAsync(chars28)).Result.Tickets.First();
             if (resp.State != ApiTicketState.Failed)
@@ -363,7 +362,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = (await TestHandler.ApiBrowseTicketsAsync(chars28)).Result.Tickets.First();
             if (resp.State != ApiTicketState.Completed)
@@ -384,7 +383,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             var resp = (await TestHandler.ApiBrowseTicketsAsync(chars28)).Result.Tickets.First();
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -408,7 +407,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string chars28 = "abcdefghijklmnopqrstuvwxyzab";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.ApiCloseTicketAsync(chars28 + "a"));
         }
@@ -427,7 +426,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = (await TestHandler.ApiBrowseTicketsAsync()).Result.Tickets;
             if (resp.Count != 0)
                 Assert.Fail("not an emptyList!");
@@ -447,7 +446,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = (await TestHandler.ApiBrowseTicketsAsync()).Result.Tickets;
             if (resp.Count != 2)
                 Assert.Fail("not an emptyList!");
@@ -467,7 +466,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "wrong", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
@@ -486,7 +485,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<ApiAlreadyAuthenticatedException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
@@ -505,7 +504,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             Assert.ThrowsAsync<ApiNoResourcesException>(async () => await TestHandler.SendPostRequestAsync(req));
         }
@@ -524,7 +523,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", null, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
@@ -547,7 +546,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Everybody", "", true, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
@@ -570,7 +569,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var req = ApiRequestFactory.GetApiLoginRequest("Anonymous", "", true, ApiAuthenticationMode.Local);
             var res = JsonConvert.DeserializeObject<ApiLoginResponse>(await TestHandler.SendPostRequestAsync(req));
             if (string.IsNullOrEmpty(res.Result.Token))
@@ -600,7 +599,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiLoginAsync("Admin", "Siemens_1", ApiAuthenticationMode.Local)).Result;
             Assert.That(result.Token, Is.EqualTo("G8ejtdxTZ6fz8AIuwDG.tWf+6Cou"));
         }
@@ -619,7 +618,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInfrastructureErrorException>(async () => await TestHandler.ApiLoginAsync("Admin", "Siemens_1", ApiAuthenticationMode.Umc));
         }
 
@@ -637,7 +636,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.ApiLogoutAsync();
             if (!res.Result)
                 Assert.Fail("True on success response not true!");
@@ -657,7 +656,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.ApiPingAsync();
         }
 
@@ -675,7 +674,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.ApiVersionAsync();
             if (res.Result > 3 || res.Result < 2)
                 Assert.Fail("response string of ApiVersion bigger than 3 or smaller than 2!");
@@ -695,7 +694,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Run)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -715,7 +714,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Stop)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -735,7 +734,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Startup)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -755,7 +754,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Hold)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -775,7 +774,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Stop_fwupdate)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -795,7 +794,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<Newtonsoft.Json.JsonSerializationException>(async () => await TestHandler.PlcReadOperatingModeAsync());
         }
 
@@ -813,7 +812,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<Newtonsoft.Json.JsonSerializationException>(async () => await TestHandler.PlcReadOperatingModeAsync());
         }
 
@@ -831,7 +830,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_1);
             if (res.Result != ApiPlcOperatingMode.Run_redundant)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -851,7 +850,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Syncup)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -871,7 +870,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Run_syncup)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -891,7 +890,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Remote_unknown)
                 Assert.Fail("unexpected response:" + res.Result.ToString());
@@ -911,7 +910,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Hold));
         }
 
@@ -929,7 +928,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.None));
         }
 
@@ -947,7 +946,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Startup));
         }
 
@@ -965,7 +964,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Stop_fwupdate));
         }
         /// <summary>
@@ -982,7 +981,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Unknown));
         }
 
@@ -1000,7 +999,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Run);
         }
         /// <summary>
@@ -1017,7 +1016,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Stop);
         }
 
@@ -1035,7 +1034,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             await TestHandler.PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode.Stop, ApiPlcRedundancyId.RedundancyId_1);
         }
 
@@ -1053,7 +1052,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.None));
         }
 
@@ -1071,7 +1070,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children);
             if (resp.Result.Count == 0)
             {
@@ -1153,7 +1152,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiVariableIsNotAStructureException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Bool\""));
         }
 
@@ -1171,7 +1170,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiAddresDoesNotExistException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Boola\""));
         }
 
@@ -1189,7 +1188,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidAddressException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Bool\"a"));
         }
         /// <summary>
@@ -1206,7 +1205,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidArrayIndexException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Bool\"a"));
         }
 
@@ -1224,7 +1223,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             ApiSingleStringResponse response = await TestHandler.PlcProgramDownloadProfilingDataAsync();
 
@@ -1248,7 +1247,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             Assert.ThrowsAsync<ApiNoResourcesException>(async () => await TestHandler.PlcProgramDownloadProfilingDataAsync());
         }
@@ -1268,7 +1267,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             Assert.ThrowsAsync<System.UnauthorizedAccessException>(async () => await TestHandler.PlcProgramDownloadProfilingDataAsync());
         }
@@ -1287,7 +1286,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children, "\"DataTypes\".\"Bool\""));
         }
 
@@ -1305,7 +1304,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
             Assert.That(response.Result.Count == 0);
@@ -1325,7 +1324,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
         }
@@ -1344,7 +1343,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
 
@@ -1385,7 +1384,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             ApiPlcProgramBrowseCodeBlocksResponse response = await TestHandler.PlcProgramBrowseCodeBlocksAsync();
 
@@ -1409,7 +1408,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             Assert.ThrowsAsync<Newtonsoft.Json.JsonSerializationException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
         }
@@ -1428,7 +1427,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             Assert.ThrowsAsync<System.UnauthorizedAccessException>(async () => await TestHandler.PlcProgramBrowseCodeBlocksAsync());
         }
@@ -1447,7 +1446,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.PlcProgramReadAsync<bool>("\"DataTypes\".\"Bool\""));
         }
 
@@ -1466,7 +1465,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiUnsupportedAddressException>(async () => await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Struct1L\""));
         }
 
@@ -1484,7 +1483,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInternalErrorException>(async () => await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Struct1L\""));
         }
 
@@ -1502,7 +1501,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Bool\"");
             if ((bool)resp.Result != false)
                 Assert.Fail("not casted to \"false\" bool!");
@@ -1522,7 +1521,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Bool\"");
             if (resp.Result is JArray)
             {
@@ -1549,7 +1548,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Struct1L\"", ApiPlcDataRepresentation.None));
         }
 
@@ -1567,7 +1566,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () => await TestHandler.PlcProgramWriteAsync("\"DataTypes\".\"bool\"", true, ApiPlcDataRepresentation.None));
         }
 
@@ -1585,7 +1584,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcProgramWriteAsync("\"DataTypes\".Bool", true, ApiPlcDataRepresentation.Simple);
         }
 
@@ -1603,7 +1602,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcProgramWriteAsync("\"DataTypes\".Bool", new int[1] { 1 }, ApiPlcDataRepresentation.Raw);
         }
 
@@ -1621,7 +1620,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.WebAppBrowseAsync();
             if (res.Result.Applications.Count != 2)
                 Assert.Fail("2 appls returned but not given to user");
@@ -1641,7 +1640,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () => await TestHandler.WebAppBrowseAsync("anotherWebAp"));
         }
 
@@ -1659,7 +1658,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.WebAppBrowseAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -1690,7 +1689,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () => await TestHandler.WebAppBrowseResourcesAsync("anotherWebAp"));
         }
 
@@ -1708,7 +1707,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () => await TestHandler.WebAppBrowseResourcesAsync("anotherWebAp", "nonexistantresourcename"));
         }
 
@@ -1726,7 +1725,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.WebAppBrowseResourcesAsync("anotherWebAp");
             if (resp.Result.Max_Resources != 200)
                 Assert.Fail("max_resources are not 200 but:" + resp.Result.Max_Resources.ToString());
@@ -1748,7 +1747,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.WebAppCreateAsync("thirdwebapp");
         }
 
@@ -1766,7 +1765,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiSystemIsReadOnlyException>(async () => await TestHandler.WebAppCreateAsync("thirdWebApp"));
         }
 
@@ -1784,7 +1783,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationAlreadyExistsException>(async () => await TestHandler.WebAppCreateAsync("thirdWebApp"));
         }
 
@@ -1802,7 +1801,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationLimitReachedException>(async () => await TestHandler.WebAppCreateAsync("fifthWebApp"));
         }
 
@@ -1820,7 +1819,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string invalidName = "";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () =>
                 await TestHandler.WebAppCreateAsync(invalidName));
@@ -1840,7 +1839,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             // name with > 100 chars
             string invalidName = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
             await TestHandler.WebAppCreateAsync(invalidName);
@@ -1862,7 +1861,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             // name with > 100 chars
             string invalidName = "ab$c";
             Assert.ThrowsAsync<ApiInvalidApplicationNameException>(async () =>
@@ -1910,7 +1909,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.WebAppCreateResourceAsync("customerExampleManualAdjusted", "someresName", "text/html", "2020-08-24T07:08:06.000Z");
         }
 
@@ -1930,7 +1929,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiResourceAlreadyExistsException>(async () => await TestHandler.WebAppCreateResourceAsync("customerExampleManualAdjusted", "someresName.html", "text/html", "2020-08-24T07:08:06.000Z"));
         }
 
@@ -1948,7 +1947,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationLimitReachedException>(async () => await TestHandler.WebAppCreateAsync("fifthWebApp"));
         }
 
@@ -1966,7 +1965,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string invalidName = "";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () =>
                 await TestHandler.WebAppCreateResourceAsync("webapp", invalidName, "text/html", DateTime.Now.ToString(DateTimeFormatting.ApiDateTimeFormat)));
@@ -1986,7 +1985,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             // name with > 100 chars
             string invalidName = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
             await TestHandler.WebAppCreateResourceAsync("webapp", invalidName + invalidName, "text/html", DateTime.Now.ToString(DateTimeFormatting.ApiDateTimeFormat));
@@ -2008,7 +2007,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string invalidName = "ab*c";
             await TestHandler.WebAppCreateResourceAsync("webapp", invalidName, "text/html", DateTime.Now.ToString(DateTimeFormatting.ApiDateTimeFormat));
             invalidName = "ab,c";
@@ -2046,7 +2045,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string validName = "myResource";
             var validEtag = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" + "0123456789012345678901234567";
             await TestHandler.WebAppCreateResourceAsync("webapp", validName, "text/html", DateTime.Now.ToString(DateTimeFormatting.ApiDateTimeFormat), ApiWebAppResourceVisibility.Public, validEtag);
@@ -2068,7 +2067,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string validName = "myResource";
             var validEtag = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" + "0123456789012345678901234567";
             Assert.ThrowsAsync<ApiInvalidMediaTypeException>(async () =>
@@ -2090,7 +2089,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppDeleteAsync(webAppName);
         }
@@ -2109,7 +2108,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () =>
                 await TestHandler.WebAppDeleteAsync(webAppName));
@@ -2129,7 +2128,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppDeleteResourceAsync(webAppName, "resName");
         }
@@ -2148,7 +2147,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () =>
                 await TestHandler.WebAppDeleteResourceAsync(webAppName, "resName"));
@@ -2168,7 +2167,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiResourceDoesNotExistException>(async () =>
                 await TestHandler.WebAppDeleteResourceAsync(webAppName, "resName"));
@@ -2188,7 +2187,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiSystemIsReadOnlyException>(async () =>
                 await TestHandler.WebAppDeleteResourceAsync(webAppName, "resName"));
@@ -2208,7 +2207,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppRenameAsync(webAppName, "newWebAppName");
         }
@@ -2227,7 +2226,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             string invalidWebAppName = "ab,c";
             Assert.ThrowsAsync<ApiInvalidApplicationNameException>(async () =>
@@ -2248,7 +2247,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppRenameResourceAsync(webAppName, "resName", "newResName");
         }
@@ -2267,7 +2266,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             string invalidResName = "ab$c";
             Assert.ThrowsAsync<ApiInvalidResourceNameException>(async () =>
@@ -2288,7 +2287,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetDefaultPageAsync(webAppName, "resName");
         }
@@ -2307,7 +2306,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiResourceVisibilityIsNotPublicException>(async () =>
                 await TestHandler.WebAppSetDefaultPageAsync(webAppName, "resName"));
@@ -2327,7 +2326,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetNotFoundPageAsync(webAppName, "resName");
         }
@@ -2346,7 +2345,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiResourceVisibilityIsNotPublicException>(async () =>
                 await TestHandler.WebAppSetNotFoundPageAsync(webAppName, "resName"));
@@ -2366,7 +2365,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetNotAuthorizedPageAsync(webAppName, "resName");
         }
@@ -2385,7 +2384,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiResourceVisibilityIsNotPublicException>(async () =>
                 await TestHandler.WebAppSetNotAuthorizedPageAsync(webAppName, "resName"));
@@ -2406,7 +2405,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceETagAsync(webAppName, "resName", "etagVal");
         }
@@ -2425,7 +2424,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var validEtag = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" + "0123456789012345678901234567";
             await TestHandler.WebAppSetResourceETagAsync(webAppName, "resName", validEtag);
@@ -2447,7 +2446,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceMediaTypeAsync(webAppName, "resName", "etagVal");
         }
@@ -2466,7 +2465,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiInvalidMediaTypeException>(async () =>
                 await TestHandler.WebAppSetResourceMediaTypeAsync(webAppName, "resName", "asdigasf"));
@@ -2486,7 +2485,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceModificationTimeAsync(webAppName, "resName", "2020-08-24T07:08:06Z");
         }
@@ -2505,7 +2504,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             /*string webAppName = "webApp";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () =>
                 await TestHandler.WebAppSetResourceModificationTimeAsync(webAppName, "resName", "asdigasf"));*/
@@ -2526,7 +2525,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceVisibilityAsync(webAppName, "resName", ApiWebAppResourceVisibility.Public);
         }
@@ -2545,7 +2544,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () =>
                 await TestHandler.WebAppSetResourceVisibilityAsync(webAppName, "resName", ApiWebAppResourceVisibility.None));
@@ -2565,7 +2564,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetStateAsync(webAppName, ApiWebAppState.Disabled);
         }
@@ -2584,7 +2583,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             Assert.ThrowsAsync<ApiInvalidParametersException>(async () =>
                 await TestHandler.WebAppSetStateAsync(webAppName, ApiWebAppState.None));
@@ -2604,7 +2603,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             string resourcename = "index.html";
             Assert.ThrowsAsync<ApiResourceContentHasBeenCorruptedException>(async () =>
@@ -2626,7 +2625,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             string resourcename = "index.html";
 
@@ -2648,7 +2647,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var bulkRequest = new List<IApiRequest>();
             bulkRequest.Add(ApiRequestFactory.GetApiPlcReadOperatingModeRequest());
@@ -2687,7 +2686,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var bulkRequest = new List<IApiRequest>();
             // Does not matter!!
             bulkRequest.Add(ApiRequestFactory.GetApiPingRequest());
@@ -2711,7 +2710,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var systemTime = await TestHandler.PlcReadSystemTimeAsync();
             var expectedDate = new DateTime(2022, 03, 01, 17, 2, 4);
             expectedDate += TimeSpan.FromMilliseconds(238);
@@ -2733,7 +2732,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var timeSettings = await TestHandler.PlcReadTimeSettingsAsync();
             var result = timeSettings.Result;
             var dst = new DaylightSavingsTimeConfiguration(new PlcDate(3, 5, ApiDayOfWeek.Sun, 1, 0), new TimeSpan(0, 60, 0));
@@ -2757,7 +2756,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var timeSettings = await TestHandler.PlcReadTimeSettingsAsync();
             var result = timeSettings.Result;
             Assert.That(result.Current_offset, Is.EqualTo(TimeSpan.Zero));
@@ -2780,7 +2779,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcCreateBackupAsync();
             Assert.That(resp.Result.ToString() == expected, "Failed");
@@ -2800,7 +2799,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcRestoreBackupAsync();
             Assert.That(resp.Result.ToString() == expected, "Failed");
@@ -2820,7 +2819,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{FQDN}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var expected = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             var resp = await TestHandler.PlcRestoreBackupAsync();
             Assert.That(resp.Result.ToString() == expected, "Failed");
@@ -2840,7 +2839,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var browsedResult = await TestHandler.FilesBrowseAsync();
             var result = browsedResult.Result;
             var expectedRes1 = new ApiFileResource() { Name = "pre3.png", Size = 20511, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818317050000000) };
@@ -2863,7 +2862,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesDownloadAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             Assert.That(result.Result, Is.EqualTo(expectedResult));
@@ -2883,7 +2882,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesCreateAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             Assert.That(result.Result, Is.EqualTo(expectedResult));
@@ -2903,7 +2902,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesCreateDirectoryAsync("/Dir/newDir");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -2922,7 +2921,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesRenameAsync("/Dir/newDir", "/Dir/renamedDir");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -2941,7 +2940,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesDeleteAsync("/Dir/newDir");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -2960,7 +2959,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesDeleteDirectoryAsync("/Dir/newDir");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -2979,7 +2978,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var browsedResult = await TestHandler.FilesBrowseAsync();
             var result = browsedResult.Result;
             var expectedRes1 = new ApiFileResource() { Name = "pre3.png", Size = 20511, Type = ApiFileResourceType.File, Last_Modified = new DateTime(637818317050000000) };
@@ -3002,7 +3001,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesDownloadAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             Assert.That(result.Result, Is.EqualTo(expectedResult));
@@ -3022,7 +3021,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FilesDeleteAsync("/Dir/newDir");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -3041,7 +3040,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.DatalogsDownloadAndClearAsync("/");
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             Assert.That(result.Result, Is.EqualTo(expectedResult));
@@ -3061,7 +3060,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiSyslogBrowseAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -3086,7 +3085,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FailsafeReadParametersAsync(50);
             var fs = new FailsafeCPU();
             fs.Last_f_program_modification = new DateTime(2012, 4, 23, 18, 25, 43, 510);
@@ -3112,7 +3111,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FailsafeReadParametersAsync(50);
             var fs = new FailsafeModule();
             fs.F_monitoring_time = TimeSpan.FromMilliseconds(542);
@@ -3139,7 +3138,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.FailsafeReadRuntimeGroupsAsync();
             var noRemaining = new ApiFailsafeRuntimeGroup();
             noRemaining.Name = "F-runtime group 1";
@@ -3173,7 +3172,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiChangePasswordAsync("Admin", "adminpw", "newadminpw");
             Assert.That(result.Result, "Changing passwords not possible!");
         }
@@ -3192,7 +3191,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiChangePasswordAsync("Admin", "adminpw", "newadminpw", ApiAuthenticationMode.Umc);
             Assert.That(result.Result, "Changing passwords not possible!");
         }
@@ -3211,7 +3210,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiGetPasswordPolicyAsync();
             var expectedResult = new ApiPasswordPolicy();
             expectedResult.Requires_lowercase_characters = true;
@@ -3237,7 +3236,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiGetPasswordPolicyAsync(ApiAuthenticationMode.Umc);
             var expectedResult = new ApiPasswordPolicy();
             expectedResult.Requires_lowercase_characters = true;
@@ -3263,7 +3262,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiGetAuthenticationModeAsync();
             var expectedResult = new List<ApiAuthenticationMode>();
             expectedResult.Add(ApiAuthenticationMode.Local);
@@ -3288,7 +3287,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ProjectReadLanguagesAsync();
             var expectedResult = new List<CultureInfo>();
             expectedResult.Add(new CultureInfo("en-US"));
@@ -3313,7 +3312,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ProjectReadLanguagesAsync();
 
             var expectedResult1 = new ApiLanguage();
@@ -3354,7 +3353,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.StandardPLC);
             Assert.That(res.Result.Mode_Selector, Is.EqualTo(ApiPlcModeSelectorState.Run));
         }
@@ -3373,7 +3372,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadModeSelectorStateAsync(ApiPlcRedundancyId.RedundancyId_1);
             Assert.That(res.Result.Mode_Selector, Is.EqualTo(ApiPlcModeSelectorState.NoSwitch));
         }
@@ -3392,7 +3391,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ModulesDownloadServiceDataAsync(ApiPlcHwId.StandardPLC);
             var expectedResult = "dlBvEAfpgSVBfwlU7Py5TsVbmRTq";
             Assert.That(result.Result, Is.EqualTo(expectedResult));
@@ -3412,7 +3411,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.AlarmsAcknowledgeAsync("/");
             Assert.That(result.Result, Is.EqualTo(true));
         }
@@ -3430,7 +3429,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.PlcSetSystemTimeAsync(new DateTime(2010, 10, 10));
             Assert.That(result.Result, "The time was not set successfully!");
         }
@@ -3449,7 +3448,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var offset = new TimeSpan(8, 0, 0);
             var dst = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 60, 0));
@@ -3474,7 +3473,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var offset = new TimeSpan(8, 0, 0);
 
@@ -3496,7 +3495,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.ApiGetQuantityStructuresAsync();
             var expectedResult = new ApiQuantityStructure();
             expectedResult.Webapi_Max_Http_Request_Body_Size = 131072;
@@ -3518,7 +3517,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.WebServerSetDefaultPageAsync("index.html");
             Assert.That(result.Result, "The result is not true.");
         }
@@ -3536,7 +3535,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = await TestHandler.WebServerGetReadDefaultPageAsync();
             var expectedResult = "/~teszt2/index.html";
             Assert.That(result.Result.Default_page, Is.EqualTo(expectedResult));
@@ -3556,7 +3555,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiAlarmsBrowseAsync(new CultureInfo("en-US"))).Result;
             Assert.Multiple(() =>
             {
@@ -3590,7 +3589,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiDiagnosticBufferBrowseAsync(new CultureInfo("en-US"))).Result;
             DateTime expected = new DateTime(2023, 06, 07, 18, 25, 43); //2023-06-07T18:25:43.514678531Z
             expected = expected.AddTicks(5146785);
@@ -3623,7 +3622,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var result = TestHandler.ApiGetSessionInfo().Result;
             Console.WriteLine(result.ToString());
@@ -3651,7 +3650,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var result = TestHandler.ApiGetSessionInfo().Result;
             Assert.Multiple(() =>
@@ -3677,7 +3676,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiWebAppSetVersionAsync("testApp", "V1.2")).Result;
             Assert.That(result, Is.True);
         }
@@ -3696,7 +3695,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () => await TestHandler.ApiWebAppSetVersionAsync("apple", "V1.2"));
         }
 
@@ -3714,7 +3713,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidVersionStringException>(async () => await TestHandler.ApiWebAppSetVersionAsync("testApp", "xy"));
         }
 
@@ -3732,7 +3731,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiWebAppSetUrlRedirectModeAsync("testApp", ApiWebAppRedirectMode.Redirect)).Result;
             Assert.That(result, Is.True);
         }
@@ -3751,7 +3750,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiApplicationDoesNotExistException>(async () => await TestHandler.ApiWebAppSetUrlRedirectModeAsync("testApp", ApiWebAppRedirectMode.Redirect));
         }
 
@@ -3769,7 +3768,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = TestHandler.ApiGetPlcCpuType().Result;
             Assert.Multiple(() =>
             {
@@ -3792,7 +3791,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = TestHandler.ApiGetPlcStationName().Result;
             Assert.That(result.Station_Name, Is.EqualTo("1513F"));
         }
@@ -3811,7 +3810,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = TestHandler.ApiGetPlcModuleName().Result;
             Assert.That(result.Module_name, Is.EqualTo("1513F"));
         }
@@ -3830,7 +3829,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyReadSystemStateAsync()).Result;
             Assert.That(result.State, Is.EqualTo(ApiPlcRedundancySystemState.Run_redundant));
         }
@@ -3849,7 +3848,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.ApiRedundancyReadSystemStateAsync());
         }
 
@@ -3867,7 +3866,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyRequestChangeSystemStateAsync(ApiPlcRedundancySystemState.Stop)).Result;
             Assert.That(result, Is.True);
         }
@@ -3886,7 +3885,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.ApiRedundancyRequestChangeSystemStateAsync(ApiPlcRedundancySystemState.Stop));
         }
 
@@ -3904,7 +3903,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyReadAsync<object>("\"DataTypes\".\"Bool\"");
             if ((bool)resp.Result != false)
                 Assert.Fail("not casted to \"false\" bool!");
@@ -3924,7 +3923,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyReadAsync<object>("\"DataTypes\".\"Bool\"");
             if (resp.Result is JArray)
             {
@@ -3950,7 +3949,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyReadSystemInformationAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -3984,7 +3983,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await TestHandler.ApiRedundancyReadSystemInformationAsync());
         }
 
@@ -4002,7 +4001,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyBrowseObjectsAsync();
             var t1 = new ApiTechnologyObject() { Name = "Kinematics_1", Number = 2, Type = ApiTechnologyObjectType.To_Kinematics, Version = 6 };
             var t2 = new ApiTechnologyObject() { Name = "Int_1", Number = 3, Type = ApiTechnologyObjectType.To_Interpreter, Version = 5 };
@@ -4032,7 +4031,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyBrowseObjectsAsync();
             Assert.That(!resp.Result.Objects.Any());
         }
@@ -4051,7 +4050,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyReadSyncupProgressAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -4077,7 +4076,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyReadSyncupProgressAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -4104,7 +4103,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiRedundancyReadSyncupProgressAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -4130,7 +4129,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiWebServerReadResponseHeadersAsync()).Result;
             Assert.Multiple(() =>
             {
@@ -4159,7 +4158,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = (await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header")).Result;
             Assert.That(result, Is.True);
         }
@@ -4177,7 +4176,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiInvalidPatternException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
 
@@ -4194,7 +4193,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiHTTPHeaderNotAllowedException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
 
@@ -4211,7 +4210,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiHTTPHeaderInvalidException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
 
@@ -4228,7 +4227,7 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiTooManyHTTPHeadersException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
 
@@ -4245,8 +4244,169 @@ namespace Webserver.API.UnitTests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
-            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker);
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T090_ApiLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiLoginAsync(username, password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T091_ReLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ReLoginAsync(username, password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T092_ApiChangePassword_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var nextPassword = "ThisIsTheNewPasswordToBeApplied";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiChangePasswordAsync(username, password, nextPassword));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T093_ApiBulkWithLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiBulkNoResources); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var username = "ThisIsTheUserNameToBeUsed";
+            var password = "ThisIsThePasswordToBeUsed";
+            var nextPassword = "ThisIsTheNewPasswordToBeApplied";
+            var request1 = ApiRequestFactory.GetApiLoginRequest(username, password);
+            var request2 = ApiRequestFactory.GetApiChangePasswordRequest(username, password, nextPassword);
+            var exc = Assert.CatchAsync(async () => await TestHandler.ApiBulkAsync(new List<IApiRequest>() { request1, request2 }));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                Assert.That(!exc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(username), "Username has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(password), "Password has been provided in the exception thrown!");
+                    Assert.That(!currentExc.Message.Contains(nextPassword), "New Password has been provided in the exception thrown!");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
+        /// <summary>
+        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
+        /// </summary>
+        [Test]
+        public void T093_RestoreBackup_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.RequestTooLarge); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var password = "ThisIsThePasswordToBeUsed";
+            var exc = Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.PlcRestoreBackupAsync(password));
+            Assert.Multiple(() =>
+            {
+                Assert.That(!exc.Message.Contains(password), $"Password has been provided in the exception thrown!{Environment.NewLine}{exc.Message}");
+                var currentExc = exc.InnerException;
+                while (currentExc != null)
+                {
+                    Assert.That(!currentExc.Message.Contains(password), $"Password has been provided in the exception thrown!{Environment.NewLine}{currentExc.Message}");
+                    currentExc = currentExc.InnerException;
+                }
+            });
+        }
+
     }
 }

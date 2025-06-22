@@ -87,5 +87,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.TimeSettings
                    Std.Equals(rule.Std) &&
                    Dst.Equals(rule.Dst);
         }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

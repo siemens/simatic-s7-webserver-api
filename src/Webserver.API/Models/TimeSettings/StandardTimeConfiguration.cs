@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+using Newtonsoft.Json;
+
 namespace Siemens.Simatic.S7.Webserver.API.Models.TimeSettings
 {
     /// <summary>
@@ -40,6 +42,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.TimeSettings
         public override int GetHashCode()
         {
             return Start.GetHashCode();
+        }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

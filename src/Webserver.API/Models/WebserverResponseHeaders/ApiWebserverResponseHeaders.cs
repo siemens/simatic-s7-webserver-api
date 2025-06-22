@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.WebserverResponseHeaders
@@ -19,5 +20,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.WebserverResponseHeaders
         /// Holds an array of objects where each object represents an entry of a HTTP header that the user is allowed to configure on the PLC.
         /// </summary>
         public List<ApiWebserverResponseHeaders_Allowed> Allowed_headers { get; set; }
+
+        /// <summary>
+        /// Return the Json serialized object
+        /// </summary>
+        /// <returns>Json serialized object</returns>
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

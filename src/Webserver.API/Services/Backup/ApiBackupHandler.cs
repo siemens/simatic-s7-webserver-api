@@ -127,12 +127,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                     internalCancellationTokenSource.Dispose();
                     externalCancellationToken.ThrowIfCancellationRequested();
                 }
-                WaitForPlcReboot(waitHandler);
+                WaitForPlcReboot(waitHandler, externalCancellationToken);
                 await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
             }
             uploadTicket = (await ApiRequestHandler.PlcRestoreBackupAsync(password, externalCancellationToken)).Result;
             await ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, externalCancellationToken);
-            WaitForPlcReboot(waitHandler);
+            WaitForPlcReboot(waitHandler, externalCancellationToken);
             await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
         }
 
@@ -162,7 +162,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// </summary>
         /// <param name="waitHandler"></param>
         /// <param name="verbose"></param>
-        private void WaitForPlcReboot(WaitHandler waitHandler, bool verbose = false)
+        private void WaitForPlcReboot(WaitHandler waitHandler, CancellationToken cancellationToken, bool verbose = false)
         {
             waitHandler.ForTrue(() =>
             {

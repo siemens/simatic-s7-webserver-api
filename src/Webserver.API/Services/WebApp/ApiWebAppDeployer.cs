@@ -56,6 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                 progressCounter++;
                 progress?.Report(progressCounter * 100 / webApp.ApplicationResources.Count);
@@ -152,6 +153,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     var progressCounter = 0;
                     foreach (ApiWebAppResource r in appExceptBrowsed)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
                             await ApiResourceHandler.DeployResourceAsync(webApp, r);

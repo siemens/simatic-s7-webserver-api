@@ -56,6 +56,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 var progressCounter = 0;
                 foreach (var subres in resource.Resources)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     await DeployAsync(subres, cancellationToken);
                     progressCounter++;
                     progress?.Report(progressCounter * 100 / resource.Resources.Count);
@@ -97,6 +98,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     var progressCounter = 0;
                     foreach (var file in resource.Resources)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         await DeleteAsync(file, cancellationToken);
                         progressCounter++;
                         progress?.Report(progressCounter * 100 / resource.Resources.Count);
@@ -191,6 +193,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 var progressCounter = 0;
                 foreach (var subResource in resource.Resources)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var match = browsedResource.Resources.FirstOrDefault(el => el.Name == subResource.Name);
                     if (match == null)
                     {

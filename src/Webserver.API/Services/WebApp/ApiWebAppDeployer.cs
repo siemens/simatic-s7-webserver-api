@@ -48,13 +48,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// PathToWebAppDirectory
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
+        /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployAsync(ApiWebAppData webApp, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
+            var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
+                progressCounter++;
+                progress?.Report(progressCounter * 100 / webApp.ApplicationResources.Count);
             }
             if (webApp.Not_authorized_page != null)
             {
@@ -102,8 +107,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
         /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
+        /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
@@ -144,11 +150,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     {
                         await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
                     }
+                    var progressCounter = 0;
                     foreach (ApiWebAppResource r in appExceptBrowsed)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
                             await ApiResourceHandler.DeployResourceAsync(webApp, r);
+                            progressCounter++;
+                            progress?.Report(progressCounter * 100 / appExceptBrowsed.Count);
                         }
                         catch (ApiTicketNotInCompletedStateException)
                         {
@@ -215,6 +225,5 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 }
             }
         }
-
     }
 }

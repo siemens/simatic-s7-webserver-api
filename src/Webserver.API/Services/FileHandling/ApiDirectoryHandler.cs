@@ -41,8 +41,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// the function will only upload the resource and its direct sub-resources
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
+        /// <param name="progress">Progress to report to.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
@@ -52,9 +53,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             {
                 var dirName = resource.GetVarNameForMethods();
                 await ApiRequestHandler.FilesCreateDirectoryAsync(dirName, cancellationToken);
+                var progressCounter = 0;
                 foreach (var subres in resource.Resources)
                 {
-                    await DeployAsync(subres);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await DeployAsync(subres, cancellationToken);
+                    progressCounter++;
+                    progress?.Report(progressCounter * 100 / resource.Resources.Count);
                 }
             }
         }
@@ -73,8 +78,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the resource to delete</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <param name="progress">Progress to report to.</param>
         /// <returns>Task for deletion</returns>
-        public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
@@ -89,9 +95,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             {
                 if (resource.Resources != null)
                 {
+                    var progressCounter = 0;
                     foreach (var file in resource.Resources)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         await DeleteAsync(file, cancellationToken);
+                        progressCounter++;
+                        progress?.Report(progressCounter * 100 / resource.Resources.Count);
                     }
                 }
                 else
@@ -164,8 +174,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <param name="progress">Progress to report to.</param>
         /// <returns>Task to update the resource</returns>
-        public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource,
+            CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
         {
             if (browsedResource.Type != resource.Type)
             {
@@ -178,8 +190,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             }
             else
             {
+                var progressCounter = 0;
                 foreach (var subResource in resource.Resources)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var match = browsedResource.Resources.FirstOrDefault(el => el.Name == subResource.Name);
                     if (match == null)
                     {
@@ -191,6 +205,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                         match.Resources = browseResult.Result.Resources;
                         await UpdateResourceAsync(subResource, match, cancellationToken);
                     }
+                    progressCounter++;
+                    progress?.Report(progressCounter * 100 / resource.Resources.Count);
                 }
             }
         }
@@ -250,7 +266,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken))
+        /// <param name="progress">Progress to report to.</param>
+        public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1,
+            CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
         {
             if (amountOfTriesForResourceDeployment < 1)
             {
@@ -262,7 +280,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 int tries = 0;
                 while (!browsedResource.Equals(resource) && tries < amountOfTriesForResourceDeployment)
                 {
-                    await UpdateResourceAsync(resource, browsedResource, cancellationToken);
+                    await UpdateResourceAsync(resource, browsedResource, cancellationToken, progress);
                     tries++;
                     // make sure the browsedResource now is Equal to the one we have - for a directory this means all subNodes are also equal, they are not browsed during the "standard" BRowse
                     browsedResource = await BrowseAndBuildResourceAsync(resource, cancellationToken);

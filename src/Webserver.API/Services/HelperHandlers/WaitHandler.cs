@@ -38,13 +38,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// </summary>
         /// <param name="Value">Value that needs to become true</param>
         /// <param name="errorMessageForException">error message for the excption</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Value true</returns>
-        public TimeSpan ForTrue(Func<bool> Value, string errorMessageForException = "")
+        public TimeSpan ForTrue(Func<bool> Value, string errorMessageForException = "", CancellationToken cancellationToken = default(CancellationToken))
         {
             return WaitForCondition(() =>
             {
                 if (!Value()) throw new Exception();
-            }, TimeOut, CycleTime, errorMessageForException);
+            }, TimeOut, CycleTime, errorMessageForException, cancellationToken);
         }
 
         /// <summary>
@@ -54,14 +55,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// <param name="TimeOut">Timeout</param>
         /// <param name="CycleTime">Cycle time</param>
         /// <param name="errorMessageForException">error message for the excption</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns></returns>
-        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "")
+        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default(CancellationToken))
         {
             var sw = new Stopwatch();
             sw.Start();
             var start = DateTime.UtcNow;
+            bool throwCancellation = false;
             while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throwCancellation = true;
+                    break;
+                }
                 try
                 {
                     // Condition
@@ -71,6 +79,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
                 catch (Exception) { }
                 // Cylcle time
                 Thread.Sleep(CycleTime);
+            }
+            if (throwCancellation)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
             }
             throw new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {TimeOut}!{Environment.NewLine}Retried every {CycleTime}!{Environment.NewLine}{errorMessageForException}");
         }

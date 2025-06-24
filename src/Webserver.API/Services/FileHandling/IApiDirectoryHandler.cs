@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Models;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,8 +36,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">the resource to delete</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <param name="progress">Progress to report to.</param>
         /// <returns>Task for deletion</returns>
-        Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
+        Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -55,7 +57,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
+        /// <param name="progress">Progress to report to.</param>
+        Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -84,7 +87,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken));
+        /// <param name="progress">Progress to report to.</param>
+        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken),
+            IProgress<int> progress = null);
         /// <summary>
         /// Update the given File Resource when necessary
         /// </summary>
@@ -106,8 +111,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">the resource to be updated</param>
         /// <param name="browsedResource">the resource returned by browsing the plc - make sure the sub-Nodes are present (!)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <param name="progress">Progress to report to.</param>
         /// <returns>Task to update the resource</returns>
-        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken));
+        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
         /// <summary>
         /// Update the given Resource - and SubResources, when necessary
         /// </summary>

@@ -58,7 +58,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             {
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                 progressCounter++;
-                progress.Report(progressCounter * 100 / webApp.ApplicationResources.Count);
+                progress?.Report(progressCounter * 100 / webApp.ApplicationResources.Count);
             }
             if (webApp.Not_authorized_page != null)
             {
@@ -156,7 +156,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         {
                             await ApiResourceHandler.DeployResourceAsync(webApp, r);
                             progressCounter++;
-                            progress.Report(progressCounter * 100 / appExceptBrowsed.Count);
+                            progress?.Report(progressCounter * 100 / appExceptBrowsed.Count);
                         }
                         catch (ApiTicketNotInCompletedStateException)
                         {

@@ -160,8 +160,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <summary>
         /// Wait for the PLC to finish the reboot
         /// </summary>
-        /// <param name="waitHandler"></param>
-        /// <param name="verbose"></param>
+        /// <param name="waitHandler">waithandler to use for conditional waits</param>
+        /// <param name="cancellationToken">cancellation token (breaks waithandler)</param>
+        /// <param name="verbose">verbose output -> console writelines</param>
         private void WaitForPlcReboot(WaitHandler waitHandler, CancellationToken cancellationToken, bool verbose = false)
         {
             waitHandler.ForTrue(() =>

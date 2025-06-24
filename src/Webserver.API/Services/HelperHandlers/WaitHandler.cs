@@ -62,10 +62,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
             var sw = new Stopwatch();
             sw.Start();
             var start = DateTime.UtcNow;
+            bool throwCancellation = false;
             while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
             {
-                if(cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                 {
+                    throwCancellation = true;
                     break;
                 }
                 try
@@ -77,6 +79,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
                 catch (Exception) { }
                 // Cylcle time
                 Thread.Sleep(CycleTime);
+            }
+            if (throwCancellation)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
             }
             throw new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {TimeOut}!{Environment.NewLine}Retried every {CycleTime}!{Environment.NewLine}{errorMessageForException}");
         }

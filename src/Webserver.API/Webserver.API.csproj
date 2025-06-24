@@ -33,7 +33,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework'" />
   </ItemGroup>
-
+	<ItemGroup>
+		<InternalsVisibleTo Include="Webserver.Api.UnitTests" />
+	</ItemGroup>
 	<ItemGroup>
     <None Include="..\..\docs\screens\product-simatic-s7-1500-256-256.png" Pack="true" PackagePath="\" />
     <None Include="..\..\README.md">

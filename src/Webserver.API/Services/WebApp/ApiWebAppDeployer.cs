@@ -81,6 +81,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 Logger?.LogDebug($"{nameof(Deploy)}: Set: DefaultPage.");
                 await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page, cancellationToken);
             }
+            if (webApp.State != Enums.ApiWebAppState.None)
+            {
+                Logger?.LogDebug($"{nameof(Deploy)}: set State");
+                await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
+            }
+            if (webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
+            {
+                Logger?.LogDebug($"{nameof(Deploy)}: set UrlRedirectMode");
+                await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+            }
             Logger?.LogDebug($"successfully deployed webapp: {webApp.Name} -> {webApp.ApplicationResources.Count} resources and set configured pages accordingly.");
         }
 

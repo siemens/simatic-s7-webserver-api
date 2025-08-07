@@ -432,7 +432,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an <see cref="ApiWebAppDeployer"/></returns>
         public IApiWebAppDeployer GetApiWebAppDeployer(IApiRequestHandler requestHandler)
         {
-            return new ApiWebAppDeployer(requestHandler, GetApiResourceHandler(requestHandler));
+            return new ApiWebAppDeployer(requestHandler, GetApiResourceHandler(requestHandler), _logger);
         }
 
         /// <summary>

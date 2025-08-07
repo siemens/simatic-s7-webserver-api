@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
@@ -21,16 +22,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
     {
         private readonly IApiRequestHandler ApiRequestHandler;
         private readonly IApiTicketHandler ApiTicketHandler;
+        private readonly ILogger Logger;
 
         /// <summary>
         /// Handler for the plcs backup and restore functionality
         /// </summary>
         /// <param name="apiRequestHandler">Request handler to send the api requests with</param>
         /// <param name="apiTicketHandler">Handler for the Ticketing Endpoint of the PLC</param>
-        public ApiBackupHandler(IApiRequestHandler apiRequestHandler, IApiTicketHandler apiTicketHandler)
+        public ApiBackupHandler(IApiRequestHandler apiRequestHandler, IApiTicketHandler apiTicketHandler, ILogger logger = null)
         {
             ApiRequestHandler = apiRequestHandler;
             ApiTicketHandler = apiTicketHandler;
+            Logger = logger;
         }
 
         /// <summary>
@@ -162,8 +165,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// </summary>
         /// <param name="waitHandler">waithandler to use for conditional waits</param>
         /// <param name="cancellationToken">cancellation token (breaks waithandler)</param>
-        /// <param name="verbose">verbose output -> console writelines</param>
-        private void WaitForPlcReboot(WaitHandler waitHandler, CancellationToken cancellationToken, bool verbose = false)
+        private void WaitForPlcReboot(WaitHandler waitHandler, CancellationToken cancellationToken)
         {
             waitHandler.ForTrue(() =>
             {
@@ -174,26 +176,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                 }
                 catch (Exception e)
                 {
-                    if (verbose)
-                    {
-                        Console.WriteLine($"{DateTime.Now}: {e.GetType()}{e.Message} => Plc should be rebooting now.");
-                    }
+                    Logger?.LogDebug(e, $"Plc should be rebooting now.");
                     return true;
                 }
             });
-            if (verbose)
-            {
-                Console.WriteLine($"{DateTime.Now}: Wait for plc to be pingable again (reboot).");
-            }
+            Logger?.LogDebug("Wait for plc to be pingable again (reboot).");
             waitHandler.ForTrue(() =>
             {
                 try
                 {
                     var pingRes = ApiRequestHandler.ApiPing();
-                    if (verbose)
-                    {
-                        Console.WriteLine($"{DateTime.Now}: Plc pingable again via api pingresult: {pingRes.Result}");
-                    }
+                    Logger?.LogDebug(string.Format("Plc pingable again via api pingresult: {0}", pingRes.Result));
                     return true;
                 }
                 catch (Exception)

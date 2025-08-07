@@ -60,7 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {
-                Logger?.LogDebug($"start deploying webapp: {webApp.Name} -> {webApp.ApplicationResources.Count} resources.");
+                Logger?.LogDebug(string.Format("start deploying webapp: {0} -> {1} resources.", webApp.Name, webApp.ApplicationResources.Count));
                 cancellationToken.ThrowIfCancellationRequested();
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                 progressCounter++;
@@ -168,7 +168,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     }
                     foreach (ApiWebAppResource r in browsedExceptApp)
                     {
-                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: start deleting: {browsedExceptApp.Count} resources.");
+                        Logger?.LogDebug(string.Format("{0}: start deleting: {1} resources.", nameof(DeployOrUpdate), browsedExceptApp.Count));
                         await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
                     }
                     if(browsedExceptApp.Count != 0)
@@ -178,7 +178,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     var progressCounter = 0;
                     foreach (ApiWebAppResource r in appExceptBrowsed)
                     {
-                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: start uploading: {appExceptBrowsed.Count} resources.");
+                        Logger?.LogDebug(string.Format("{0}: start uploading: {1} resources.", nameof(DeployOrUpdate), appExceptBrowsed.Count));
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {

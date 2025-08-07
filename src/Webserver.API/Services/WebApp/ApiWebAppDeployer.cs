@@ -91,6 +91,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 Logger?.LogDebug($"{nameof(Deploy)}: set UrlRedirectMode");
                 await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
             }
+            if (webApp.Version != null)
+            {
+                Logger?.LogDebug($"{nameof(Deploy)}: set Version");
+                await ApiRequestHandler.ApiWebAppSetVersionAsync(webApp.Name, webApp.Version, cancellationToken);
+            }
             Logger?.LogInformation($"successfully deployed webapp: {webApp.Name} with {webApp.ApplicationResources.Count} resources and set configured pages accordingly.");
         }
 
@@ -246,6 +251,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             throw new ApiInvalidParametersException("Redirect mode should never be none!");
                         }
                         await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                    }
+                    if(browsedWebApp.Version != webApp.Version)
+                    {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set Version");
+                        await ApiRequestHandler.ApiWebAppSetVersionAsync(webApp.Name, webApp.Version, cancellationToken);
                     }
                     browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                     browsedWebApp = browsedWebAppResp.Result.Applications.First();

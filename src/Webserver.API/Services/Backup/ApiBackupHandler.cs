@@ -29,6 +29,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// </summary>
         /// <param name="apiRequestHandler">Request handler to send the api requests with</param>
         /// <param name="apiTicketHandler">Handler for the Ticketing Endpoint of the PLC</param>
+        /// <param name="logger">Logger for the ApiBackupHandler</param>
         public ApiBackupHandler(IApiRequestHandler apiRequestHandler, IApiTicketHandler apiTicketHandler, ILogger logger = null)
         {
             ApiRequestHandler = apiRequestHandler;

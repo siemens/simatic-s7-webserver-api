@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
@@ -20,17 +21,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
     {
         private readonly IApiRequestHandler ApiRequestHandler;
         private readonly IApiResourceHandler ApiResourceHandler;
+        private readonly ILogger Logger;
 
         /// <summary>
-        /// You can implement the functions on your own - the Handler will call the functions of the implementation
-        /// that implements the functions of the IAsyncApiRequestHandler. (e.g. by a ApiHttpClientRequestHandler)
+        /// Deploys a WebApp to the PLC using the given ApiRequestHandler and ApiResourceHandler.
         /// </summary>
-        /// <param name="apiRequestHandler"></param>
-        /// <param name="apiResourceHandler"></param>
-        public ApiWebAppDeployer(IApiRequestHandler apiRequestHandler, IApiResourceHandler apiResourceHandler)
+        /// <param name="apiRequestHandler">Api Request Handler (authorized at plc)</param>
+        /// <param name="apiResourceHandler">Api Resource Handler - takes care of resource upload, etc.</param>
+        /// <param name="logger">Logger</param>
+        public ApiWebAppDeployer(IApiRequestHandler apiRequestHandler, IApiResourceHandler apiResourceHandler,
+            ILogger logger = null)
         {
             this.ApiRequestHandler = apiRequestHandler;
             this.ApiResourceHandler = apiResourceHandler;
+            Logger = logger;
         }
 
         /// <summary>
@@ -56,6 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {
+                Logger?.LogDebug($"start deploying webapp: {webApp.Name} -> {webApp.ApplicationResources.Count} resources.");
                 cancellationToken.ThrowIfCancellationRequested();
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                 progressCounter++;
@@ -63,16 +68,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             if (webApp.Not_authorized_page != null)
             {
+                Logger?.LogDebug($"{nameof(Deploy)}: Set: NotAuthorizedPage.");
                 await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page, cancellationToken);
             }
             if (webApp.Not_found_page != null)
             {
+                Logger?.LogDebug($"{nameof(Deploy)}: Set: NotFoundPage.");
                 await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page, cancellationToken);
             }
             if (webApp.Default_page != null)
             {
+                Logger?.LogDebug($"{nameof(Deploy)}: Set: DefaultPage.");
                 await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page, cancellationToken);
             }
+            Logger?.LogDebug($"successfully deployed webapp: {webApp.Name} -> {webApp.ApplicationResources.Count} resources and set configured pages accordingly.");
         }
 
         /// <summary>
@@ -118,6 +127,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             else
             {
+                Logger?.LogDebug($"Start {nameof(DeployOrUpdate)} for webApp: {webApp.Name}");
                 // check for changes!
                 var browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp, cancellationToken: cancellationToken);
                 var browsedResources = browseResourcesResponse.Result.Resources;
@@ -148,11 +158,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     }
                     foreach (ApiWebAppResource r in browsedExceptApp)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: start deleting: {browsedExceptApp.Count} resources.");
                         await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
+                    }
+                    if(browsedExceptApp.Count != 0)
+                    {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: done deleting resources.");
                     }
                     var progressCounter = 0;
                     foreach (ApiWebAppResource r in appExceptBrowsed)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: start uploading: {appExceptBrowsed.Count} resources.");
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
@@ -160,10 +176,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             progressCounter++;
                             progress?.Report(progressCounter * 100 / appExceptBrowsed.Count);
                         }
-                        catch (ApiTicketNotInCompletedStateException)
+                        catch (ApiTicketNotInCompletedStateException e)
                         {
-                            Console.WriteLine($"Upload for resource: {r.Name} failed for the {(tries + 1).ToString()}. time!");
+                            Logger?.LogWarning(e, $"Upload for resource: {r.Name} failed for the {(tries + 1).ToString()}. time!");
                         }
+                    }
+                    if (appExceptBrowsed.Count != 0)
+                    {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: done uploading resources.");
                     }
                     browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp, cancellationToken: cancellationToken);
                     browsedResources = browseResourcesResponse.Result.Resources;
@@ -190,22 +210,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     // webapp data is not the same
                     if (browsedWebApp.Not_authorized_page != webApp.Not_authorized_page)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set NotAuthorizedPage");
                         await ApiRequestHandler.WebAppSetNotAuthorizedPageAsync(webApp.Name, webApp.Not_authorized_page, cancellationToken);
                     }
                     if (browsedWebApp.Not_found_page != webApp.Not_found_page)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set NotFoundPage");
                         await ApiRequestHandler.WebAppSetNotFoundPageAsync(webApp.Name, webApp.Not_found_page, cancellationToken);
                     }
                     if (browsedWebApp.Default_page != webApp.Default_page)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set DefaultPage");
                         await ApiRequestHandler.WebAppSetDefaultPageAsync(webApp.Name, webApp.Default_page, cancellationToken);
                     }
                     if (browsedWebApp.State != webApp.State)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set State");
                         await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
                     }
                     if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
                     {
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
                         if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
                         {
                             throw new ApiInvalidParametersException("Redirect mode should never be none!");

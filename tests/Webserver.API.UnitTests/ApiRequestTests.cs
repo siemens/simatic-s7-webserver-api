@@ -1676,6 +1676,27 @@ namespace Webserver.API.UnitTests
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task T018_04_ApiWebAppBrowse_NoRedirectMode_Valid_works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.WebAppBrowse_NoRedirectMode); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var res = await TestHandler.WebAppBrowseAsync();
+            if (res.Result.Applications.Count != 2)
+                Assert.Fail("2 appls returned but not given to user");
+            Assert.That(res.Result.Applications.First().Redirect_mode, Is.EqualTo(ApiWebAppRedirectMode.None));
+        }
+
+        /// <summary>
         /// TestCase for WebApp.Browse method
         /// </summary>
         /// <returns></returns>

@@ -163,8 +163,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             if (other is null)
                 return false;
-            return this.Name == other.Name && this.State == other.State && this.Type == other.Type && this.Version == other.Version && this.Redirect_mode == other.Redirect_mode
-                && this.Default_page == other.Default_page && this.Not_found_page == other.Not_found_page && this.Not_authorized_page == other.Not_authorized_page;
+            var redirectModeResult = true;
+            if(this.redirect_mode == ApiWebAppRedirectMode.None || other.redirect_mode == ApiWebAppRedirectMode.None)
+            {
+                redirectModeResult = true; // some versions might not support it, just accept when 1 is none
+            }
+            else
+            {
+                redirectModeResult = redirect_mode == other.redirect_mode; // compare redirect modes
+            }
+            var result = this.Name == other.Name && this.State == other.State && this.Type == other.Type && this.Version == other.Version 
+                && this.Default_page == other.Default_page && this.Not_found_page == other.Not_found_page 
+                && this.Not_authorized_page == other.Not_authorized_page
+                    && redirectModeResult;
+            return result;
         }
         /// <summary>
         /// Calls Equals for objects that are ApiWebAppData
@@ -176,7 +188,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// GetHashCode => (Name, State, Type, Default_page, Not_found_page, Not_authorized_page).GetHashCode()
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => (Name, State, Type, Version, Redirect_mode, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
+        public override int GetHashCode() => (Name, State, Type, Version, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
 
         /// <summary>
         /// Return the Json serialized object

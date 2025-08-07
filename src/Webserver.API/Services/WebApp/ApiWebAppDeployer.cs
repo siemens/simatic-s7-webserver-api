@@ -97,6 +97,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 {
                     Logger?.LogWarning(e, $"Prob. the firmware of the plc does not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
                 }
+                catch(ApiNotAcceptedException e)
+                {
+                    Logger?.LogWarning(e, $"Prob. the configured firmware of the plc did not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
+                }
             }
             if (webApp.Version != null)
             {
@@ -263,7 +267,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             {
                                 throw new ApiInvalidParametersException("Redirect mode should never be none!");
                             }
-                            await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                            try
+                            {
+                                await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                            }
+                            catch (ApiNotAcceptedException e)
+                            {
+                                Logger?.LogWarning(e, $"Prob. the configured firmware of the plc did not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
+                            }
                         }
                     }
                     if(browsedWebApp.Version != webApp.Version)

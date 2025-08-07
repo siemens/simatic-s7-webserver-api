@@ -409,7 +409,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             var req = _apiRequestFactory.GetApiGetCertificateUrlRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
             if (!response.Contains("/MiniWebCA_Cer.crt"))
-                Console.WriteLine("unexpected response: " + response + " for Api.GetCertificateUrl!");
+            {
+                _logger?.LogWarning("unexpected response: " + response + " for Api.GetCertificateUrl!");
+            }
             return JsonConvert.DeserializeObject<ApiSingleStringResponse>(response);
         }
         /// <summary>
@@ -3694,7 +3696,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             var req = _apiRequestFactory.GetApiRedundancyReadSyncupProgressRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
-            Console.WriteLine(response);
             return JsonConvert.DeserializeObject<ApiRedundancyReadSyncupProgressResponse>(response);
         }
         /// <summary>

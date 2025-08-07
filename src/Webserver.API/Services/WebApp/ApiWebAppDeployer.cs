@@ -56,11 +56,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         public async Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Logger?.LogDebug(string.Format("start deploying webapp: {0} with {1} resources.", webApp.Name, webApp.ApplicationResources.Count));
             var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
             var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {
-                Logger?.LogDebug(string.Format("start deploying webapp: {0} -> {1} resources.", webApp.Name, webApp.ApplicationResources.Count));
                 cancellationToken.ThrowIfCancellationRequested();
                 await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                 progressCounter++;
@@ -91,7 +91,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 Logger?.LogDebug($"{nameof(Deploy)}: set UrlRedirectMode");
                 await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
             }
-            Logger?.LogDebug($"successfully deployed webapp: {webApp.Name} -> {webApp.ApplicationResources.Count} resources and set configured pages accordingly.");
+            Logger?.LogInformation($"successfully deployed webapp: {webApp.Name} with {webApp.ApplicationResources.Count} resources and set configured pages accordingly.");
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             else
             {
-                Logger?.LogDebug($"Start {nameof(DeployOrUpdate)} for webApp: {webApp.Name}");
+                Logger?.LogInformation($"Start {nameof(DeployOrUpdate)} for webApp: {webApp.Name}");
                 // check for changes!
                 var browseResourcesResponse = await ApiRequestHandler.WebAppBrowseResourcesAsync(webApp, cancellationToken: cancellationToken);
                 var browsedResources = browseResourcesResponse.Result.Resources;
@@ -257,6 +257,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             + $"{Environment.NewLine}could not be set to given:{Environment.NewLine}" +
                             JsonConvert.SerializeObject(webApp, serializerSettings));
                     }
+                    Logger?.LogInformation($"successfully updated webapp: {webApp.Name}, its resources and set configured pages accordingly.");
                 }
             }
         }

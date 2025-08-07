@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
@@ -21,16 +22,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
     {
         private readonly IApiRequestHandler ApiRequestHandler;
         private readonly IApiFileHandler ApiFileHandler;
+        private readonly ILogger Logger;
 
         /// <summary>
         /// Handler for Directory Down/Upload/Update
         /// </summary>
         /// <param name="apiRequestHandler">Request handler to send the api requests with</param>
         /// <param name="apiFileHandler">Request handler to take care of file up/download</param>
-        public ApiDirectoryHandler(IApiRequestHandler apiRequestHandler, IApiFileHandler apiFileHandler)
+        /// <param name="logger">Logger for the DirectoryHandler</param>
+        public ApiDirectoryHandler(IApiRequestHandler apiRequestHandler, IApiFileHandler apiFileHandler, ILogger logger = null)
         {
             ApiRequestHandler = apiRequestHandler;
             ApiFileHandler = apiFileHandler;
+            Logger = logger;
         }
 
         /// <summary>
@@ -106,7 +110,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 }
                 else
                 {
-                    Console.WriteLine("!!!");
+                    Logger?.LogWarning($"Resource {resource.Name} of type {resource.Type} has no sub-resources to delete!");
                 }
                 var dirName = resource.GetVarNameForMethods();
                 try

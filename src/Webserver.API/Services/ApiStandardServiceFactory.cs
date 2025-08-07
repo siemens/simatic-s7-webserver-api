@@ -489,7 +489,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A ApiBackupHandler</returns>
         public IApiBackupHandler GetApiBackupHandler(IApiRequestHandler requestHandler)
         {
-            return new ApiBackupHandler(requestHandler, GetApiTicketHandler(requestHandler));
+            return new ApiBackupHandler(requestHandler, GetApiTicketHandler(requestHandler), _logger);
         }
 
         /// <summary>

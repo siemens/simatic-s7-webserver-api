@@ -116,6 +116,7 @@ namespace Webserver.API.UnitTests
         public const string WebAppLimitReached = "{\"jsonrpc\":\"2.0\",\"id\":\"nayr44k2r\",\"error\":{\"code\":502,\"message\":\"Application limit reached\"}}";
 
         public const string WebAppBrowse = "{\"jsonrpc\":\"2.0\",\"id\":\"b1criaj9\",\"result\":{\"max_applications\":4,\"applications\":[{\"name\":\"customerExampleManualAdjusted\",\"state\":\"enabled\",\"type\":\"user\",\"version\":\"V1.2\",\"redirect_mode\":\"redirect\",\"default_page\":\"index.html\",\"not_found_page\":\"index2.html\",\"not_authorized_page\":\"login.html\"},{\"name\":\"anotherWebApp\",\"state\":\"enabled\",\"type\":\"user\",\"default_page\":\"index.html2\",\"not_found_page\":\"index.html1\",\"not_authorized_page\":\"index.html\"}]}}";
+        public const string WebAppBrowse_NoRedirectMode = "{\"jsonrpc\":\"2.0\",\"id\":\"b1criaj9\",\"result\":{\"max_applications\":4,\"applications\":[{\"name\":\"customerExampleManualAdjusted\",\"state\":\"enabled\",\"type\":\"user\",\"version\":\"V1.2\",\"default_page\":\"index.html\",\"not_found_page\":\"index2.html\",\"not_authorized_page\":\"login.html\"},{\"name\":\"anotherWebApp\",\"state\":\"enabled\",\"type\":\"user\",\"default_page\":\"index.html2\",\"not_found_page\":\"index.html1\",\"not_authorized_page\":\"index.html\"}]}}";
 
         public const string WebAppDoesNotExist = "{\"jsonrpc\":\"2.0\",\"id\":\"w1y410f\",\"error\":{\"code\":501,\"message\":\"Application does not exist\"}}";
 

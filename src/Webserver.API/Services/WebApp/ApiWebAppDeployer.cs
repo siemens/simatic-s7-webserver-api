@@ -245,12 +245,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     }
                     if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
                     {
-                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
-                        if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
+                        if(browsedWebApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None && webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
                         {
-                            throw new ApiInvalidParametersException("Redirect mode should never be none!");
+                            Logger?.LogWarning($"Cannot set Redirect mode to: {webApp.Redirect_mode} since the firmware does not seem to support it!");
                         }
-                        await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                        else
+                        {
+                            Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
+                            if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
+                            {
+                                throw new ApiInvalidParametersException("Redirect mode should never be none!");
+                            }
+                            await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                        }
                     }
                     if(browsedWebApp.Version != webApp.Version)
                     {

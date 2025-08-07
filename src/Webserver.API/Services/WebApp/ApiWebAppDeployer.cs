@@ -89,7 +89,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             if (webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
             {
                 Logger?.LogDebug($"{nameof(Deploy)}: set UrlRedirectMode");
-                await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                try
+                {
+                    await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                }
+                catch(ApiMethodNotFoundException e)
+                {
+                    Logger?.LogWarning(e, $"Prob. the firmware of the plc does not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
+                }
             }
             if (webApp.Version != null)
             {

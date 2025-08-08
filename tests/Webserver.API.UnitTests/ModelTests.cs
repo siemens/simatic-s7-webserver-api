@@ -95,8 +95,8 @@ namespace Webserver.API.UnitTests
             var app2 = new ApiWebAppData();
             Assert.That(app.Equals(app2));
             app.Redirect_mode = ApiWebAppRedirectMode.Redirect;
-            // changed redirect mode - still equal
-            Assert.That(app.Equals(app2));
+            // changed redirect mode - not equal
+            Assert.That(!app.Equals(app2));
             List<ApiWebAppData> apps = new List<ApiWebAppData>()
             {
                 new ApiWebAppData(),
@@ -109,8 +109,8 @@ namespace Webserver.API.UnitTests
             };
             Assert.That(apps.SequenceEqual(apps2));
             apps.First().Redirect_mode = ApiWebAppRedirectMode.Redirect;
-            // changed redirect mode - still equal
-            Assert.That(apps.SequenceEqual(apps2));
+            // changed redirect mode - not equal
+            Assert.That(!apps.SequenceEqual(apps2));
             apps2.First().Redirect_mode = ApiWebAppRedirectMode.Redirect;
             Assert.That(apps.SequenceEqual(apps2));
             apps2.First().Redirect_mode = ApiWebAppRedirectMode.Forward;

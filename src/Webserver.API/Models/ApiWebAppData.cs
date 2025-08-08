@@ -92,10 +92,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             set
             {
-                if (value == ApiWebAppRedirectMode.None)
-                {
-                    throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
-                }
                 redirect_mode = value;
             }
         }
@@ -163,19 +159,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             if (other is null)
                 return false;
-            var redirectModeResult = true;
-            if(this.redirect_mode == ApiWebAppRedirectMode.None || other.redirect_mode == ApiWebAppRedirectMode.None)
-            {
-                redirectModeResult = true; // some versions might not support it, just accept when 1 is none
-            }
-            else
-            {
-                redirectModeResult = redirect_mode == other.redirect_mode; // compare redirect modes
-            }
             var result = this.Name == other.Name && this.State == other.State && this.Type == other.Type && this.Version == other.Version 
                 && this.Default_page == other.Default_page && this.Not_found_page == other.Not_found_page 
                 && this.Not_authorized_page == other.Not_authorized_page
-                    && redirectModeResult;
+                    && this.redirect_mode == other.redirect_mode;
             return result;
         }
         /// <summary>
@@ -188,7 +175,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// GetHashCode => (Name, State, Type, Default_page, Not_found_page, Not_authorized_page).GetHashCode()
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode() => (Name, State, Type, Version, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
+        public override int GetHashCode() => (Name, State, Type, Version, Redirect_mode, Default_page, Not_found_page, Not_authorized_page).GetHashCode();
 
         /// <summary>
         /// Return the Json serialized object

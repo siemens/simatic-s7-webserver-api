@@ -89,14 +89,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             if (webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
             {
                 Logger?.LogDebug($"{nameof(Deploy)}: set UrlRedirectMode");
-                try
-                {
-                    await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
-                }
-                catch(ApiMethodNotFoundException e)
-                {
-                    Logger?.LogWarning(e, $"Prob. the firmware of the plc does not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
-                }
+                await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
             }
             if (webApp.Version != null)
             {
@@ -252,18 +245,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     }
                     if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
                     {
-                        if(browsedWebApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None && webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
+                        Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
+                        try
                         {
-                            Logger?.LogWarning($"Cannot set Redirect mode to: {webApp.Redirect_mode} since the firmware does not seem to support it!");
-                        }
-                        else
-                        {
-                            Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
-                            if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
-                            {
-                                throw new ApiInvalidParametersException("Redirect mode should never be none!");
-                            }
                             await ApiRequestHandler.ApiWebAppSetUrlRedirectModeAsync(webApp.Name, webApp.Redirect_mode, cancellationToken);
+                        }
+                        catch (ApiNotAcceptedException e)
+                        {
+                            Logger?.LogWarning(e, $"Prob. the configured firmware of the plc did not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
+                            throw;
                         }
                     }
                     if(browsedWebApp.Version != webApp.Version)

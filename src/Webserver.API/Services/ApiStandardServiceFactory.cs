@@ -499,7 +499,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an <see cref="ApiTicketHandler"/></returns>
         public IApiTicketHandler GetApiTicketHandler(IApiRequestHandler requestHandler)
         {
-            return new ApiTicketHandler(requestHandler);
+            return new ApiTicketHandler(requestHandler, _logger);
         }
 
         /// <summary>

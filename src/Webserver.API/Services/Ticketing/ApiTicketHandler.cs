@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
+using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
@@ -19,6 +20,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
     public class ApiTicketHandler : IApiTicketHandler
     {
         private readonly IApiRequestHandler ApiRequestHandler;
+        private readonly ILogger Logger;
 
         /// <summary>
         /// Control wether or not to call BrowseTickets for the provided ticket and check for the state to be completed after 
@@ -36,9 +38,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// Handler class for the Ticketing download mechanism
         /// </summary>
         /// <param name="apiRequestHandler">Request handler to send the api requests with</param>
-        public ApiTicketHandler(IApiRequestHandler apiRequestHandler)
+        /// <param name="logger">Logger for the ApiTicketHandler</param>
+        public ApiTicketHandler(IApiRequestHandler apiRequestHandler, ILogger logger = null)
         {
             ApiRequestHandler = apiRequestHandler;
+            Logger = logger;
         }
 
         private async Task<ApiTicket> CheckTicketAsync(string ticketId, bool performCheck, CancellationToken cancellationToken = default(CancellationToken))
@@ -49,7 +53,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 var ticket = brTicketsResp.Result.Tickets.First();
                 if (ticket.State != Enums.ApiTicketState.Completed)
                 {
-                    throw new ApiTicketNotInCompletedStateException(ticket);
+                    var exc = new ApiTicketNotInCompletedStateException(ticket);
+                    Logger?.LogError(exc, $"In CheckTicket -> {ticketId} was not completed!");
+                    throw exc;
                 }
                 return ticket;
             }
@@ -73,7 +79,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                         }
                         else
                         {
-                            throw new IOException($"File at {filePath} already exists and {nameof(overwriteExistingFile)} was {overwriteExistingFile}!");
+                            var exc = new IOException($"File at {filePath} already exists and {nameof(overwriteExistingFile)} was {overwriteExistingFile}!");
+                            Logger?.LogError(exc, $"In {nameof(HandleWriteFileAndCheckAsync)} -> ticket: {ticketId}!");
+                            throw exc;
                         }
                     }
                     using (FileStream fs = File.Create(filePath))
@@ -83,7 +91,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 }
                 else
                 {
-                    throw new Exception("The downloaded file has no content.");
+                    var exc = new InvalidOperationException($"The downloaded file has no content!");
+                    Logger?.LogError(exc, $"In {nameof(HandleWriteFileAndCheckAsync)} -> ticket: {ticketId}!");
+                    throw exc;
                 }
                 var ticket = await CheckTicketAsync(ticketId, CheckAfterDownload);
                 ticket.File_Downloaded = new FileInfo(filePath);
@@ -110,7 +120,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             var dirPath = filePath.Substring(0, filePath.LastIndexOf(@"\") + 1);
             if (!Directory.Exists(dirPath))
             {
-                throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{dirPath}{Environment.NewLine} has not been found!");
+                var exc = new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{dirPath}{Environment.NewLine} has not been found!");
+                Logger?.LogError(exc, $"In {nameof(HandleDownloadAsync)} -> ticket: {ticketId}!"); // we could maybe also just (try to) create the dir
+                throw exc;
             }
             var content = await ApiRequestHandler.DownloadTicketAsync(ticketId, cancellationToken);
             return await HandleWriteFileAndCheckAsync(ticketId, content, filePath, overwriteExistingFile);
@@ -331,7 +343,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             {
                 if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
                 {
-                    throw new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
+                    var exc = new DirectoryNotFoundException($"the given directory at {Environment.NewLine}{pathToDownloadDirectory}{Environment.NewLine} has not been found!");
+                    Logger?.LogError(exc, $"In {nameof(HandleDownloadAsync)} -> ticket: {ticketId}!"); // we could maybe also just (try to) create the dir
+                    throw exc;
                 }
                 var response = await ApiRequestHandler.DownloadTicketAndGetResponseAsync(ticketId);
                 //Downloads: 374DE290-123F-4565-9164-39C4925E467B

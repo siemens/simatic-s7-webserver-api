@@ -170,9 +170,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             var started = DateTime.Now;
-            _logger?.LogDebug($"Start sending request {apiRequestWithIntId.Id}");
+            _logger?.LogTrace($"Start sending request {apiRequestWithIntId.Id}");
             var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
-            _logger?.LogDebug($"Got response for {apiRequestWithIntId.Id} -> {DateTime.Now - started}");
+            _logger?.LogTrace($"Got response for {apiRequestWithIntId.Id} -> {DateTime.Now - started}");
             return response;
         }
 

@@ -243,7 +243,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set State");
                         await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
                     }
-                    if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
+                    if (browsedWebApp.Redirect_mode != webApp.Redirect_mode && webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
                     {
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
                         try

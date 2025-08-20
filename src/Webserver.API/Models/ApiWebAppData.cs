@@ -79,22 +79,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         public string Version { get; set; }
 
-        private ApiWebAppRedirectMode redirect_mode;
-
         /// <summary>
         /// The URL redirect mode of the application.
         /// </summary>
-        public ApiWebAppRedirectMode Redirect_mode
-        {
-            get
-            {
-                return redirect_mode;
-            }
-            set
-            {
-                redirect_mode = value;
-            }
-        }
+        public ApiWebAppRedirectMode Redirect_mode { get; set; }
 
         /// <summary>
         /// WebApps DefaultPage: The Page a user should be forwarded to in case he accesses the WebApp (https://plcIPOrDNSName/)~WebAppName or (https://plcIPOrDNSName/)~WebAppName/
@@ -162,7 +150,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             var result = this.Name == other.Name && this.State == other.State && this.Type == other.Type && this.Version == other.Version 
                 && this.Default_page == other.Default_page && this.Not_found_page == other.Not_found_page 
                 && this.Not_authorized_page == other.Not_authorized_page
-                    && this.redirect_mode == other.redirect_mode;
+                    && this.Redirect_mode== other.Redirect_mode;
             return result;
         }
         /// <summary>

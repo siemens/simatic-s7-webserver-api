@@ -243,7 +243,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set State");
                         await ApiRequestHandler.WebAppSetStateAsync(webApp.Name, webApp.State, cancellationToken);
                     }
-                    if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
+                    if (browsedWebApp.Redirect_mode != webApp.Redirect_mode && webApp.Redirect_mode != Enums.ApiWebAppRedirectMode.None)
                     {
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set RedirectMode");
                         try
@@ -252,7 +252,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         }
                         catch (ApiNotAcceptedException e)
                         {
-                            Logger?.LogWarning(e, $"Prob. the configured firmware of the plc did not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!");
+                            Logger?.LogWarning(e, $"Prob. the configured firmware of the plc did not yet support: {nameof(webApp.Redirect_mode)} -> {webApp.Redirect_mode} cannot be set!" +
+                                $"browsed app mode: {browsedWebApp.Redirect_mode}, target: {webApp.Redirect_mode}");
                             throw;
                         }
                     }

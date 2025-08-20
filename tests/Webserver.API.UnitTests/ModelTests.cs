@@ -108,6 +108,24 @@ namespace Webserver.API.UnitTests
                 new ApiWebAppData()
             };
             Assert.That(apps.SequenceEqual(apps2));
+
+            apps.First().Default_page = "";
+            apps2.First().Default_page = null;
+            Assert.That(apps.SequenceEqual(apps2));
+            Assert.That(apps.First().Equals(apps2.First()));
+            apps.First().Not_found_page = "";
+            apps2.First().Not_found_page = null;
+            Assert.That(apps.SequenceEqual(apps2));
+            Assert.That(apps.First().Equals(apps2.First()));
+            apps.First().Version = "";
+            apps2.First().Version = null;
+            Assert.That(apps.SequenceEqual(apps2));
+            Assert.That(apps.First().Equals(apps2.First()));
+            apps.First().Not_authorized_page = "";
+            apps2.First().Not_authorized_page = null;
+            Assert.That(apps.SequenceEqual(apps2));
+            Assert.That(apps.First().Equals(apps2.First()));
+
             apps.First().Redirect_mode = ApiWebAppRedirectMode.Redirect;
             // changed redirect mode - not equal
             Assert.That(!apps.SequenceEqual(apps2));
@@ -118,6 +136,7 @@ namespace Webserver.API.UnitTests
             Assert.That(!apps.SequenceEqual(apps2));
             // but exact equal wont ...
             Assert.That(!apps.First().Equals(apps2.First()));
+
         }
 
         [Test]

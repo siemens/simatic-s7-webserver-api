@@ -22,6 +22,7 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0 and .NET Standard 2.0 
   - [WebApps](#webapps)
     - [AsyncWebAppDeployer, WebAppConfigParser](#asyncwebappdeployer-webappconfigparser)
   - [PlcProgram Browse Read and Write](#plcprogram-browse-read-and-write)
+  - [ApiBulk - PlcProgram](#apibulk---plcprogram)
 - [Compatibility](#compatibility)
   - [SIMATIC S7-1500:](#simatic-s7-1500)
   - [SIMATIC S7-1200:](#simatic-s7-1200)
@@ -29,6 +30,7 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0 and .NET Standard 2.0 
 - [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S7-1500:](#simatic-s7-1500-1)
+  - [SIMATIC S7-1200 G2:](#simatic-s7-1200-g2)
   - [SIMATIC S7-1200:](#simatic-s7-1200-1)
 
 # [License](LICENSE.md)
@@ -232,6 +234,48 @@ await requestHandler.PlcProgramWriteAsync(myBool, true);
 // and read the value again:
 myBool.Value = (await requestHandler.PlcProgramReadAsync<bool>(myBool)).Result;
 Console.WriteLine(myBool.Value);
+```
+
+## ApiBulk - PlcProgram
+Just as an example to how a Bulk Request can be built up and used here you can see how supported datatypes within a datablock (structs need further handling - for simplification this example just focuses on the datatypes directly within the DB that can be read) are all read and later written back with just their values.
+```cs
+...
+using System.Collections.Generic;
+using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
+...
+var browseHandler = ServiceFactory.GetPlcProgramHandler(TestHandler);
+var allDBs = (await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children)).Result;
+var wantedDB = allDBs.FirstOrDefault(el => el.Name == "<Enter_Your_DB_Name>");
+var subElements = (await browseHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, wantedDB)).Result;
+var requestFactory = ServiceFactory.GetApiRequestFactory();
+var requests = new List<IApiRequest>();
+foreach (var subelement in subElements)
+{
+    if (subelement.Datatype.IsSupportedByPlcProgramReadOrWrite())
+    { 
+        var readRequest = requestFactory.GetApiPlcProgramReadRequest(subelement.GetVarNameForMethods(), ApiPlcDataRepresentation.Simple);
+        requests.Add(readRequest);
+    }
+}
+var bulkResponse = await TestHandler.ApiBulkAsync(requests);
+Assert.That(bulkResponse.ErrorResponses.Count() == 0, "There were errors in the Bulk Read Response!");
+var bulkWriteRequests = new List<IApiRequest>();
+foreach (var successResponse in bulkResponse.SuccessfulResponses)
+{
+    var castedReadResponse = successResponse as ApiResultResponse<object>;
+    var accordingRequest = requests.FirstOrDefault(el => el?.Id == castedReadResponse?.Id);
+    if(castedReadResponse != null && accordingRequest != null)
+    {
+        var writeRequest = requestFactory.GetApiPlcProgramWriteRequest(accordingRequest.Params["var"].ToString(), castedReadResponse.Result, ApiPlcDataRepresentation.Simple);
+        bulkWriteRequests.Add(writeRequest);
+    }
+}
+var bulkWriteResponse = await TestHandler.ApiBulkAsync(bulkWriteRequests);
+Assert.That(bulkWriteResponse.ErrorResponses.Count() == 0, "There were errors in the Bulk Write Response!");
 ```
 
 # Compatibility

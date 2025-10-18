@@ -4,76 +4,140 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
-  test:
-    name: Test
+  # ----------------------------------------------------------------------
+  # Job 1: Standard x64 Linux and Windows Tests
+  # These are your primary tests and are expected to pass for a successful build.
+  # ----------------------------------------------------------------------
+  test-x64-windows:
+    name: Test ${{ matrix.os }} - ${{ matrix.dotnet-tfm }}
     strategy:
-      fail-fast: false
+      fail-fast: false # Ensures all matrix combinations run even if one fails
       matrix:
-        os: [windows-latest] #to consider later , ubuntu-latest, macos-latest
+        include:
+          # --- Windows Tests ---
+          # On Windows, we can test all target frameworks, including net48
+          - os: windows-latest
+            dotnet-tfm: net48
+            dotnet-sdk: 8.0.x # A modern SDK is needed to run 'dotnet test' for net48
+          - os: windows-latest
+            dotnet-tfm: net6.0
+            dotnet-sdk: 6.0.x
+          - os: windows-latest
+            dotnet-tfm: net7.0
+            dotnet-sdk: 7.0.x
+          - os: windows-latest
+            dotnet-tfm: net8.0
+            dotnet-sdk: 8.0.x
+
+          # --- Linux (x64) Tests ---
+          # On Linux, we only test cross-platform .NET versions
+          - os: ubuntu-latest
+            dotnet-tfm: net6.0
+            dotnet-sdk: 6.0.x
+          - os: ubuntu-latest
+            dotnet-tfm: net7.0
+            dotnet-sdk: 7.0.x
+          - os: ubuntu-latest
+            dotnet-tfm: net8.0
+            dotnet-sdk: 8.0.x
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Setup .NET Core 2.1
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-sdk }}
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: "2.1.x"
-      - name: Setup .NET Core 3.1
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "3.1.x"
-      - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "6.0.x"
-      - name: Setup .NET 7.0
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "7.0.x"
-      - name: Setup .NET 8.0
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "8.0.x"
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-      - name: Run tests
-        run: dotnet test --collect:"XPlat Code Coverage" 
-      - name: Upload coverage
+          dotnet-version: ${{ matrix.dotnet-sdk }}
+
+      - name: Run tests for ${{ matrix.dotnet-tfm }}
+        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage for ${{ matrix.os }} (${{ matrix.dotnet-tfm }})
         uses: actions/upload-artifact@v4
         with:
-          name: Code coverage ${{ matrix.os }}
+          name: Code coverage ${{ matrix.os }}-${{ matrix.dotnet-tfm }}
           path: "**/coverage.cobertura.xml"
+
+  # ----------------------------------------------------------------------
+  # Job 2: Optional ARM64 Linux Tests
+  # This job will run on ARM64 if a runner is available within the timeout.
+  # It will not fail the entire workflow if it fails or times out.
+  # ----------------------------------------------------------------------
+  test-arm64-optional:
+    name: Test ARM64 (Optional) - ${{ matrix.dotnet-tfm }}
+    runs-on: ubuntu-latest-arm64
+    timeout-minutes: 15 # Set a reasonable timeout for runner acquisition and test execution
+    continue-on-error: true # Crucial: allows the workflow to succeed even if this job fails
+    strategy:
+      fail-fast: false # Ensures all TFM combinations for ARM64 are attempted
+      matrix:
+        include:
+          # --- Linux (ARM64) Tests ---
+          - dotnet-tfm: net6.0
+            dotnet-sdk: 6.0.x
+          - dotnet-tfm: net7.0
+            dotnet-sdk: 7.0.x
+          - dotnet-tfm: net8.0
+            dotnet-sdk: 8.0.x
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-sdk }}
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ matrix.dotnet-sdk }}
+
+      - name: Run tests for ${{ matrix.dotnet-tfm }}
+        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage for ARM64 (${{ matrix.dotnet-tfm }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: Code coverage ubuntu-latest-arm64-${{ matrix.dotnet-tfm }}
+          path: "**/coverage.cobertura.xml"
+
+  # ----------------------------------------------------------------------
+  # Coverage Job (collects from both test jobs)
+  # ----------------------------------------------------------------------
   coverage:
     name: Coverage
-    needs: [test]
+    needs: [test-x64-windows, test-arm64-optional] # Depends on both test jobs
     runs-on: windows-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-      - uses: actions/download-artifact@v5
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: Code coverage windows-latest
-          path: coverage-windows
+          # This downloads all artifacts named 'Code coverage *' into subdirectories
+          path: coverage-artifacts
       - name: Generate coverage report
         uses: danielpalme/ReportGenerator-GitHub-Action@5.4.17
         with:
-          reports: "**/coverage.cobertura.xml"
+          # Adjust the reports path to include all downloaded files
+          reports: "coverage-artifacts/**/coverage.cobertura.xml"
           targetdir: "coverage-report"
           reporttypes: "Cobertura"
-#      - name: Publish coverage report to Codacy
-#        uses: codacy/codacy-coverage-reporter-action@master
-#        if: github.repository == 'siemens/simatic-s7-webserver-api' && github.event_name == 'push'
-#        with:
-#          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-#          coverage-reports: coverage-report/Cobertura.xml
+      # ... (rest of your coverage job, e.g., publishing to Codacy) ...
+
+  # ----------------------------------------------------------------------
+  # Pack Job (depends only on primary tests)
+  # ----------------------------------------------------------------------
   pack:
     name: Pack
-    needs: [test]
+    needs: [test-x64-windows] # Pack should only need successful core tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -89,6 +153,10 @@ jobs:
         with:
           name: NuGet packages
           path: packages/*.*
+
+  # ----------------------------------------------------------------------
+  # Deploy Job (depends on pack)
+  # ----------------------------------------------------------------------
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -111,7 +179,7 @@ jobs:
         run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
       - uses: dotnet/nbgv@v0.4.2
         id: nbgv
-      
+    
       - name: Create GitHub release
         uses: actions/create-release@v1
         env:

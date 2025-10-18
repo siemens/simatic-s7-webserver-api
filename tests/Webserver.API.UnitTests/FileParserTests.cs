@@ -120,7 +120,7 @@ namespace Webserver.API.UnitTests
                 if (app.ApplicationResources == null || app.ApplicationResources.Count != 0)
                 {
                     Assert.Fail($"ApplicationResources dont default to empty List!:{Environment.NewLine}" +
-                        $"{app.ApplicationResources}");
+                        $"null?: {app.ApplicationResources == null}, not null -> count: {app.ApplicationResources?.Count}");
                 }
                 if (app.Default_page != null)
                 {

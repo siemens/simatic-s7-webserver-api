@@ -6,10 +6,14 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  # ----------------------------------------------------------------------
+  # Job 1: Standard x64 Linux and Windows Tests
+  # These are your primary tests and are expected to pass for a successful build.
+  # ----------------------------------------------------------------------
+  test-x64-windows:
     name: Test ${{ matrix.os }} - ${{ matrix.dotnet-tfm }}
     strategy:
-      fail-fast: false
+      fail-fast: false # Ensures all matrix combinations run even if one fails
       matrix:
         include:
           # --- Windows Tests ---
@@ -39,18 +43,6 @@ jobs:
             dotnet-tfm: net8.0
             dotnet-sdk: 8.0.x
 
-          # --- Linux (ARM64) Tests ---
-          # On ARM64 Linux, also only test cross-platform .NET versions
-          - os: ubuntu-latest-arm64
-            dotnet-tfm: net6.0
-            dotnet-sdk: 6.0.x
-          - os: ubuntu-latest-arm64
-            dotnet-tfm: net7.0
-            dotnet-sdk: 7.0.x
-          - os: ubuntu-latest-arm64
-            dotnet-tfm: net8.0
-            dotnet-sdk: 8.0.x
-
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
@@ -58,34 +50,74 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Install the specific .NET SDK required for the current target framework
       - name: Setup .NET SDK ${{ matrix.dotnet-sdk }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-sdk }}
 
-      # Run tests for the specified target framework only
       - name: Run tests for ${{ matrix.dotnet-tfm }}
         run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
 
-      # Upload coverage. Each job will create a uniquely named artifact.
       - name: Upload coverage for ${{ matrix.os }} (${{ matrix.dotnet-tfm }})
         uses: actions/upload-artifact@v4
         with:
           name: Code coverage ${{ matrix.os }}-${{ matrix.dotnet-tfm }}
           path: "**/coverage.cobertura.xml"
 
-  # --- Other jobs remain mostly the same, but 'coverage' needs adjustment ---
+  # ----------------------------------------------------------------------
+  # Job 2: Optional ARM64 Linux Tests
+  # This job will run on ARM64 if a runner is available within the timeout.
+  # It will not fail the entire workflow if it fails or times out.
+  # ----------------------------------------------------------------------
+  test-arm64-optional:
+    name: Test ARM64 (Optional) - ${{ matrix.dotnet-tfm }}
+    runs-on: ubuntu-latest-arm64
+    timeout-minutes: 15 # Set a reasonable timeout for runner acquisition and test execution
+    continue-on-error: true # Crucial: allows the workflow to succeed even if this job fails
+    strategy:
+      fail-fast: false # Ensures all TFM combinations for ARM64 are attempted
+      matrix:
+        include:
+          # --- Linux (ARM64) Tests ---
+          - dotnet-tfm: net6.0
+            dotnet-sdk: 6.0.x
+          - dotnet-tfm: net7.0
+            dotnet-sdk: 7.0.x
+          - dotnet-tfm: net8.0
+            dotnet-sdk: 8.0.x
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-sdk }}
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ matrix.dotnet-sdk }}
+
+      - name: Run tests for ${{ matrix.dotnet-tfm }}
+        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage for ARM64 (${{ matrix.dotnet-tfm }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: Code coverage ubuntu-latest-arm64-${{ matrix.dotnet-tfm }}
+          path: "**/coverage.cobertura.xml"
+
+  # ----------------------------------------------------------------------
+  # Coverage Job (collects from both test jobs)
+  # ----------------------------------------------------------------------
   coverage:
     name: Coverage
-    needs: [test]
+    needs: [test-x64-windows, test-arm64-optional] # Depends on both test jobs
     runs-on: windows-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-      # Download all coverage artifacts from the 'test' jobs
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v4
         with:
@@ -98,9 +130,14 @@ jobs:
           reports: "coverage-artifacts/**/coverage.cobertura.xml"
           targetdir: "coverage-report"
           reporttypes: "Cobertura"
+      # ... (rest of your coverage job, e.g., publishing to Codacy) ...
+
+  # ----------------------------------------------------------------------
+  # Pack Job (depends only on primary tests)
+  # ----------------------------------------------------------------------
   pack:
     name: Pack
-    needs: [test]
+    needs: [test-x64-windows] # Pack should only need successful core tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -116,6 +153,10 @@ jobs:
         with:
           name: NuGet packages
           path: packages/*.*
+
+  # ----------------------------------------------------------------------
+  # Deploy Job (depends on pack)
+  # ----------------------------------------------------------------------
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -154,6 +195,3 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
-
-
-

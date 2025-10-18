@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest ] #to consider later , ubuntu-latest, macos-latest
+        os: [windows-latest, ubuntu-latest, ubuntu-latest-arm64 ] #to consider later , ubuntu-latest, macos-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout sources
@@ -127,4 +127,5 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
 

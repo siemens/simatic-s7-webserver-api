@@ -137,8 +137,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
                 FileInfo fileInfo = new FileInfo(f);
                 // ignore spec. file extensions (.git,...)
                 bool fileExtensionIsNotToBeIgnored = !(fileExtToIgnore.Contains(fileInfo.Extension));
-                //ignore config file by default!
-                bool fileIsNotConfigurationFile = !(fileInfo.FullName == pathToDir + @"\" + WebAppConfigFileName);
+                //ignore config file by default! \ for windows / for linux
+                bool fileIsNotConfigurationFile = !(fileInfo.FullName == pathToDir + @"\" + WebAppConfigFileName || fileInfo.FullName == pathToDir + "/" + WebAppConfigFileName);
                 if (fileExtensionIsNotToBeIgnored && fileIsNotConfigurationFile)
                 {
                     var res = ApiWebAppResourceBuilder.BuildResourceFromFile(f, PathToWebAppDirectory, ApiWebAppResourceVisibility.Public);

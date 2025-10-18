@@ -11,6 +11,7 @@ using Siemens.Simatic.S7.Webserver.API.Services.FileParser;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Webserver.API.UnitTests
 {
@@ -120,7 +121,8 @@ namespace Webserver.API.UnitTests
                 if (app.ApplicationResources == null || app.ApplicationResources.Count != 0)
                 {
                     Assert.Fail($"ApplicationResources dont default to empty List!:{Environment.NewLine}" +
-                        $"null?: {app.ApplicationResources == null}, not null -> count: {app.ApplicationResources?.Count}");
+                        $"null?: {app.ApplicationResources == null}, not null -> count: {app.ApplicationResources?.Count}," +
+                        $"{app.ApplicationResources?.First()}");
                 }
                 if (app.Default_page != null)
                 {

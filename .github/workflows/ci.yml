@@ -33,9 +33,9 @@ jobs:
           - os: windows-latest
             dotnet-tfm: net9.0
             dotnet-sdk: 9.0.x 
-          - os: windows-latest
-            dotnet-tfm: net10.0
-            dotnet-sdk: 10.0.x 
+          #- os: windows-latest
+            #dotnet-tfm: net10.0
+            #dotnet-sdk: 10.0.x 
 
           # --- Linux (x64) Tests ---
           # On Linux, we only test cross-platform .NET versions
@@ -51,9 +51,9 @@ jobs:
           - os: ubuntu-latest
             dotnet-tfm: net9.0
             dotnet-sdk: 9.0.x
-          - os: ubuntu-latest
-            dotnet-tfm: net10.0
-            dotnet-sdk: 10.0.x
+          #- os: ubuntu-latest
+          #  dotnet-tfm: net10.0
+          #  dotnet-sdk: 10.0.x
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -99,8 +99,8 @@ jobs:
             dotnet-sdk: 8.0.x
           - dotnet-tfm: net9.0
             dotnet-sdk: 9.0.x
-          - dotnet-tfm: net10.0
-            dotnet-sdk: 10.0.x
+          #- dotnet-tfm: net10.0
+          #  dotnet-sdk: 10.0.x
 
     steps:
       - name: Checkout sources

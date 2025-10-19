@@ -127,7 +127,7 @@ jobs:
   # ----------------------------------------------------------------------
   coverage:
     name: Coverage
-    needs: [test-x64-windows, test-arm64-optional] # Depends on both test jobs
+    needs: [test-x64-windows] # Depends on both test jobs
     runs-on: windows-latest
     steps:
       - name: Checkout sources
@@ -211,3 +211,4 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+

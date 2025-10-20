@@ -83,7 +83,7 @@ jobs:
   # ----------------------------------------------------------------------
   test-arm64-optional:
     name: Test ARM64 (Optional) - ${{ matrix.dotnet-tfm }}
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 15 # Set a reasonable timeout for runner acquisition and test execution
     continue-on-error: true # Crucial: allows the workflow to succeed even if this job fails
     strategy:
@@ -222,5 +222,6 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
 
 

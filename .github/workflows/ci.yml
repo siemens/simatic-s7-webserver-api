@@ -127,7 +127,7 @@ jobs:
   # ----------------------------------------------------------------------
   coverage:
     name: Coverage
-    needs: [test-x64-windows] # Depends on both test jobs
+    needs: [test-x64-windows] 
     runs-on: windows-latest
     steps:
       - name: Checkout sources
@@ -139,13 +139,24 @@ jobs:
         with:
           # This downloads all artifacts named 'Code coverage *' into subdirectories
           path: coverage-artifacts
-      - name: Generate coverage report
+      - name: Generate coverage report (HTML + Cobertura)
         uses: danielpalme/ReportGenerator-GitHub-Action@5.4.17
         with:
           # Adjust the reports path to include all downloaded files
           reports: "coverage-artifacts/**/coverage.cobertura.xml"
           targetdir: "coverage-report"
-          reporttypes: "Cobertura"
+          # *** IMPORTANT CHANGE HERE ***
+          # Add 'Html' to the reporttypes to generate an HTML report.
+          # You can also use 'Html_Light', 'Html_Dark', etc., for specific themes.
+          reporttypes: "Html;Cobertura" 
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTML Coverage Report
+          # Upload the entire directory where ReportGenerator placed the HTML files
+          path: coverage-report/
+          # Optional: Set a retention period for the artifact (e.g., 5 days)
+          # retention-days: 5 
       # ... (rest of your coverage job, e.g., publishing to Codacy) ...
 
   # ----------------------------------------------------------------------
@@ -211,4 +222,5 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
 

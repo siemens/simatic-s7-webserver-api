@@ -92,9 +92,9 @@ jobs:
         include:
           # --- Linux (ARM64) Tests ---
           - dotnet-tfm: net6.0
-            dotnet-sdk: 9.0.x
+            dotnet-sdk: 6.0.x
           - dotnet-tfm: net7.0
-            dotnet-sdk: 9.0.x
+            dotnet-sdk: 7.0.x
           - dotnet-tfm: net8.0
             dotnet-sdk: 9.0.x
           - dotnet-tfm: net9.0
@@ -222,6 +222,7 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
 
 
 

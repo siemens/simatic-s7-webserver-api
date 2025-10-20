@@ -114,7 +114,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-sdk }}
 
       - name: Run tests for ${{ matrix.dotnet-tfm }}
-        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
+        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage" --runtime linux-arm64
 
       - name: Upload coverage for ARM64 (${{ matrix.dotnet-tfm }})
         uses: actions/upload-artifact@v4
@@ -222,6 +222,7 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
 
 
 

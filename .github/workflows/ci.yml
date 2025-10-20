@@ -83,7 +83,7 @@ jobs:
   # ----------------------------------------------------------------------
   test-arm64-optional:
     name: Test ARM64 (Optional) - ${{ matrix.dotnet-tfm }}
-    runs-on: ubuntu-latest-arm64
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 15 # Set a reasonable timeout for runner acquisition and test execution
     continue-on-error: true # Crucial: allows the workflow to succeed even if this job fails
     strategy:
@@ -91,12 +91,12 @@ jobs:
       matrix:
         include:
           # --- Linux (ARM64) Tests ---
-          - dotnet-tfm: net6.0
-            dotnet-sdk: 6.0.x
-          - dotnet-tfm: net7.0
-            dotnet-sdk: 7.0.x
+          #- dotnet-tfm: net6.0
+           # dotnet-sdk: 8.0.x
+          #- dotnet-tfm: net7.0
+           # dotnet-sdk: 8.0.x
           - dotnet-tfm: net8.0
-            dotnet-sdk: 8.0.x
+            dotnet-sdk: 9.0.x
           - dotnet-tfm: net9.0
             dotnet-sdk: 9.0.x
           #- dotnet-tfm: net10.0
@@ -114,7 +114,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-sdk }}
 
       - name: Run tests for ${{ matrix.dotnet-tfm }}
-        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
+        run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage" --runtime linux-arm64 /p:PlatformTarget=arm64
 
       - name: Upload coverage for ARM64 (${{ matrix.dotnet-tfm }})
         uses: actions/upload-artifact@v4
@@ -222,5 +222,12 @@ jobs:
             This is addressed in release {release_link}.
           label-template: |
             state: released
+
+
+
+
+
+
+
 
 

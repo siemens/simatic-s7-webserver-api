@@ -135,7 +135,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           # This downloads all artifacts named 'Code coverage *' into subdirectories
           path: coverage-artifacts

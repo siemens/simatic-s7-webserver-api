@@ -135,7 +135,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           # This downloads all artifacts named 'Code coverage *' into subdirectories
           path: coverage-artifacts
@@ -196,7 +196,7 @@ jobs:
           fetch-depth: 0
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: NuGet packages
           path: packages

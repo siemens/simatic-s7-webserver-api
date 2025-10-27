@@ -140,7 +140,7 @@ jobs:
           # This downloads all artifacts named 'Code coverage *' into subdirectories
           path: coverage-artifacts
       - name: Generate coverage report (HTML + Cobertura)
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.4.17
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.4.18
         with:
           # Adjust the reports path to include all downloaded files
           reports: "coverage-artifacts/**/coverage.cobertura.xml"

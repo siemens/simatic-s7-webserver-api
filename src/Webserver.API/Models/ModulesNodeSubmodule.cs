@@ -14,6 +14,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <summary>
         /// The alternate number of the submodule, for example "X1 P2" for submodule number 66
         /// </summary>
+        [JsonProperty("alternate_number")]
         public string AlternateNumber { get; set; }
 
         /// <summary>

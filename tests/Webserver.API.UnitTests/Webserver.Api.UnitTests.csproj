@@ -8,6 +8,7 @@
 		<IsPackable>false</IsPackable>
 		<AssemblyName>Webserver.API.UnitTests</AssemblyName>
 		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
+		<SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

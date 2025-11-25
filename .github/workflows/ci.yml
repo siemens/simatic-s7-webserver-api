@@ -94,10 +94,11 @@ jobs:
       matrix:
         include:
           # --- Linux (ARM64) Tests ---
-          - dotnet-tfm: net6.0
-            dotnet-sdk: 10.0.x
-          - dotnet-tfm: net7.0
-            dotnet-sdk: 10.0.x
+          # On ARM64, we only test cross-platform .NET versions -> starting with net8.0
+          #- dotnet-tfm: net6.0
+          #  dotnet-sdk: 10.0.x
+          #- dotnet-tfm: net7.0
+          #  dotnet-sdk: 10.0.x
           - dotnet-tfm: net8.0
             dotnet-sdk: 10.0.x
           - dotnet-tfm: net9.0

@@ -4,7 +4,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System.Runtime.Serialization;
 
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {

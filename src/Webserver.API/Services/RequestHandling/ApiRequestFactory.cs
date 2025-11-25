@@ -1598,16 +1598,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id"></param>
         /// <param name="redundancyId"></param>
         /// <returns></returns>
-        public virtual IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId? redundancyId = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            if (redundancyId != ApiPlcRedundancyId.StandardPLC)
+            Dictionary<string, object> requestParams = null;
+            if (redundancyId.HasValue && redundancyId != ApiPlcRedundancyId.StandardPLC)
             {
-                Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "redundancy_id", redundancyId } };
-                return new ApiRequest("Plc.ReadLoadMemoryInformation", jsonRpcReq, idReq, requestParams);
+                requestParams = new Dictionary<string, object>() { { "redundancy_id", redundancyId } };
             }
-            return new ApiRequest("Plc.ReadLoadMemoryInformation", jsonRpcReq, idReq);
+            return new ApiRequest("Plc.ReadLoadMemoryInformation", jsonRpcReq, idReq, requestParams);
         }
 
         /// <summary>

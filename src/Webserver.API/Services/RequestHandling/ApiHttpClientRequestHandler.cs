@@ -4236,11 +4236,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadLoadMemoryInformation request
         /// </summary>
+        /// <param name="redundancyId">​The parameter "redundancy ID" must be available if the request is performed on an R/H-CPU. The "redundancy ID" has the value 1 or 2. ​With all other CPUs, the parameter must not be part of the request.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>PlcLoadMemoryInformationResponse</returns>
-        public async Task<PlcLoadMemoryInformationResponse> PlcReadLoadMemoryInformationAsync(CancellationToken cancellationToken = default)
+        public async Task<PlcLoadMemoryInformationResponse> PlcReadLoadMemoryInformationAsync(ApiPlcRedundancyId? redundancyId = null, CancellationToken cancellationToken = default)
         {
-            var req = _apiRequestFactory.GetPlcReadLoadMemoryInformationRequest();
+            var req = _apiRequestFactory.GetPlcReadLoadMemoryInformationRequest(redundancyId);
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<PlcLoadMemoryInformationResponse>(response);
         }
@@ -4249,7 +4250,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Plc.ReadLoadMemoryInformation request
         /// </summary>
         /// <returns>PlcLoadMemoryInformationResponse</returns>
-        public PlcLoadMemoryInformationResponse PlcReadLoadMemoryInformation() => PlcReadLoadMemoryInformationAsync().GetAwaiter().GetResult();
+        public PlcLoadMemoryInformationResponse PlcReadLoadMemoryInformation(ApiPlcRedundancyId? redundancyId = null) => PlcReadLoadMemoryInformationAsync(redundancyId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.ReadRuntimeInformation request

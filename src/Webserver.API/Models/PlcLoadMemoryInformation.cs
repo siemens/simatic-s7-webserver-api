@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -24,7 +25,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>True if they match</returns>
         public override bool Equals(object obj)
         {
-            return obj is PlcLoadMemoryInformation loadMemoryInformation && LoadMemory == loadMemoryInformation.LoadMemory;
+            return obj is PlcLoadMemoryInformation loadMemoryInformation &&
+                EqualityComparer<PlcLoadMemory>.Default.Equals(LoadMemory, loadMemoryInformation.LoadMemory);
         }
 
         /// <summary>

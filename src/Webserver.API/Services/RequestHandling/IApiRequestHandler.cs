@@ -2787,15 +2787,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadLoadMemoryInformation request
         /// </summary>
+        /// <param name="redundancyId">​The parameter "redundancy ID" must be available if the request is performed on an R/H-CPU. The "redundancy ID" has the value 1 or 2. ​With all other CPUs, the parameter must not be part of the request.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>PlcLoadMemoryInformationResponse containing PLC load memory information</returns>
-        Task<PlcLoadMemoryInformationResponse> PlcReadLoadMemoryInformationAsync(CancellationToken cancellationToken = default);
+        Task<PlcLoadMemoryInformationResponse> PlcReadLoadMemoryInformationAsync(ApiPlcRedundancyId? redundancyId = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send a Plc.ReadLoadMemoryInformation request
         /// </summary>
+        /// <param name="redundancyId">​The parameter "redundancy ID" must be available if the request is performed on an R/H-CPU. The "redundancy ID" has the value 1 or 2. ​With all other CPUs, the parameter must not be part of the request.</param>
         /// <returns>PlcLoadMemoryInformationResponse containing PLC load memory information</returns>
-        PlcLoadMemoryInformationResponse PlcReadLoadMemoryInformation();
+        PlcLoadMemoryInformationResponse PlcReadLoadMemoryInformation(ApiPlcRedundancyId? redundancyId = null);
 
         /// <summary>
         /// Send a Plc.ReadRuntimeInformation request

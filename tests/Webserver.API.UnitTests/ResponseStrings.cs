@@ -84,6 +84,8 @@ namespace Webserver.API.UnitTests
         public const string PlcReadTimeSettings = "{\"jsonrpc\":\"2.0\",\"id\":\"ya3ih0h\",\"result\":{\"current_offset\":\"PT0H\",\"utc_offset\":\"PT0H\",\"rule\":{\"std\":{\"start\":{\"minute\":0,\"hour\":2,\"day_of_week\":\"sun\",\"week\":5,\"month\":10}},\"dst\":{\"offset\":\"PT1H\",\"start\":{\"minute\":0,\"hour\":1,\"day_of_week\":\"sun\",\"week\":5,\"month\":3}}}}}";
         public const string PlcReadTimeSettingsNoRule = "{\"jsonrpc\":\"2.0\",\"id\":\"ya3ih0h\",\"result\":{\"current_offset\":\"PT0H\",\"utc_offset\":\"PT0H\"}}";
 
+        public const string PlcReadLoadMemoryInformationResponse = "{\"jsonrpc\":\"2.0\",\"id\":\"7b37f747-a24e-4bd6-9b49-37864e2e52ab\",\"result\":{\"load_memory\":{\"free_bytes\":22499328,\"total_bytes\":25176064,\"aging\":{\"service_life_used_percentage\":0}}}}";
+
         public const string PlcSetTimeSettingsAll = "{\"jsonrpc\":\"2.0\",\"id\":\"b1zpkl8\",\"result\":true}";
         public const string PlcSetTimeSettingsNoRule = "{\"jsonrpc\":\"2.0\",\"id\":\"he7l9iu\",\"result\":true}";
 
@@ -214,5 +216,6 @@ namespace Webserver.API.UnitTests
         public const string ModulesReadStatusResponse_EN = "{\"jsonrpc\":\"2.0\",\"id\":\"4122c417-322c-48e7-99ba-19360b7016fd\",\"result\":{\"status\":{\"own\":\"good\",\"subordinate\":\"good\"},\"messages\":[],\"language\":\"en-US\"}}";
         public const string ModulesReadStatusResponse_DE = "{\"jsonrpc\":\"2.0\",\"id\":\"85dc3f7e-9d64-4ad6-bcfa-4aa1ad040477\",\"result\":{\"status\":{\"own\":\"good\",\"subordinate\":\"good\"},\"messages\":[],\"language\":\"de-DE\"}}";
         public const string ModulesReadStatusResponse_InvalidCulture = "{\"jsonrpc\":\"2.0\",\"id\":\"b12e4bf4-ab0b-4847-ba6d-e195be9a3f75\",\"result\":{\"status\":{\"own\":\"good\",\"subordinate\":\"good\"},\"messages\":[],\"language\":\"invalid\"}}";
+
     }
 }

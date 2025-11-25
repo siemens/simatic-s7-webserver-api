@@ -4980,5 +4980,26 @@ namespace Webserver.API.UnitTests
             });
         }
 
+        [Test]
+        public async Task T111_PlcReadLoadMemoryInformationResponse()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcReadLoadMemoryInformationResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            PlcLoadMemoryInformationResponse response = (await TestHandler.PlcReadLoadMemoryInformationAsync());
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expected = new PlcLoadMemoryInformation() { LoadMemory = new PlcLoadMemory() { Aging = new PlcLoadMemoryAging() { }, FreeBytes = 22499328, TotalBytes = 25176064 } };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        //
     }
 }

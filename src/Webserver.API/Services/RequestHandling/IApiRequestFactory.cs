@@ -817,7 +817,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
+        IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId? redundancyId = null, string jsonRpc = null, string id = null);
 
         /// <summary>
         /// Get a Plc.ReadRuntimeInformation request

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Serialization;
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
     /// <summary>
-    /// ​The type read out. The possible values depend on which of the data ​I&M0​ to ​I&M3​ you want to read out
+    /// ​The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter), converterParameters: typeof(SnakeCaseNamingStrategy))]
     public enum ModulesReadIdentificationMaintenanceType

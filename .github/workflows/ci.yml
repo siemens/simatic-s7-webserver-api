@@ -18,39 +18,42 @@ jobs:
         include:
           # --- Windows Tests ---
           # On Windows, we can test all target frameworks, including net48
+          # NOTE: Using SDK 10.0.x for all Windows tests because projects target net10.0
+          # and older SDKs cannot build projects with net10.0 in TargetFrameworks
           - os: windows-latest
             dotnet-tfm: net48
-            dotnet-sdk: 8.0.x # A modern SDK is needed to run 'dotnet test' for net48
+            dotnet-sdk: 10.0.x
           - os: windows-latest
             dotnet-tfm: net6.0
-            dotnet-sdk: 6.0.x
+            dotnet-sdk: 10.0.x
           - os: windows-latest
             dotnet-tfm: net7.0
-            dotnet-sdk: 7.0.x
+            dotnet-sdk: 10.0.x
           - os: windows-latest
             dotnet-tfm: net8.0
-            dotnet-sdk: 8.0.x
+            dotnet-sdk: 10.0.x
           - os: windows-latest
             dotnet-tfm: net9.0
-            dotnet-sdk: 9.0.x 
+            dotnet-sdk: 10.0.x 
           - os: windows-latest
             dotnet-tfm: net10.0
             dotnet-sdk: 10.0.x 
 
           # --- Linux (x64) Tests ---
           # On Linux, we only test cross-platform .NET versions
+          # NOTE: Using SDK 10.0.x for all Linux tests for consistency
           - os: ubuntu-latest
             dotnet-tfm: net6.0
-            dotnet-sdk: 6.0.x
+            dotnet-sdk: 10.0.x
           - os: ubuntu-latest
             dotnet-tfm: net7.0
-            dotnet-sdk: 7.0.x
+            dotnet-sdk: 10.0.x
           - os: ubuntu-latest
             dotnet-tfm: net8.0
-            dotnet-sdk: 8.0.x
+            dotnet-sdk: 10.0.x
           - os: ubuntu-latest
             dotnet-tfm: net9.0
-            dotnet-sdk: 9.0.x
+            dotnet-sdk: 10.0.x
           - os: ubuntu-latest
             dotnet-tfm: net10.0
             dotnet-sdk: 10.0.x

@@ -39,7 +39,8 @@ namespace Webserver.API.UnitTests
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
                     sw.Write(serializedAppString);
-                };
+                }
+                ;
                 ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
@@ -54,7 +55,8 @@ namespace Webserver.API.UnitTests
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
                     sw.Write(serializedAppString);
-                };
+                }
+                ;
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
                     var invalidApp = parser.Parse();
@@ -91,7 +93,8 @@ namespace Webserver.API.UnitTests
                 using (StreamWriter sw = File.CreateText(filePath))
                 {
                     sw.Write(serializedAppString);
-                };
+                }
+                ;
                 var app = parser.Parse();
                 if (app.PathToWebAppDirectory != dirPath)
                 {

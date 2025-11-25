@@ -47,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
         /// <param name="progress">Progress to report to.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
+        public async Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default, IProgress<int> progress = null)
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
@@ -84,7 +84,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
         /// <returns>Task for deletion</returns>
-        public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
+        public async Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default, IProgress<int> progress = null)
         {
             if (resource.Type == Enums.ApiFileResourceType.File)
             {
@@ -135,7 +135,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">resouce to be browsed</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>A resource containing everything that is present underneath</returns>
-        public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
             // should we clone here?
             var res = (ApiFileResource)resource.Clone();
@@ -181,7 +181,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="progress">Progress to report to.</param>
         /// <returns>Task to update the resource</returns>
         public async Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource,
-            CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
+            CancellationToken cancellationToken = default, IProgress<int> progress = null)
         {
             if (browsedResource.Type != resource.Type)
             {
@@ -230,7 +230,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="browsedResource">the file returned by browsing the plc</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task to update the File</returns>
-        public async Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default)
         {
             if (resource.Type != Enums.ApiFileResourceType.File)
             {
@@ -272,7 +272,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
         public async Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1,
-            CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null)
+            CancellationToken cancellationToken = default, IProgress<int> progress = null)
         {
             if (amountOfTriesForResourceDeployment < 1)
             {

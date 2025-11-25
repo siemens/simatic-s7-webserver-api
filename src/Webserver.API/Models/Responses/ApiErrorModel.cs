@@ -60,6 +60,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiInvalidArrayIndexException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.UnsupportedAddress:
                     throw new ApiUnsupportedAddressException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.AddressIsReadOnly:
+                    throw new ApiAddressIsReadOnlyException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.EntityDoesNotExist:
                     throw new ApiEntityDoesNotExistException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.EntityInUse:
@@ -98,12 +100,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiResourceContentHasBeenCorruptedException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidAlarmId:
                     throw new ApiInvalidAlarmIdException(new ApiException(this, apiRequestString));
-                case ApiErrorCode.InvalidAlarmsBrowseParameters:
+                case ApiErrorCode.InvalidAlarmParameters:
                     throw new ApiInvalidAlarmsBrowseParametersException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.PLCNotInStop:
                     throw new ApiPLCNotInStopException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.MethodNotFound:
                     throw new ApiMethodNotFoundException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidRequest:
+                    throw new ApiInvalidRequestException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.ParseError:
+                    throw new ApiParseErrorException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidParams:
                     throw new ApiInvalidParametersException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.PasswordExpired:
@@ -126,8 +132,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiTimestampOutOfRangeException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidTimeRule:
                     throw new ApiInvalidTimeRuleException(new ApiException(this, apiRequestString));
-                case ApiErrorCode.InvalidUTCOffset:
-                    throw new ApiInvalidUTCOffsetException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidUtcOffset:
+                    throw new ApiInvalidUtcOffsetException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.NotATechnologyObject:
                     throw new ApiNotATechnologyObjectException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InfrastructureError:
@@ -144,9 +150,44 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
                     throw new ApiRequestTooLargeException(new ApiException(this, apiRequestString));
                 case ApiErrorCode.InvalidVersionString:
                     throw new ApiInvalidVersionStringException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PathIllegalSequence:
+                    throw new ApiPathIllegalSequenceException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityAccessRestricted:
+                    throw new ApiEntityAccessRestrictedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityNotADirectory:
+                    throw new ApiEntityNotADirectoryException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityNotAFile:
+                    throw new ApiEntityNotAFileException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.PathTooDeep:
+                    throw new ApiPathTooDeepException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.MoveNotLegal:
+                    throw new ApiMoveNotLegalException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityNotInactiveDatalog:
+                    throw new ApiEntityNotInactiveDatalogException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.EntityAccessDenied:
+                    throw new ApiEntityAccessDeniedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.BackupInProgress:
+                    throw new ApiBackupInProgressException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.RestoreInProgress:
+                    throw new ApiRestoreInProgressException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.MemoryCardWriteProtected:
+                    throw new ApiMemoryCardWriteProtectedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.RestoreNotPossible:
+                    throw new ApiRestoreNotPossibleException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.LegitimationFailed:
+                    throw new ApiLegitimationFailedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.IMDataInvalidIndex:
+                    throw new ApiIMDataInvalidIndexException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.IMdataNotReadable:
+                    throw new ApiIMdataNotReadableException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.IMdataNotSupported:
+                    throw new ApiIMdataNotSupportedException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.InvalidDefaultPage:
+                    throw new ApiInvalidDefaultPageException(new ApiException(this, apiRequestString));
+                case ApiErrorCode.MotionFunctionalityActive:
+                    throw new ApiMotionFunctionalityActiveException(new ApiException(this, apiRequestString));
                 default:
                     throw new ApiException(this, apiRequestString);
-
             }
         }
 

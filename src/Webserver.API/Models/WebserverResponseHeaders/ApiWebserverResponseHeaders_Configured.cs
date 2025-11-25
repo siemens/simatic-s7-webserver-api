@@ -23,6 +23,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.WebserverResponseHeaders
         public string Header { get; set; }
 
         /// <summary>
+        /// Check if incoming object is the same as this
+        /// </summary>
+        /// <param name="obj">Object to check</param>
+        /// <returns>True if they match</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is ApiWebserverResponseHeaders_Configured configured &&
+                   Pattern == configured.Pattern &&
+                   Header == configured.Header;
+        }
+
+        /// <summary>
+        /// Get hashcode of object
+        /// </summary>
+        /// <returns>Hashcode</returns>
+        public override int GetHashCode()
+        {
+            return (Pattern, Header).GetHashCode();
+        }
+
+        /// <summary>
         /// Return the Json serialized object
         /// </summary>
         /// <returns>Json serialized object</returns>

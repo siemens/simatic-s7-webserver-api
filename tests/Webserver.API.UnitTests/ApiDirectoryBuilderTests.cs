@@ -43,7 +43,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void T001_NonExistantDirectory_ThrowsException()
         {
-            if(Directory.Exists(TmpDirectory))
+            if (Directory.Exists(TmpDirectory))
             {
                 Directory.Delete(TmpDirectory, true);
             }
@@ -56,7 +56,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void T002_NullConfiguration_Works()
         {
-            if(!Directory.Exists(TmpDirectory))
+            if (!Directory.Exists(TmpDirectory))
             {
                 Directory.CreateDirectory(TmpDirectory);
             }

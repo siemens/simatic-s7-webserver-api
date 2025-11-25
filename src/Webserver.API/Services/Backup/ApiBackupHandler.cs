@@ -46,7 +46,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public async Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
             if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
             {
@@ -87,7 +87,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <returns>Task</returns>
         /// <exception cref="FileNotFoundException">File at restorefilepath has not been found</exception>
         /// <exception cref="InvalidOperationException">Restore is not possible</exception>
-        public async Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken externalCancellationToken = default(CancellationToken))
+        public async Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken externalCancellationToken = default)
         {
             var timeToWait = timeOut ?? TimeSpan.FromMinutes(3);
             if (restoreFilePath == null)

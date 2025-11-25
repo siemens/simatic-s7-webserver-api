@@ -30,7 +30,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
         /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default);
         /// <summary>
         /// make very sure the given webapp contains all the data:
         /// Name
@@ -64,6 +64,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// </param>
         /// /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, IProgress<int> progress = null, CancellationToken cancellationToken = default);
     }
 }

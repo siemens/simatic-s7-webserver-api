@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: MIT
 
 using Newtonsoft.Json;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
 {
     /// <summary>
     /// ApiResponse (Jsonrpc,id) with an ApiPlcCpuType
     /// </summary>
-    public class ApiPlcReadCpuTypeResponse : ApiResultResponse<ResponseResults.ApiPlcReadCpuTypeResult>
+    public class ApiPlcReadCpuTypeResponse : ApiResultResponse<ApiPlcReadCpuTypeResult>
     {
         /// <summary>
         /// Return the Json serialized object

@@ -4166,7 +4166,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="number">number (determines result)</param>
         /// <param name="type">Type</param>
         /// <returns>according ModulesIMxResponse (number)</returns>
-        /// <exception cref="ApiIMDataInvalidIndexException">invalid number</exception>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
         public object ModulesReadIdentificationMaintenance(uint hwid, ModulesReadIdentificationMaintenanceNumber number, ModulesReadIdentificationMaintenanceType type)
          => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
 

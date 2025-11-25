@@ -4075,7 +4075,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
         /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
-        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
         public ModulesIMxResponse<T> ModulesReadIdentificationMaintenance<T>(uint hwid, string type) where T : class
             => ModulesReadIdentificationMaintenanceAsync<T>(hwid, type).GetAwaiter().GetResult();
 
@@ -4087,7 +4086,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="type">Type</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>according ModulesIMxResponse (number)</returns>
-        /// <exception cref="ApiIMDataInvalidIndexException">invalid number</exception>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
         public async Task<object> ModulesReadIdentificationMaintenanceAsync(uint hwid, ModulesReadIdentificationMaintenanceNumber number, string type, CancellationToken cancellationToken = default)
         {
             return await ModulesReadIdentificationMaintenanceAsync(hwid, (uint)number, type, cancellationToken);
@@ -4100,7 +4099,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="number">number (determines result)</param>
         /// <param name="type">Type</param>
         /// <returns>according ModulesIMxResponse (number)</returns>
-        /// <exception cref="ApiIMDataInvalidIndexException">invalid number</exception>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
         public object ModulesReadIdentificationMaintenance(uint hwid, ModulesReadIdentificationMaintenanceNumber number, string type)
          => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
 
@@ -4143,8 +4142,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
         /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
-        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
-        public async Task<ModulesIMxResponse<T>> ModulesReadIdentificationMaintenance<T>(uint hwid, ModulesReadIdentificationMaintenanceType type) where T : class
+        public ModulesIMxResponse<T> ModulesReadIdentificationMaintenance<T>(uint hwid, ModulesReadIdentificationMaintenanceType type) where T : class
             => ModulesReadIdentificationMaintenanceAsync<T>(hwid, type).GetAwaiter().GetResult();
 
         /// <summary>

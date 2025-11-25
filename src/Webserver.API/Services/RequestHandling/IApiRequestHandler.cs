@@ -2713,7 +2713,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="type">The type to read out. Possible values: "actual" (current data from module) or "configured" (expected data from hardware configuration)</param>
         /// <returns>ModulesIMxResponse object based on the number parameter (IM0, IM1, IM2, or IM3)</returns>
         /// <exception cref="ApiIMDataInvalidIndexException">Thrown when an invalid number parameter is specified (valid range: 0-3)</exception>
-        Task<ModulesIMxResponse<T>> ModulesReadIdentificationMaintenance<T>(uint hwid, ModulesReadIdentificationMaintenanceType type) where T : class;
+        ModulesIMxResponse<T> ModulesReadIdentificationMaintenance<T>(uint hwid, ModulesReadIdentificationMaintenanceType type) where T : class;
 
         /// <summary>
         /// Send a Modules.ReadIdentificationMaintenance request

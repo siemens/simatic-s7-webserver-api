@@ -48,7 +48,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <see cref="ApiWebAppResource.Etag"/>, <see cref="ApiWebAppResource.Visibility"/>
         /// <returns>Task</returns>
-        public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default)
         {
             string path = webApp.PathToWebAppDirectory + @"\" + resource.Name.Replace("/", "\\");
             if (!File.Exists(path))
@@ -80,7 +80,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="visibility">Visibility for the resource that shall be set! defaults to public</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns></returns>
-        public async Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployResourceAsync(ApiWebAppData webApp, string pathToResource, ApiWebAppResourceVisibility visibility = ApiWebAppResourceVisibility.Public, CancellationToken cancellationToken = default)
         {
             var resource = ApiWebAppResourceBuilder.BuildResourceFromFile(pathToResource, webApp.PathToWebAppDirectory, visibility);
             await DeployResourceAsync(webApp, resource, cancellationToken);
@@ -107,7 +107,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>Task/void</returns>
-        public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default)
         {
             var ticketId = (await ApiRequestHandler.WebAppDownloadResourceAsync(webApp, resource, cancellationToken)).Result;
             string fileNameToUse = fileName ?? resource.Name;

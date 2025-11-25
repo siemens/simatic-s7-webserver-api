@@ -294,13 +294,13 @@ namespace Webserver.API.UnitTests
             var offsetHasMs = new TimeSpan(8, 0, 0, 0, 333);
             var offsetMinWrong = new TimeSpan(-12, -1, 0);
             var offsetMaxWrong = new TimeSpan(13, 1, 0);
-            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+            Assert.Throws<ApiInvalidUtcOffsetException>(() =>
                 requestParameterChecker.CheckTimeSettings(offsetHasSeconds, null, true));
-            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+            Assert.Throws<ApiInvalidUtcOffsetException>(() =>
                 requestParameterChecker.CheckTimeSettings(offsetHasMs, null, true));
-            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+            Assert.Throws<ApiInvalidUtcOffsetException>(() =>
                 requestParameterChecker.CheckTimeSettings(offsetMinWrong, null, true));
-            Assert.Throws<ApiInvalidUTCOffsetException>(() =>
+            Assert.Throws<ApiInvalidUtcOffsetException>(() =>
                 requestParameterChecker.CheckTimeSettings(offsetMaxWrong, null, true));
 
             var dstOK = new DaylightSavingsTimeConfiguration(new PlcDate(12, 5, ApiDayOfWeek.Sun, 3, 0), new TimeSpan(0, 60, 0));

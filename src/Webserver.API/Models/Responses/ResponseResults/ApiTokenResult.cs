@@ -36,6 +36,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults
         public TimeSpan Runtime_timeout { get; set; }
 
         /// <summary>
+        /// The attribute tells immedisately if the authenticated user has no webserver permissions.
+        /// This provides immediate feedback that the user cannot be used for webserver activities without a call to Api.GetPermissions.
+        /// </summary>
+        public bool Has_no_permissions { get; set; }
+
+        /// <summary>
         /// Return the Json serialized object
         /// </summary>
         /// <returns>Json serialized object</returns>

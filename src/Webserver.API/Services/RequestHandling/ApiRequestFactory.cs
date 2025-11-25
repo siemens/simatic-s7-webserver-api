@@ -28,7 +28,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Bool to determine wether to use local checks for Request Parameters or not
+        /// Bool to determine whether to use local checks for Request Parameters or not
         /// </summary>
         public bool PerformCheck { get; set; } = true;
 
@@ -253,7 +253,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("Api.Ping", jsonRpcReq, idReq);
         }
         /// <summary>
-        /// get an PlcProgram.Browse Request with parameter "mode": apiPlcProgramBrowseMode, "var" : var (might be null) - defaults to ""
+        /// get a PlcProgram.Browse Request with parameter "mode": apiPlcProgramBrowseMode, "var" : var (might be null) - defaults to ""
         /// </summary>
         /// <param name="apiPlcProgramBrowseMode">Var or children</param>
         /// <param name="var">defaults to ""</param>
@@ -299,7 +299,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// get an PlcProgram.Read Request with parameter "var" : var, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"
+        /// get a PlcProgram.Read Request with parameter "var" : var, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"
         /// </summary>
         /// <param name="var">Variable name requested (including "Parents" seperated by dots)</param>
         /// <param name="apiPlcProgramReadMode">defaults to "simple"</param>
@@ -315,7 +315,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "mode", apiPlcProgramReadMode?.ToString().ToLower() } });
         }
         /// <summary>
-        /// get an PlcProgram.Write Request with parameter "var" : var, "value":valueToBeSet, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"
+        /// get a PlcProgram.Write Request with parameter "var" : var, "value":valueToBeSet, "mode": apiPlcProgramReadMode (might be null) - defaults to "simple"
         /// </summary>
         /// <param name="var">Variable name of the var to be written (including "Parents" seperated by dots)</param>
         /// <param name="valueToBeSet">value the "var" should have</param>
@@ -351,62 +351,62 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return objToReturn;
         }
         /// <summary>
-        /// get an Plc.ReadOperatingMode Request without parameters
+        /// get a Plc.ReadOperatingMode Request without parameters
         /// </summary>
         /// <returns>Plc.ReadOperatingMode Request without parameters</returns>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual IApiRequest GetApiPlcReadOperatingModeRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcReadOperatingModeRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Plc.ReadOperatingMode", jsonRpcReq, idReq,
-                rhid == ApiPlcRedundancyId.StandardPLC ? null : new Dictionary<string, object>()
+                redundancyId == ApiPlcRedundancyId.StandardPLC ? null : new Dictionary<string, object>()
                 {
-                    { "redundancy_id", (int)rhid }
+                    { "redundancy_id", (int)redundancyId }
                 });
         }
         /// <summary>
-        /// get an Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode
+        /// get a Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="apiPlcOperatingMode">Plc Operating mode wanted</param>
         /// <returns>Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
+        public virtual IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
         {
             RequestParameterChecker.CheckPlcRequestChangeOperatingMode(apiPlcOperatingMode, PerformCheck);
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             var dict = new Dictionary<string, object>() { { "mode", apiPlcOperatingMode.ToString().ToLower() } };
-            if (rhid != ApiPlcRedundancyId.StandardPLC)
+            if (redundancyId != ApiPlcRedundancyId.StandardPLC)
             {
-                dict.Add("redundancy_id", (int)rhid);
+                dict.Add("redundancy_id", (int)redundancyId);
             }
             return new ApiRequest("Plc.RequestChangeOperatingMode", jsonRpcReq, idReq, dict);
         }
         /// <summary>
         /// Get a Plc.ReadModeSelectorState Request with redundancy id parameter
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>Plc.ReadModeSelectorState request with redundancy id parameter</returns>
-        public IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
+        public IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Plc.ReadModeSelectorState", jsonRpcReq, idReq,
-                rhid == ApiPlcRedundancyId.StandardPLC ? null : new Dictionary<string, object>()
+                redundancyId == ApiPlcRedundancyId.StandardPLC ? null : new Dictionary<string, object>()
                 {
-                    { "redundancy_id", (int)rhid }
+                    { "redundancy_id", (int)redundancyId }
                 });
         }
         /// <summary>
         /// check new Etag value
-        /// get an WebApp.SetResourceETag Request with parameter "app_name" : webAppName,"name": resourceName, "etag" : newETagValue
+        /// get a WebApp.SetResourceETag Request with parameter "app_name" : webAppName,"name": resourceName, "etag" : newETagValue
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource the new Etag value should be set for</param>
@@ -424,7 +424,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// check new Media Type name
-        /// get an WebApp.SetResourceMediaType Request with parameter "app_name" : webAppName,"name": resourceName, "media_type" : newMediaType
+        /// get a WebApp.SetResourceMediaType Request with parameter "app_name" : webAppName,"name": resourceName, "media_type" : newMediaType
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource the new Mediatype value should be set for</param>
@@ -442,7 +442,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// check new lastmodified value (rfc3339)
-        /// get an WebApp.SetResourceModificationTime Request with parameter "app_name" : webAppName,"name": resourceName, "last_modified" : newLastModified
+        /// get a WebApp.SetResourceModificationTime Request with parameter "app_name" : webAppName,"name": resourceName, "last_modified" : newLastModified
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource the new Lastmodified value should be set for</param>
@@ -459,7 +459,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "name", resourceName }, { "last_modified", newLastModified } });
         }
         /// <summary>
-        /// get an WebApp.SetResourceVisibility Request with parameter "app_name" : webAppName,"name": resourceName, "visibility" : apiWebAppResourceVisibility
+        /// get a WebApp.SetResourceVisibility Request with parameter "app_name" : webAppName,"name": resourceName, "visibility" : apiWebAppResourceVisibility
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource the new Visibility value should be set for</param>
@@ -488,7 +488,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("Api.Version", jsonRpcReq, idReq);
         }
         /// <summary>
-        /// get an WebApp.Browse Request with parameter "name" : webAppName (optional, might be null)
+        /// get a WebApp.Browse Request with parameter "name" : webAppName (optional, might be null)
         /// </summary>
         /// <param name="webAppName">OPTIONAL: name of the webapp you want to browse</param>
         /// <returns>WebApp.Browse Request with parameter "name" : webAppName (optional, might be null)</returns>
@@ -501,7 +501,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("WebApp.Browse", jsonRpcReq, idReq, new Dictionary<string, object>() { { "name", webAppName } });
         }
         /// <summary>
-        /// get an WebApp.BrowseResources Request with parameter "app_name" : webAppName, "name":resourceName (optional, might be null)
+        /// get a WebApp.BrowseResources Request with parameter "app_name" : webAppName, "name":resourceName (optional, might be null)
         /// </summary>
         /// <param name="webAppName">Name of the Webapp you want to browse the resources of</param>
         /// <param name="resourceName">OPTIONAL: name of the resource you want to browse</param>
@@ -517,7 +517,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// check the request parameters: webAppName, if given WebAppState
-        /// get an WebApp.Create Request with parameter "name" : webAppName, "state":apiWebAppState (optional, might be null)
+        /// get a WebApp.Create Request with parameter "name" : webAppName, "state":apiWebAppState (optional, might be null)
         /// </summary>
         /// <param name="webAppName">webappname of the webapp to create</param>
         /// <param name="apiWebAppState">OPTIONAL: state the webapp should be in after creation</param>
@@ -538,7 +538,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// Check resourceName, MediaType, LastModified, if given: Visibility (None is invalid) - if all are valid:
-        /// get an WebApp.CreateResource Request with parameter "app_name" : webAppName, "name":resourceName, "media_type":media_type, "last_modified" : last_modified, "visibility":ApiWebAppResourceVisibility (optional, might be null), "etag":etag (optional, might be null)
+        /// get a WebApp.CreateResource Request with parameter "app_name" : webAppName, "name":resourceName, "media_type":media_type, "last_modified" : last_modified, "visibility":ApiWebAppResourceVisibility (optional, might be null), "etag":etag (optional, might be null)
         /// </summary>
         /// <param name="webAppName">webappname of the webapp the resource should be created in</param>
         /// <param name="resourceName">resourcename of the resource to be created</param>
@@ -570,7 +570,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "visibility", apiWebAppResourceVisibility?.ToString().ToLower() } , { "etag", etag } });
         }
         /// <summary>
-        /// get an WebApp.Delete Request with parameter "name" : webAppName
+        /// get a WebApp.Delete Request with parameter "name" : webAppName
         /// </summary>
         /// <param name="webAppName">Name of the webapp that should be deleted</param>
         /// <returns>WebApp.Delete Request with parameter "name" : webAppName</returns>
@@ -583,7 +583,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("WebApp.Delete", jsonRpcReq, idReq, new Dictionary<string, object>() { { "name", webAppName } });
         }
         /// <summary>
-        /// get an WebApp.DeleteResource Request with parameter "app_name" : webAppName, "name": resourceName
+        /// get a WebApp.DeleteResource Request with parameter "app_name" : webAppName, "name": resourceName
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource that should be deleted</param>
@@ -598,7 +598,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "name", resourceName } });
         }
         /// <summary>
-        /// get an WebApp.DownloadResource Request with parameter "app_name" : webAppName, "name": resourceName
+        /// get a WebApp.DownloadResource Request with parameter "app_name" : webAppName, "name": resourceName
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource that should be downloaded</param>
@@ -613,7 +613,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "name", resourceName } });
         }
         /// <summary>
-        /// get an WebApp.Rename Request with parameter "name" : webAppName, "new_name": newWebAppName
+        /// get a WebApp.Rename Request with parameter "name" : webAppName, "new_name": newWebAppName
         /// </summary>
         /// <param name="webAppName">Current name of the Webapp that is to be renamed</param>
         /// <param name="newWebAppName">New name for the Webapp</param>
@@ -630,7 +630,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// check new resource name, if valid:
-        /// get an WebApp.RenameResource Request with parameter "app_name" : webAppName, "name" : resourceName, "new_name": newResourceName
+        /// get a WebApp.RenameResource Request with parameter "app_name" : webAppName, "name" : resourceName, "new_name": newResourceName
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Current name of the resource that is to be renamed</param>
@@ -662,7 +662,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "resource_name", resourceName } });
         }
         /// <summary>
-        /// get an WebApp.SetNotAuthorizedPage Request with parameter "name" : webAppName, "resource_name" : resourceName
+        /// get a WebApp.SetNotAuthorizedPage Request with parameter "name" : webAppName, "resource_name" : resourceName
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource that should be the Notauthorizedpage</param>
@@ -677,7 +677,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 { "resource_name", resourceName } });
         }
         /// <summary>
-        /// get an WebApp.SetNotFoundPage Request with parameter "name" : webAppName, "resource_name" : resourceName
+        /// get a WebApp.SetNotFoundPage Request with parameter "name" : webAppName, "resource_name" : resourceName
         /// </summary>
         /// <param name="webAppName">Name of the Webapp containing the resource</param>
         /// <param name="resourceName">Name of the resource that should be the Notfoundpage</param>
@@ -693,7 +693,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
         /// <summary>
         /// check apiwebappstate (none isnt valid)
-        /// get an WebApp.SetState Request with parameter "name" : webAppName, "state" : apiWebAppState
+        /// get a WebApp.SetState Request with parameter "name" : webAppName, "state" : apiWebAppState
         /// </summary>
         /// <param name="webAppName">Name of the Webapp the state should be changed for</param>
         /// <param name="apiWebAppState">New state for the Webapp</param>
@@ -765,7 +765,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// get an Plc.ReadSystemTime Request
+        /// get a Plc.ReadSystemTime Request
         /// </summary>
         /// <returns>Plc.ReadSystemTime Request</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
@@ -778,7 +778,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// get an Plc.SetSystemTime Request
+        /// get a Plc.SetSystemTime Request
         /// </summary>
         /// <returns>Plc.SetSystemTime Request</returns>
         /// <param name="timestamp">The timestamp of the system time to be set</param>
@@ -792,7 +792,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             return new ApiRequest("Plc.SetSystemTime", jsonRpcReq, idReq, new Dictionary<string, object>() { { "timestamp", timestamp.ToString(DateTimeFormatting.ApiDateTimeFormat) } });
         }
         /// <summary>
-        /// get an Plc.ReadTimeSettings Request
+        /// get a Plc.ReadTimeSettings Request
         /// </summary>
         /// <returns>Plc.ReadTimeSettings Request</returns>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
@@ -805,7 +805,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// Get an Plc.SetTimeSettings request
+        /// Get a Plc.SetTimeSettings request
         /// </summary>
         /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
         /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
@@ -829,14 +829,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Call Equals with obj as IApiRequestFactory - check for Properties
         /// </summary>
         /// <param name="obj">to compare</param>
-        /// <returns>wether the two are equal or not</returns>
+        /// <returns>whether the two are equal or not</returns>
         public override bool Equals(object obj) => Equals(obj as ApiRequestFactory);
 
         /// <summary>
         /// check for Properties
         /// </summary>
         /// <param name="obj">to compare</param>
-        /// <returns>wether the two are equal or not</returns>
+        /// <returns>whether the two are equal or not</returns>
         public bool Equals(ApiRequestFactory obj)
         {
             var toReturn = this.PerformCheck == obj.PerformCheck;
@@ -859,7 +859,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// get an Files.Browse Request
+        /// get a Files.Browse Request
         /// </summary>
         /// <returns>Files.Browse Request</returns>
         /// <param name="resource">directory or file to be browsed</param>
@@ -875,7 +875,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// get an Files.Download Request
+        /// get a Files.Download Request
         /// </summary>
         /// <param name="resource"></param>
         /// <param name="jsonRpc"></param>
@@ -1059,7 +1059,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
         /// <returns>Modules.DownloadServiceData request</returns>
-        public IApiRequest GetModulesDownloadServiceData(ApiPlcHwId hwid, string jsonRpc = null, string id = null)
+        public IApiRequest GetModulesDownloadServiceData(uint hwid, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
@@ -1096,7 +1096,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Get a Syslog.Browse request
         /// </summary>
-        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        /// <param name="redundancyId">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
         ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
         /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
         ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
@@ -1105,14 +1105,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         /// <returns>ApiSyslogBrowse request</returns>
-        public IApiRequest GetApiSyslogBrowseRequest(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, string jsonRpc = null, string id = null)
+        public IApiRequest GetApiSyslogBrowseRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, uint? count = null, uint? first = null, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             Dictionary<string, object> requestParams = new Dictionary<string, object>();
-            if (redundancy_id != null && redundancy_id != 0)
+            if (redundancyId != ApiPlcRedundancyId.StandardPLC)
             {
-                requestParams.Add("redundancy_id", redundancy_id);
+                requestParams.Add("redundancy_id", redundancyId);
             }
             if (count != null)
             {
@@ -1126,7 +1126,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// Get a Alarms.Acknowledge request
+        /// Get an Alarms.Acknowledge request
         /// </summary>
         /// <returns>ApiAlarmsAcknowledgeRequest</returns>
         /// <param name="alarmId">Specifies the id of the alarm</param>
@@ -1141,7 +1141,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         }
 
         /// <summary>
-        /// Get a Alarms.Browse request
+        /// Get an Alarms.Browse request
         /// </summary>
         /// <returns>ApiAlarmsBrowseRequest</returns>
         /// <param name="language">The language in which the texts should be returned. 
@@ -1418,26 +1418,26 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Get a Plc.ReadModuleName request
         /// </summary>
-        /// <param name="redundancy_id">
+        /// <param name="redundancyId">
         /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
         /// On non-R/H PLCs, the parameter must not be part of the request.</param>
         /// <param name="jsonRpc"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public IApiRequest GetApiPlcReadModuleNameRequest(uint? redundancy_id = null, string jsonRpc = null, string id = null)
+        public IApiRequest GetApiPlcReadModuleNameRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null)
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            if (redundancy_id != null)
+            if (redundancyId != ApiPlcRedundancyId.StandardPLC)
             {
-                Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "redundancy_id", redundancy_id } };
+                Dictionary<string, object> requestParams = new Dictionary<string, object>() { { "redundancy_id", redundancyId } };
                 return new ApiRequest("Plc.ReadModuleName", jsonRpcReq, idReq, requestParams);
             }
             return new ApiRequest("Plc.ReadModuleName", jsonRpcReq, idReq);
         }
 
         /// <summary>
-        /// Get a GetSessionInfo request
+        /// Get a Api.GetSessionInfo request
         /// </summary>
         /// <param name="jsonRpc"></param>
         /// <param name="id"></param>
@@ -1447,6 +1447,206 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             return new ApiRequest("Api.GetSessionInfo", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a Communication.ReadProtocolResources request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetCommunicationReadProtocolResourcesRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Communication.ReadProtocolResources", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="mode"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesBrowseRequest(uint? hwid = null, string mode = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>();
+            if (hwid != null)
+                requestParams.Add("hwid", hwid);
+            if (mode != null)
+                requestParams.Add("mode", mode);
+
+            return new ApiRequest("Modules.Browse", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Modules.ReadParameters request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesReadParametersRequest(uint? hwid = null, ApiModules_RequestFilters filters = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>()
+            {
+                { "hwid", hwid }
+            };
+            if (filters != null)
+            {
+                requestParams.Add("filters", filters);
+            }
+            return new ApiRequest("Modules.ReadParameters", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="number"></param>
+        /// <param name="type"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesReadIdentificationMaintenanceRequest(uint hwid, uint number, string type, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>()
+            {
+                { "hwid", hwid },
+                { "number", number },
+                { "type", type }
+            };
+            return new ApiRequest("Modules.ReadIdentificationMaintenance", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Modules.FlashLeds request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesFlashLedsRequest(uint? hwid = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>()
+            {
+                { "hwid", hwid }
+            };
+            return new ApiRequest("Modules.FlashLeds", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Modules.ReadLeds request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesReadLedsRequest(uint? hwid = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>()
+            {
+                { "hwid", hwid }
+            };
+            return new ApiRequest("Modules.ReadLeds", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Modules.ReadStatus request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="language"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetModulesReadStatusRequest(uint? hwid = null, CultureInfo language = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = new Dictionary<string, object>()
+            {
+                { "hwid", hwid },
+            };
+            if (language != null)
+            {
+                requestParams.Add("language", language);
+            }
+            else
+            {
+                requestParams.Add("language", "");
+            }
+            return new ApiRequest("Modules.ReadStatus", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Plc.ReadLoadMemoryInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <param name="redundancyId"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId? redundancyId = null, string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            Dictionary<string, object> requestParams = null;
+            if (redundancyId.HasValue && redundancyId != ApiPlcRedundancyId.StandardPLC)
+            {
+                requestParams = new Dictionary<string, object>() { { "redundancy_id", redundancyId } };
+            }
+            return new ApiRequest("Plc.ReadLoadMemoryInformation", jsonRpcReq, idReq, requestParams);
+        }
+
+        /// <summary>
+        /// Get a Plc.ReadRuntimeInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetPlcReadRuntimeInformationRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.ReadRuntimeInformation", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a PlcProgram.ReadMemoryInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetPlcReadMemoryInformationRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Plc.ReadMemoryInformation", jsonRpcReq, idReq);
+        }
+
+        /// <summary>
+        /// Get a Project.ReadInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual IApiRequest GetProjectReadInformationRequest(string jsonRpc = null, string id = null)
+        {
+            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
+            string idReq = id ?? RequestIdGenerator.Generate();
+            return new ApiRequest("Project.ReadInformation", jsonRpcReq, idReq);
         }
     }
 }

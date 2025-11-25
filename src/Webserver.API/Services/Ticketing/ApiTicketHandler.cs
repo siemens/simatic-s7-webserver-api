@@ -45,7 +45,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             Logger = logger;
         }
 
-        private async Task<ApiTicket> CheckTicketAsync(string ticketId, bool performCheck, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<ApiTicket> CheckTicketAsync(string ticketId, bool performCheck, CancellationToken cancellationToken = default)
         {
             if (performCheck)
             {
@@ -115,7 +115,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string filePath, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string filePath, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
             var dirPath = filePath.Substring(0, filePath.LastIndexOf(@"\") + 1);
             if (!Directory.Exists(dirPath))
@@ -149,7 +149,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string pathToDownloadDirectory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string pathToDownloadDirectory, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticketId, pathToDownloadDirectory, null, null, false, cancellationToken);
         /// <summary>
         /// Handler method to get the fileinfo and download the content into a file.
@@ -171,7 +171,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string pathToDownloadDirectory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string pathToDownloadDirectory, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticket.Id, pathToDownloadDirectory, cancellationToken);
         /// <summary>
         /// Handler method to get the fileinfo and download the content into a file.
@@ -192,7 +192,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, DirectoryInfo pathToDownloadDirectory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, DirectoryInfo pathToDownloadDirectory, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticketId, pathToDownloadDirectory.FullName, cancellationToken);
         /// <summary>
         /// Handler method to get the fileinfo and download the content into a file.
@@ -236,7 +236,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, DirectoryInfo pathToDownloadDirectory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, DirectoryInfo pathToDownloadDirectory, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticket.Id, pathToDownloadDirectory, cancellationToken);
         /// <summary>
         /// Handler method to get the fileinfo and download the content into a file.
@@ -259,7 +259,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, FileInfo filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, FileInfo filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticketId, filePath.FullName, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default)
          => await HandleDownloadAsync(ticket.Id, filePath, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -309,7 +309,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, FileInfo filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, FileInfo filePath, bool overwriteExistingFile, CancellationToken cancellationToken = default)
          => await HandleDownloadAsync(ticket.Id, filePath, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -336,7 +336,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
             var success = false;
             try
@@ -422,7 +422,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
             => await HandleDownloadAsync(ticket.Id, pathToDownloadDirectory, fileName, fileExtension, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -451,7 +451,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, DirectoryInfo pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(string ticketId, DirectoryInfo pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
          => await HandleDownloadAsync(ticketId, pathToDownloadDirectory.FullName, fileName, fileExtension, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -480,7 +480,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
-        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, DirectoryInfo pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleDownloadAsync(ApiTicket ticket, DirectoryInfo pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
          => await HandleDownloadAsync(ticket.Id, pathToDownloadDirectory.FullName, fileName, fileExtension, overwriteExistingFile, cancellationToken);
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <param name="filePath">Path for the file to be uploaded</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Upload has been performed</returns>
-        public async Task<ApiTicket> HandleUploadAsync(string ticketId, string filePath, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleUploadAsync(string ticketId, string filePath, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -533,7 +533,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <param name="filePath">Path for the file to be uploaded</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Upload has been performed</returns>
-        public async Task<ApiTicket> HandleUploadAsync(ApiTicket ticket, string filePath, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleUploadAsync(ApiTicket ticket, string filePath, CancellationToken cancellationToken = default)
             => await HandleUploadAsync(ticket.Id, filePath, cancellationToken);
 
         /// <summary>
@@ -552,7 +552,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <param name="filePath">Path for the file to be uploaded</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Upload has been performed</returns>
-        public async Task<ApiTicket> HandleUploadAsync(string ticketId, FileInfo filePath, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleUploadAsync(string ticketId, FileInfo filePath, CancellationToken cancellationToken = default)
             => await HandleUploadAsync(ticketId, filePath.FullName, cancellationToken);
 
         /// <summary>
@@ -571,7 +571,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <param name="filePath">Path for the file to be uploaded</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Upload has been performed</returns>
-        public async Task<ApiTicket> HandleUploadAsync(ApiTicket ticket, FileInfo filePath, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicket> HandleUploadAsync(ApiTicket ticket, FileInfo filePath, CancellationToken cancellationToken = default)
             => await HandleUploadAsync(ticket.Id, filePath, cancellationToken);
 
         /// <summary>

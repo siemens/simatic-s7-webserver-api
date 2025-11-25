@@ -35,17 +35,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Technology
         /// <returns>True if objects are the same</returns>
         public override bool Equals(object obj)
         {
-            return obj is ApiTechnologyObject @object &&
-                   Number == @object.Number &&
-                   Name == @object.Name &&
-                   Type == @object.Type &&
-                   Version == @object.Version;
+            return obj is ApiTechnologyObject technologyObject &&
+                   Number == technologyObject.Number &&
+                   Name == technologyObject.Name &&
+                   Type == technologyObject.Type &&
+                   Version == technologyObject.Version;
         }
 
         /// <summary>
-        /// HashCode
+        /// Get HashCode
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The Hashcode</returns>
         public override int GetHashCode()
         {
             return (Number, Name, Type, Version).GetHashCode();

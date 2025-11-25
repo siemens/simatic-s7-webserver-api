@@ -29,7 +29,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
-        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken));
+        Task<FileInfo> DownloadBackupAsync(string pathToDownloadDirectory = null, string backupName = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default);
         /// <summary>
         /// Will send a Downloadresource, Downloadticket and Closeticket request to the API
         /// </summary>
@@ -48,6 +48,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
         /// <param name="timeOut">timeout for the waithandler => plc to be up again after reboot, etc.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task/void</returns>
-        Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task RestoreBackupAsync(string restoreFilePath, string userName, string password, TimeSpan? timeOut = null, CancellationToken cancellationToken = default);
     }
 }

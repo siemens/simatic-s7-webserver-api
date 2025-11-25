@@ -25,7 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource">resouce to be browsed</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>A resource containing everything that is present underneath</returns>
-        Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default);
         /// <summary>
         /// Delete the given resource (and all its sub-resources)
         /// </summary>
@@ -38,7 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
         /// <returns>Task for deletion</returns>
-        Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
+        Task DeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default, IProgress<int> progress = null);
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -58,7 +58,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed directory</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
-        Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
+        Task DeployAsync(ApiFileResource resource, CancellationToken cancellationToken = default, IProgress<int> progress = null);
         /// <summary>
         /// make very sure the given resource contains all the data:
         /// Resources
@@ -88,7 +88,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
-        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default(CancellationToken),
+        Task DeployOrUpdateAsync(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1, CancellationToken cancellationToken = default,
             IProgress<int> progress = null);
         /// <summary>
         /// Update the given File Resource when necessary
@@ -97,7 +97,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="browsedResource">the file returned by browsing the plc</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task to update the File</returns>
-        Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken));
+        Task UpdateFileResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default);
         /// <summary>
         /// Update the given File Resource when necessary
         /// </summary>
@@ -113,7 +113,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>
         /// <returns>Task to update the resource</returns>
-        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default(CancellationToken), IProgress<int> progress = null);
+        Task UpdateResourceAsync(ApiFileResource resource, ApiFileResource browsedResource, CancellationToken cancellationToken = default, IProgress<int> progress = null);
         /// <summary>
         /// Update the given Resource - and SubResources, when necessary
         /// </summary>

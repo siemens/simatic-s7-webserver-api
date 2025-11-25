@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: MIT
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -88,7 +88,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                         string chunkJson = "[" + string.Join(",", currentChunkRequests) + "]";
                         var chunkBytes = Encoding.UTF8.GetBytes(chunkJson);
 
-                        if(chunkBytes.Length > MaxRequestSize)
+                        if (chunkBytes.Length > MaxRequestSize)
                         {
                             // If a single request exceeds the limit, throw.
                             throw new ApiRequestBiggerThanMaxMessageSizeException($"Request size {chunkBytes.Length} exceeds MaxRequestSize {MaxRequestSize}.");

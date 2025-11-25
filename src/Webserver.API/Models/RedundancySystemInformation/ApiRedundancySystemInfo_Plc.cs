@@ -31,7 +31,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.RedundancySystemInformation
         /// For object plc_1 this attribute always contains value 65149.
         /// For object plc_2 this attribute always contains value 65349.
         /// </summary>
-        public int Hwid { get; set; }
+        public uint Hwid { get; set; }
 
         /// <summary>
         /// Check wether properties match

@@ -21,6 +21,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         To_PositioningAxis,
         /// <summary>
+        /// Technology Object PositioningAxis_PTO
+        /// </summary>
+        To_PositioningAxis_Pto,
+        /// <summary>
         /// Technology Object SynchronousAxis
         /// </summary>
         To_SynchronousAxis,

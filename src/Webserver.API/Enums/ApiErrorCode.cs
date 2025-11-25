@@ -114,6 +114,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         UnsupportedAddress = 204,
         /// <summary>
+        /// The given address is read-only.
+        /// Die angegebene Adresse kann nur gelesen werden.
+        /// </summary>
+        AddressIsReadOnly = 205,
+        /// <summary>
+        /// The provided path contains an illegal sequence
+        /// </summary>
+        PathIllegalSequence = 300,
+        /// <summary>
+        /// Access to the given entity is restricted
+        /// </summary>
+        EntityAccessRestricted = 301,
+        /// <summary>
         /// The entity does not exist (e.g. Files Browse)
         /// </summary>
         EntityDoesNotExist = 302,
@@ -125,6 +138,30 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// The entity already exists (e.g. Files CreateDirectory)
         /// </summary>
         EntityAlreadyExists = 304,
+        /// <summary>
+        /// The entity is not a directory
+        /// </summary>
+        EntityNotADirectory = 305,
+        /// <summary>
+        /// The entity is not a file
+        /// </summary>
+        EntityNotAFile = 306,
+        /// <summary>
+        /// The given path is too deep
+        /// </summary>
+        PathTooDeep = 307,
+        /// <summary>
+        /// Moving of the given entity is not allowed
+        /// </summary>
+        MoveNotLegal = 308,
+        /// <summary>
+        /// The given entity does not refer to an inactive datalog
+        /// </summary>
+        EntityNotInactiveDatalog = 309,
+        /// <summary>
+        /// Access to the given entity is denied
+        /// </summary>
+        EntityAccessDenied = 310,
         /// <summary>
         /// The given Ticket-ID is not found in the user(-token)s list of tickets
         /// </summary>
@@ -212,7 +249,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// The request is invalid. The user provided invalid parameters, e. g. alarm ID and count are present at the same time.
         /// </summary>
-        InvalidAlarmsBrowseParameters = 801,
+        InvalidAlarmParameters = 801,
         /// <summary>
         /// The provided timestamp does not match the required timestamp format
         /// </summary>
@@ -228,15 +265,51 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// <summary>
         /// The provided UTC offset is invalid. Check the main utc offset, and the DaylightSavingsRule object's DST offset.
         /// </summary>
-        InvalidUTCOffset = 903,
+        InvalidUtcOffset = 903,
+        /// <summary>
+        /// A backup creation is currently in progress
+        /// </summary>
+        BackupInProgress = 1000,
+        /// <summary>
+        /// A backup restoration is currently in progress
+        /// </summary>
+        RestoreInProgress = 1001,
+        /// <summary>
+        /// The memory card is write-protected
+        /// </summary>
+        MemoryCardWriteProtected = 1002,
+        /// <summary>
+        /// A backup restoration is not possible
+        /// </summary>
+        RestoreNotPossible = 1003,
         /// <summary>
         /// The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.
         /// </summary>
         PLCNotInStop = 1004,
         /// <summary>
+        /// Legitimation to continue the backup restoration failed
+        /// </summary>
+        LegitimationFailed = 1005,
+        /// <summary>
         /// The requested hardware identifier is invalid
         /// </summary>
         InvalidHwId = 1100,
+        /// <summary>
+        /// The requested data record index is invalid
+        /// </summary>
+        IMDataInvalidIndex = 1101,
+        /// <summary>
+        /// The data for the requested hardware identifier is not readable
+        /// </summary>
+        IMdataNotReadable = 1102,
+        /// <summary>
+        /// Reading of I and M data is not supported for the requested hardware identifier
+        /// </summary>
+        IMdataNotSupported = 1103,
+        /// <summary>
+        /// The given default page is invalid cannot be set
+        /// </summary>
+        InvalidDefaultPage = 1300,
         /// <summary>
         /// The provided pattern is not in the allowed list. Choose a pattern that is allowed to be configured.
         /// </summary>
@@ -264,12 +337,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
         /// </summary>
         NotATechnologyObject = 1400,
         /// <summary>
+        /// The request cannot be performed while motion functionality is active
+        /// </summary>
+        MotionFunctionalityActive = 1401,
+        /// <summary>
+        /// The method request was invalid
+        /// </summary>
+        InvalidRequest = -32600,
+        /// <summary>
         /// The method has not been found by the plc - check the spelling and fw-version (and according methods) of plc
         /// </summary>
         MethodNotFound = -32601,
         /// <summary>
         /// Invalid Parameters provided (null/empty string that is forbidden?, invalid ticket length?, wrong datetime string format (rfc3339)? ...)
         /// </summary>
-        InvalidParams = -32602
+        InvalidParams = -32602,
+        /// <summary>
+        /// The given request could not be parsed successfully
+        /// </summary>
+        ParseError = -32700,
     }
 }

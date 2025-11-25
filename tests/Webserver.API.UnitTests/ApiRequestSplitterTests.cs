@@ -62,12 +62,12 @@ namespace Webserver.API.UnitTests
             CheckEquality(res1, res2);
         }
 
-        private void CheckEquality(IEnumerable<byte[]> arr1,  IEnumerable<byte[]> arr2)
+        private void CheckEquality(IEnumerable<byte[]> arr1, IEnumerable<byte[]> arr2)
         {
             Assert.That(arr1.Count(), Is.EqualTo(arr2.Count()));
             var counter = 0;
             var arr2Array = arr2.ToArray();
-            foreach ( var item in arr1)
+            foreach (var item in arr1)
             {
                 if (!item.SequenceEqual(arr2Array[counter]))
                 {

@@ -96,7 +96,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Initialize Quantity Structures according to ApiVersion (e.g. MaxRequestSize)
         /// </summary>
         /// <returns>Initialization Task</returns>
-        public async Task InitAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task InitAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequest">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(IApiRequest apiRequest, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<string> SendPostRequestAsync(IApiRequest apiRequest, CancellationToken cancellationToken = default)
         {
             if (apiRequest.Params != null)
             {
@@ -158,7 +158,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequestWithIntId">Api Request to send to the plc (Json Serialized - null properties are deleted)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<string> SendPostRequestAsync(IApiRequestIntId apiRequestWithIntId, CancellationToken cancellationToken = default)
         {
             if (apiRequestWithIntId.Params != null)
             {
@@ -191,7 +191,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default)
         {
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
             ByteArrayContent request_body = new ByteArrayContent(byteArr);
@@ -214,7 +214,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiRequestString">further information about the Api requeest the user tried to send (or was trying to send)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>string: response from thePLC</returns>
-        public async Task<List<string>> SendPostRequestAsyncFileName(string apiRequestString, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<List<string>> SendPostRequestAsyncFileName(string apiRequestString, CancellationToken cancellationToken = default)
         {
             List<string> result = new List<string>();
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
@@ -242,7 +242,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>An Array of ApiClass (and Id,Jsonrpc)</returns>
-        public async Task<ApiArrayOfApiClassResponse> ApiBrowseAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiArrayOfApiClassResponse> ApiBrowseAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiBrowseRequest();
             var responseString = await SendPostRequestAsync(req, cancellationToken);
@@ -272,7 +272,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticketId">ticket to be browsed (null to browse all)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>BrowseTickets Response containing: Max_Tickets:uint, Tickets:Array of Ticket</returns>
-        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiBrowseTicketsResponse> ApiBrowseTicketsAsync(string ticketId = null, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiBrowseTicketsRequest(ticketId);
             var responseString = await SendPostRequestAsync(req, cancellationToken);
@@ -425,7 +425,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>Array of ApiClass (in this case permissions)</returns>
-        public async Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiArrayOfApiClassResponse> ApiGetPermissionsAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiGetPermissionsRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -435,7 +435,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetQuantityStructures Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>Api Quantity Structure object</returns>
-        public async Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiGetQuantityStructuresResponse> ApiGetQuantityStructuresAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiGetQuantityStructuresRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -459,7 +459,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiLogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> ApiLogoutAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiLogoutRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -477,7 +477,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.Ping Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>ApiSingleStringResponse - an Id that'll stay the same for the users session</returns>
-        public async Task<ApiSingleStringResponse> ApiPingAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiSingleStringResponse> ApiPingAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiPingRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -494,7 +494,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.Version Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <returns>a double that contains the value for the current ApiVersion</returns>
-        public async Task<ApiDoubleResponse> ApiVersionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiDoubleResponse> ApiVersionAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiVersionRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -513,12 +513,31 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Ticket to use for downloading the service data</returns>
-        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(uint hwid, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetModulesDownloadServiceData(hwid);
             string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTicketIdResponse>(response);
             return responseObj;
+        }
+
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        public ApiTicketIdResponse ModulesDownloadServiceData(uint hwid) =>
+            ModulesDownloadServiceDataAsync(hwid).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Perform a service data download on the corresponding module with hwid
+        /// </summary>
+        /// <param name="hwid">The HWID of a node (module) for which a service data file can be downloaded</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>Ticket to use for downloading the service data</returns>
+        public async Task<ApiTicketIdResponse> ModulesDownloadServiceDataAsync(ApiPlcHwId hwid, CancellationToken cancellationToken = default)
+        {
+            return await ModulesDownloadServiceDataAsync((uint)hwid, cancellationToken);
         }
         /// <summary>
         /// Perform a service data download on the corresponding module with hwid
@@ -531,12 +550,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadOperatingMode Request using the Request from the ApiRequestFactory
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>The current Plc OperatingMode</returns>
-        public async Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiReadOperatingModeResponse> PlcReadOperatingModeAsync(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default)
         {
-            var req = _apiRequestFactory.GetApiPlcReadOperatingModeRequest(rhid);
+            var req = _apiRequestFactory.GetApiPlcReadOperatingModeRequest(redundancyId);
             string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiReadOperatingModeResponse>(response);
             return responseObj;
@@ -544,22 +563,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadOperatingMode Request using the Request from the ApiRequestFactory
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>The current Plc OperatingMode</returns>
-        public ApiReadOperatingModeResponse PlcReadOperatingMode(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC) => PlcReadOperatingModeAsync(rhid).GetAwaiter().GetResult();
+        public ApiReadOperatingModeResponse PlcReadOperatingMode(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC) => PlcReadOperatingModeAsync(redundancyId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.RequestChangeOperatingMode Request using the Request from the ApiRequestFactory
         /// Method to change the plc operating mode
         /// valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="plcOperatingMode">Plc Operating mode wanted</param>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
-        public async Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> PlcRequestChangeOperatingModeAsync(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var req = _apiRequestFactory.GetApiPlcRequestChangeOperatingModeRequest(plcOperatingMode, rhid);
+            var req = _apiRequestFactory.GetApiPlcRequestChangeOperatingModeRequest(plcOperatingMode, redundancyId);
             string response = await SendPostRequestAsync(req, cancellationToken);
             var responseObj = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
             return responseObj;
@@ -569,11 +588,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Method to change the plc operating mode
         /// valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="plcOperatingMode">Plc Operating mode wanted</param>
         /// <returns>valid plcOperatingModes are: "run", "stop" - others will lead to an invalid params exception.</returns>
-        public ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC)
-            => PlcRequestChangeOperatingModeAsync(plcOperatingMode, rhid).GetAwaiter().GetResult();
+        public ApiTrueOnSuccessResponse PlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC)
+            => PlcRequestChangeOperatingModeAsync(plcOperatingMode, redundancyId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a PlcProgram.Browse Request using the Request from the ApiRequestFactory
@@ -1909,7 +1928,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a WebServer.SetDefaultPage Request using the Request from the ApiRequestFactory
         /// </summary>
         /// <param name="defaultPage"></param>
-        /// <returns></returns>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
         ApiTrueOnSuccessResponse IApiRequestHandler.WebServerSetDefaultPage(string defaultPage)
             => WebServerSetDefaultPageAsync(defaultPage).GetAwaiter().GetResult();
 
@@ -2817,7 +2836,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
+        /// <returns>ApiLoginResponse</returns>
         public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             await ApiLogoutAsync(cancellationToken);
@@ -2832,7 +2851,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
+        /// <returns>ApiLoginResponse</returns>
         public async Task<ApiLoginResponse> ReLoginAsync(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             await ApiLogoutAsync(cancellationToken);
@@ -2845,7 +2864,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
-        /// <returns></returns>
+        /// <returns>ApiLoginResponse</returns>
         public ApiLoginResponse ReLogin(string userName, string password, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
@@ -2855,7 +2874,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="password">Password for the user to login with</param>
         /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
-        /// <returns></returns>
+        /// <returns>ApiLoginResponse</returns>
         public ApiLoginResponse ReLogin(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null) => ReLoginAsync(userName, password, loginMode, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
@@ -3339,10 +3358,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.RestoreBackup Request
         /// </summary>
-        /// <param name="password"></param>
+        /// <param name="password">password for the user (needed for re-authentication after plc boot)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiTicketIdResponse</returns>
+        public async Task<ApiTicketIdResponse> PlcRestoreBackupAsync(string password = null, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetPlcRestoreBackupRequest(password);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3353,8 +3372,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.RestoreBackup Request
         /// </summary>
-        /// <param name="password"></param>
-        /// <returns></returns>
+        /// <param name="password">password for the user (needed for re-authentication after plc boot)</param>
+        /// <returns>ApiTicketIdResponse</returns>
         public ApiTicketIdResponse PlcRestoreBackup(string password = "") => PlcRestoreBackupAsync(password).GetAwaiter().GetResult();
 
         /// <summary>
@@ -3363,7 +3382,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">the resource that shall be deleted.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the file is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
             var varNameForMethods = resource.GetVarNameForMethods();
             return await FilesDeleteAsync(varNameForMethods, cancellationToken);
@@ -3384,7 +3403,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="resource">the directory to delete.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>True if the directory is deleted successfully</returns>
-        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> FilesDeleteDirectoryAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
             var varNameForMethods = resource.GetVarNameForMethods();
             return await FilesDeleteDirectoryAsync(varNameForMethods, cancellationToken);
@@ -3404,7 +3423,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="hwid">The hardware identifier from which the parameters shall be read</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Response with Failsafe parameters</returns>
-        public async Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiFailsafeReadParametersResponse> FailsafeReadParametersAsync(uint hwid, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetFailsafeReadParametersRequest(hwid);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3442,7 +3461,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send an Api.GetPasswordPolicy request
         /// </summary>
         /// <returns>ApiGetPasswordPolicy response</returns>
-        public async Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync(ApiAuthenticationMode mode = ApiAuthenticationMode.Local, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiGetPasswordPolicyResponse> ApiGetPasswordPolicyAsync(ApiAuthenticationMode mode = ApiAuthenticationMode.Local, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiGetPasswordPolicyRequest(mode);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3498,12 +3517,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadModeSelectorState request
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Mode Selector state</returns>
-        public async Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiPlcReadModeSelectorStateResponse> PlcReadModeSelectorStateAsync(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default)
         {
-            var req = _apiRequestFactory.GetApiPlcReadModeSelectorStateRequest(rhid);
+            var req = _apiRequestFactory.GetApiPlcReadModeSelectorStateRequest(redundancyId);
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiPlcReadModeSelectorStateResponse>(response);
         }
@@ -3511,15 +3530,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadModeSelectorState request
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>Mode Selector state</returns>
-        public ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC) =>
-            PlcReadModeSelectorStateAsync(rhid).GetAwaiter().GetResult();
+        public ApiPlcReadModeSelectorStateResponse PlcReadModeSelectorState(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC) =>
+            PlcReadModeSelectorStateAsync(redundancyId).GetAwaiter().GetResult();
 
         /// <summary>
         /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
         /// </summary>
-        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        /// <param name="redundancyId">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
         ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
         /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
         ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
@@ -3527,23 +3546,23 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiSyslogBrowseResponse</returns>
-        public async Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiSyslogBrowseResponse> ApiSyslogBrowseAsync(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, uint? count = null, uint? first = null, CancellationToken cancellationToken = default)
         {
-            var req = _apiRequestFactory.GetApiSyslogBrowseRequest(redundancy_id, count, first);
+            var req = _apiRequestFactory.GetApiSyslogBrowseRequest(redundancyId, count, first);
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiSyslogBrowseResponse>(response);
         }
         /// <summary>
         /// This API method allows the user to read content of the PLC-internal syslog ring buffer.
         /// </summary>
-        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        /// <param name="redundancyId">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
         ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
         /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
         ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
         /// <param name="first">Optionally allows the user to provide the id of an entry as a starting point for the returned entries array. <br/>
         ///                     This allows the user to traverse through the syslog buffer using multiple API calls.</param>
         /// <returns>ApiSyslogBrowseResponse</returns>
-        public ApiSyslogBrowseResponse ApiSyslogBrowse(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null) => ApiSyslogBrowseAsync(redundancy_id, count, first).GetAwaiter().GetResult();
+        public ApiSyslogBrowseResponse ApiSyslogBrowse(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, uint? count = null, uint? first = null) => ApiSyslogBrowseAsync(redundancyId, count, first).GetAwaiter().GetResult();
 
         /// <summary>
         /// This method allows the user to acknowledge a single alarm. <br/>
@@ -3584,7 +3603,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="alarm_id">(optional) The CPU alarm ID for which the user wants to return the data. If this is provided, no count parameter can be provided as filter.</param>
         /// <param name="filters">(optional) Optional object that contains parameters to filter the response.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiAlarmsBrowseResponse> ApiAlarmsBrowseAsync(CultureInfo language, int? count = null, string alarm_id = null, ApiAlarms_RequestFilters filters = null, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiAlarmsBrowseRequest(language, count, alarm_id, filters);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3616,7 +3635,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="filters">(optional) ApiDiagnosticBufferBrowse_RequestFilters representing various filtering possibilities.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
-        public async Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiDiagnosticBufferBrowseResponse> ApiDiagnosticBufferBrowseAsync(CultureInfo language, uint? count = null, ApiDiagnosticBuffer_RequestFilters filters = null, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiDiagnosticBufferBrowseRequest(language, count, filters);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3659,7 +3678,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiWebServerReadCustomHttpHeadersResponse</returns>
-        public async Task<ApiWebServerReadResponseHeadersResponse> ApiWebServerReadResponseHeadersAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiWebServerReadResponseHeadersResponse> ApiWebServerReadResponseHeadersAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiWebServerReadResponseHeadersRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3678,7 +3697,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="header"></param>
         /// <param name="pattern"></param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task<ApiTrueOnSuccessResponse> ApiWebServerChangeResponseHeadersAsync(string header = null, string pattern = "~**/*", CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> ApiWebServerChangeResponseHeadersAsync(string header = null, string pattern = "~**/*", CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiWebServerChangeResponseHeadersRequest(header, pattern);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3693,7 +3712,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Redundancy.ReadSyncupProgress request
         /// </summary>
         /// <returns>ApiRedundancyReadSyncupProgressResponse</returns>
-        public async Task<ApiRedundancyReadSyncupProgressResponse> ApiRedundancyReadSyncupProgressAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiRedundancyReadSyncupProgressResponse> ApiRedundancyReadSyncupProgressAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiRedundancyReadSyncupProgressRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3726,7 +3745,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Send a Redundancy.ReadSystemInformation request
         /// </summary>
         /// <returns>ApiRedundancyReadSystemInformationResponse</returns>
-        public async Task<ApiRedundancyReadSystemInformationResponse> ApiRedundancyReadSystemInformationAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiRedundancyReadSystemInformationResponse> ApiRedundancyReadSystemInformationAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiRedundancyReadSystemInformationRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3743,7 +3762,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiDiagnosticBufferBrowseResponse</returns>
-        public async Task<ApiRedundancyReadSystemStateResponse> ApiRedundancyReadSystemStateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiRedundancyReadSystemStateResponse> ApiRedundancyReadSystemStateAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiRedundancyReadSystemStateRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3761,7 +3780,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="state">The requested system state for the R/H system.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiTrueOnSuccessResponse</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiRedundancyRequestChangeSystemStateAsync(ApiPlcRedundancySystemState state, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiTrueOnSuccessResponse> ApiRedundancyRequestChangeSystemStateAsync(ApiPlcRedundancySystemState state, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiRedundancyRequestChangeSystemStateRequest(state);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3781,8 +3800,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">The application in which the resource is located.</param>
         /// <param name="version">The version of the application. The string may be empty to reset the version string.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiWebAppSetVersionAsync(string webAppName, string version, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public async Task<ApiTrueOnSuccessResponse> ApiWebAppSetVersionAsync(string webAppName, string version, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiWebAppSetVersionRequest(webAppName, version);
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3794,9 +3813,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="webAppName">The application in which the resource is located.</param>
         /// <param name="version">The version of the application. The string may be empty to reset the version string.</param>
-        /// <returns></returns>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
         public ApiTrueOnSuccessResponse ApiWebAppSetVersion(string webAppName, string version) => ApiWebAppSetVersionAsync(webAppName, version).GetAwaiter().GetResult();
-
 
         /// <summary>
         /// Send a WebApp.SetUrlRedirectMode request
@@ -3804,42 +3822,44 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="webAppName">The application for which the redirect mode shall be changed.</param>
         /// <param name="redirect_mode">The redirect mode of the application. </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiWebAppSetUrlRedirectModeAsync(string webAppName, ApiWebAppRedirectMode redirect_mode, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public async Task<ApiTrueOnSuccessResponse> ApiWebAppSetUrlRedirectModeAsync(string webAppName, ApiWebAppRedirectMode redirect_mode, CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiWebAppSetUrlRedirectModeRequest(webAppName, redirect_mode);
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(response);
         }
+
         /// <summary>
         /// Send a WebApp.SetUrlRedirectMode request
         /// </summary>
         /// <param name="webAppName">The application for which the redirect mode shall be changed.</param>
         /// <param name="redirect_mode">The redirect mode of the application. </param>
-        /// <returns></returns>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
         public ApiTrueOnSuccessResponse ApiWebAppSetUrlRedirectMode(string webAppName, ApiWebAppRedirectMode redirect_mode) => ApiWebAppSetUrlRedirectModeAsync(webAppName, redirect_mode).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.ReadCpuType request
         /// </summary>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiPlcReadCpuTypeResponse> ApiGetPlcCpuTypeAsync(CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiPlcReadCpuTypeResponse</returns>
+        public async Task<ApiPlcReadCpuTypeResponse> ApiGetPlcCpuTypeAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiPlcReadCpuTypeRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiPlcReadCpuTypeResponse>(response);
         }
+
         /// <summary>
         /// Send a Plc.ReadCpuType request
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ApiPlcReadCpuTypeResponse</returns>
         public ApiPlcReadCpuTypeResponse ApiGetPlcCpuType() => ApiGetPlcCpuTypeAsync().GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.ReadStationName request
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ApiPlcReadStationNameResponse</returns>
         public async Task<ApiPlcReadStationNameResponse> ApiGetPlcStationNameAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiPlcReadStationNameRequest();
@@ -3850,20 +3870,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadStationName request
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ApiPlcReadStationNameResponse</returns>
         public ApiPlcReadStationNameResponse ApiGetPlcStationName() => ApiGetPlcStationNameAsync().GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Plc.ReadModuleName request
         /// </summary>
-        /// <param name="redundancy_id">
+        /// <param name="redundancyId">
         /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
         /// On non-R/H PLCs, the parameter must not be part of the request.</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiPlcReadModuleNameResponse> ApiGetPlcModuleNameAsync(uint? redundancy_id = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiPlcReadModuleNameResponse</returns>
+        public async Task<ApiPlcReadModuleNameResponse> ApiGetPlcModuleNameAsync(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default)
         {
-            var req = _apiRequestFactory.GetApiPlcReadModuleNameRequest(redundancy_id);
+            var req = _apiRequestFactory.GetApiPlcReadModuleNameRequest(redundancyId);
             string response = await SendPostRequestAsync(req, cancellationToken);
             return JsonConvert.DeserializeObject<ApiPlcReadModuleNameResponse>(response);
         }
@@ -3871,18 +3891,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a Plc.ReadModuleName request
         /// </summary>
-        /// <param name="redundancy_id">
+        /// <param name="redundancyId">
         /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
         /// On non-R/H PLCs, the parameter must not be part of the request.</param>
-        /// <returns></returns>
-        public ApiPlcReadModuleNameResponse ApiGetPlcModuleName(uint? redundancy_id = null) => ApiGetPlcModuleNameAsync(redundancy_id).GetAwaiter().GetResult();
+        /// <returns>ApiPlcReadModuleNameResponse</returns>
+        public ApiPlcReadModuleNameResponse ApiGetPlcModuleName(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC) => ApiGetPlcModuleNameAsync(redundancyId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a GetSessionInfo request
         /// </summary>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <returns></returns>
-        public async Task<ApiSessionInfoResponse> ApiGetSessionInfoAsync(CancellationToken cancellationToken = default(CancellationToken))
+        /// <returns>ApiSessionInfoResponse</returns>
+        public async Task<ApiSessionInfoResponse> ApiGetSessionInfoAsync(CancellationToken cancellationToken = default)
         {
             var req = _apiRequestFactory.GetApiGetSessionInfoRequest();
             string response = await SendPostRequestAsync(req, cancellationToken);
@@ -3892,7 +3912,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Send a GetSessionInfo request
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ApiSessionInfoResponse</returns>
         public ApiSessionInfoResponse ApiGetSessionInfo() => ApiGetSessionInfoAsync().GetAwaiter().GetResult();
 
         /// <summary>
@@ -3902,5 +3922,388 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             _httpClient.CancelPendingRequests();
         }
+
+        /// <summary>
+        /// Send a Communication.ReadProtocolResources request
+        /// </summary>
+        /// <returns>CommunicationProtocolResourcesResponse</returns>
+        public async Task<CommunicationProtocolResourcesResponse> CommunicationReadProtocolResourcesAsync(CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetCommunicationReadProtocolResourcesRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<CommunicationProtocolResourcesResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Communication.ReadProtocolResources request
+        /// </summary>
+        /// <returns>CommunicationProtocolResourcesResponse</returns>
+        public CommunicationProtocolResourcesResponse CommunicationReadProtocolResources() => CommunicationReadProtocolResourcesAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid">​The hardware ID of the node you want to query. ​If the request does not contain a hwid​ parameter, Root is queried and all available central devices and distributed I/O systems of the CPU are output.</param>
+        /// <param name="mode">mode (node, children), optional - defaults to children</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ModulesBrowseResponse</returns>
+        public async Task<ModulesBrowseResponse> ModulesBrowseAsync(uint? hwid = null, string mode = null, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetModulesBrowseRequest(hwid, mode);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ModulesBrowseResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid">​The hardware ID of the node you want to query. ​If the request does not contain a hwid​ parameter, Root is queried and all available central devices and distributed I/O systems of the CPU are output.</param>
+        /// <param name="mode">mode (node, children), optional - defaults to children</param>
+        /// <returns>ModulesBrowseResponse</returns>
+        public ModulesBrowseResponse ModulesBrowse(uint? hwid = null, string mode = null) => ModulesBrowseAsync(hwid, mode).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid">​The hardware ID of the node you want to query. ​If the request does not contain a hwid​ parameter, Root is queried and all available central devices and distributed I/O systems of the CPU are output.</param>
+        /// <param name="mode">mode (node, children), optional - defaults to children</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ModulesBrowseResponse</returns>
+        public async Task<ModulesBrowseResponse> ModulesBrowseAsync(uint? hwid = null, ModulesBrowseMode? mode = null, CancellationToken cancellationToken = default)
+        {
+            return await ModulesBrowseAsync(hwid, mode?.ToString().ToLower(), cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid">​The hardware ID of the node you want to query. ​If the request does not contain a hwid​ parameter, Root is queried and all available central devices and distributed I/O systems of the CPU are output.</param>
+        /// <param name="mode">mode (node, children), optional - defaults to children</param>
+        /// <returns>ModulesBrowseResponse</returns>
+        public ModulesBrowseResponse ModulesBrowse(uint? hwid = null, ModulesBrowseMode? mode = null) => ModulesBrowseAsync(hwid, mode).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node whose parameters you want to read out.</param>
+        /// <param name="filters">​Optional object containing parameters for filtering the response.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ModulesParametersResponse</returns>
+        public async Task<ModulesParametersResponse> ModulesReadParametersAsync(uint hwid, ApiModules_RequestFilters filters = null, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetModulesReadParametersRequest(hwid, filters);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ModulesParametersResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadParameters request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node whose parameters you want to read out.</param>
+        /// <param name="filters">​Optional object containing parameters for filtering the response.</param>
+        /// <returns>ModulesParametersResponse</returns>
+        public ModulesParametersResponse ModulesReadParameters(uint hwid, ApiModules_RequestFilters filters = null) => ModulesReadParametersAsync(hwid, filters).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">Hardware id</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public async Task<object> ModulesReadIdentificationMaintenanceAsync(uint hwid, uint number, string type, CancellationToken cancellationToken = default)
+        {
+            switch (number)
+            {
+                case 0:
+                    return await ModulesReadIdentificationMaintenanceAsync<ModulesIdentificationMaintenance_IM0_Data>(hwid, type, cancellationToken);
+                case 1:
+                    return await ModulesReadIdentificationMaintenanceAsync<ModulesIdentificationMaintenance_IM1_Data>(hwid, type, cancellationToken);
+                case 2:
+                    return await ModulesReadIdentificationMaintenanceAsync<ModulesIdentificationMaintenance_IM2_Data>(hwid, type, cancellationToken);
+                case 3:
+                    return await ModulesReadIdentificationMaintenanceAsync<ModulesIdentificationMaintenance_IM3_Data>(hwid, type, cancellationToken);
+            }
+            throw new ApiIMDataInvalidIndexException($"tried to access number: {number} - current max is: {3}");
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">Hardware id</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public object ModulesReadIdentificationMaintenance(uint hwid, uint number, string type)
+         => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <returns>ModulesIMxResponse</returns>
+        public async Task<ModulesIMxResponse<T>> ModulesReadIdentificationMaintenanceAsync<T>(uint hwid, string type, CancellationToken cancellationToken = default) where T : class
+        {
+            var number = uint.MaxValue;
+            var typeString = typeof(T).Name;
+            switch (typeString)
+            {
+                case nameof(ModulesIdentificationMaintenance_IM0_Data):
+                    number = 0;
+                    break;
+                case nameof(ModulesIdentificationMaintenance_IM1_Data):
+                    number = 1;
+                    break;
+                case nameof(ModulesIdentificationMaintenance_IM2_Data):
+                    number = 2;
+                    break;
+                case nameof(ModulesIdentificationMaintenance_IM3_Data):
+                    number = 3;
+                    break;
+                default:
+                    throw new ApiIMDataInvalidIndexException($"{typeString}");
+            }
+            var req = _apiRequestFactory.GetModulesReadIdentificationMaintenanceRequest(hwid, number, type);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ModulesIMxResponse<T>>(response);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        public ModulesIMxResponse<T> ModulesReadIdentificationMaintenance<T>(uint hwid, string type) where T : class
+            => ModulesReadIdentificationMaintenanceAsync<T>(hwid, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">Type</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public async Task<object> ModulesReadIdentificationMaintenanceAsync(uint hwid, ModulesReadIdentificationMaintenanceNumber number, string type, CancellationToken cancellationToken = default)
+        {
+            return await ModulesReadIdentificationMaintenanceAsync(hwid, (uint)number, type, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">Type</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public object ModulesReadIdentificationMaintenance(uint hwid, ModulesReadIdentificationMaintenanceNumber number, string type)
+         => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">Hardware id</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public async Task<object> ModulesReadIdentificationMaintenanceAsync(uint hwid, uint number, ModulesReadIdentificationMaintenanceType type, CancellationToken cancellationToken = default)
+        {
+            return await ModulesReadIdentificationMaintenanceAsync(hwid, number, type.ToString().ToLower(), cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">Hardware id</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public object ModulesReadIdentificationMaintenance(uint hwid, uint number, ModulesReadIdentificationMaintenanceType type)
+         => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <returns>ModulesIMxResponse</returns>
+        public async Task<ModulesIMxResponse<T>> ModulesReadIdentificationMaintenanceAsync<T>(uint hwid, ModulesReadIdentificationMaintenanceType type, CancellationToken cancellationToken = default) where T : class
+        {
+            return await ModulesReadIdentificationMaintenanceAsync<T>(hwid, type.ToString().ToLower(), cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="type">The type read out. The possible values depend on which of the data ​IM0​ to ​IM3​ you want to read out: ​"​actual​": The current data is read from the module. ​​configured​": The expected data is read from the hardware configuration.</param>
+        public ModulesIMxResponse<T> ModulesReadIdentificationMaintenance<T>(uint hwid, ModulesReadIdentificationMaintenanceType type) where T : class
+            => ModulesReadIdentificationMaintenanceAsync<T>(hwid, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">Type</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid number</exception>
+        public async Task<object> ModulesReadIdentificationMaintenanceAsync(uint hwid, ModulesReadIdentificationMaintenanceNumber number, ModulesReadIdentificationMaintenanceType type, CancellationToken cancellationToken = default)
+        {
+            return await ModulesReadIdentificationMaintenanceAsync(hwid, (uint)number, type, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid">​Identification of the module or device for which you are reading out the IM data.</param>
+        /// <param name="number">number (determines result)</param>
+        /// <param name="type">Type</param>
+        /// <returns>according ModulesIMxResponse (number)</returns>
+        /// <exception cref="ApiIMDataInvalidIndexException">invalid <paramref name="number"/></exception>
+        public object ModulesReadIdentificationMaintenance(uint hwid, ModulesReadIdentificationMaintenanceNumber number, ModulesReadIdentificationMaintenanceType type)
+         => ModulesReadIdentificationMaintenanceAsync(hwid, number, type).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.FlashLeds request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node for which the LEDs are to flash temporarily.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public async Task<ApiTrueOnSuccessResponse> ModulesFlashLedsAsync(uint hwid, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetModulesFlashLedsRequest(hwid);
+            var responseString = await SendPostRequestAsync(req, cancellationToken);
+            var apiTrueOnSuccessResponse = JsonConvert.DeserializeObject<ApiTrueOnSuccessResponse>(responseString);
+            return apiTrueOnSuccessResponse;
+        }
+
+        /// <summary>
+        /// Send a Modules.FlashLeds request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node for which the LEDs are to flash temporarily. </param>
+        /// <returns>ApiTrueOnSuccessResponse</returns>
+        public ApiTrueOnSuccessResponse ModulesFlashLeds(uint hwid) => ModulesFlashLedsAsync(hwid).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadLeds request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node for which the LEDs are to be read.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ModulesReadLedsResponse</returns>
+        public async Task<ModulesReadLedsResponse> ModulesReadLedsAsync(uint hwid, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetModulesReadLedsRequest(hwid);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ModulesReadLedsResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadLeds request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node for which the LEDs are to be read.</param>
+        /// <returns>ModulesReadLedsResponse</returns>
+        public ModulesReadLedsResponse ModulesReadLeds(uint hwid) => ModulesReadLedsAsync(hwid).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Modules.ReadStatus request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node whose status you want to read out.</param>
+        /// <param name="language">​The project language of the output text. If the parameter is invalid or missing, no text is output. ​You can read out the available project languages using the ​Project.ReadLanguages ​method.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ModulesStatusResponse</returns>
+        public async Task<ModulesStatusResponse> ModulesReadStatusAsync(uint hwid, CultureInfo language = null, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetModulesReadStatusRequest(hwid, language);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ModulesStatusResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Modules.ReadStatus request
+        /// </summary>
+        /// <param name="hwid">​Hardware ID of the node whose status you want to read out.</param>
+        /// <param name="language">​The project language of the output text. If the parameter is invalid or missing, no text is output. ​You can read out the available project languages using the ​Project.ReadLanguages ​method.</param>
+        /// <returns>ModulesStatusResponse</returns>
+        public ModulesStatusResponse ModulesReadStatus(uint hwid, CultureInfo language = null) => ModulesReadStatusAsync(hwid, language).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadLoadMemoryInformation request
+        /// </summary>
+        /// <param name="redundancyId">​The parameter "redundancy ID" must be available if the request is performed on an R/H-CPU. The "redundancy ID" has the value 1 or 2. ​With all other CPUs, the parameter must not be part of the request.</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>PlcLoadMemoryInformationResponse</returns>
+        public async Task<PlcLoadMemoryInformationResponse> PlcReadLoadMemoryInformationAsync(ApiPlcRedundancyId? redundancyId = null, CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetPlcReadLoadMemoryInformationRequest(redundancyId);
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<PlcLoadMemoryInformationResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Plc.ReadLoadMemoryInformation request
+        /// </summary>
+        /// <returns>PlcLoadMemoryInformationResponse</returns>
+        public PlcLoadMemoryInformationResponse PlcReadLoadMemoryInformation(ApiPlcRedundancyId? redundancyId = null) => PlcReadLoadMemoryInformationAsync(redundancyId).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadRuntimeInformation request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>PlcRuntimeInformationResponse</returns>
+        public async Task<PlcRuntimeInformationResponse> PlcReadRuntimeInformationAsync(CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetPlcReadRuntimeInformationRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<PlcRuntimeInformationResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Plc.ReadRuntimeInformation request
+        /// </summary>
+        /// <returns>PlcRuntimeInformationResponse</returns>
+        public PlcRuntimeInformationResponse PlcReadRuntimeInformation() => PlcReadRuntimeInformationAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Plc.ReadMemoryInformation request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>PlcMemoryInformationResponse</returns>
+        public async Task<PlcMemoryInformationResponse> PlcReadMemoryInformationAsync(CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetPlcReadMemoryInformationRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<PlcMemoryInformationResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Plc.ReadMemoryInformation request
+        /// </summary>
+        /// <returns>PlcMemoryInformationResponse</returns>
+        public PlcMemoryInformationResponse PlcReadMemoryInformation() => PlcReadMemoryInformationAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a Project.ReadInformation request
+        /// </summary>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ProjectInformationResponse</returns>
+        public async Task<ProjectInformationResponse> ProjectReadInformationAsync(CancellationToken cancellationToken = default)
+        {
+            var req = _apiRequestFactory.GetProjectReadInformationRequest();
+            string response = await SendPostRequestAsync(req, cancellationToken);
+            return JsonConvert.DeserializeObject<ProjectInformationResponse>(response);
+        }
+
+        /// <summary>
+        /// Send a Project.ReadInformation request
+        /// </summary>
+        /// <returns>ProjectInformationResponse</returns>
+        public ProjectInformationResponse ProjectReadInformation() => ProjectReadInformationAsync().GetAwaiter().GetResult();
     }
 }

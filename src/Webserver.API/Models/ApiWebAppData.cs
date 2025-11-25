@@ -147,12 +147,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             if (other is null)
                 return false;
-            var result = this.Name == other.Name && this.State == other.State && this.Type == other.Type 
+            var result = this.Name == other.Name && this.State == other.State && this.Type == other.Type
                 && (this.Version ?? "") == (other.Version ?? "")
                 && (this.Default_page ?? "") == (other.Default_page ?? "")
                 && (this.Not_found_page ?? "") == (other.Not_found_page ?? "")
                 && (this.Not_authorized_page ?? "") == (other.Not_authorized_page ?? "")
-                    && this.Redirect_mode== other.Redirect_mode;
+                    && this.Redirect_mode == other.Redirect_mode;
             return result;
         }
 

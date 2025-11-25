@@ -40,7 +40,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// <param name="errorMessageForException">error message for the excption</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Value true</returns>
-        public TimeSpan ForTrue(Func<bool> Value, string errorMessageForException = "", CancellationToken cancellationToken = default(CancellationToken))
+        public TimeSpan ForTrue(Func<bool> Value, string errorMessageForException = "", CancellationToken cancellationToken = default)
         {
             return WaitForCondition(() =>
             {
@@ -57,7 +57,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// <param name="errorMessageForException">error message for the excption</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns></returns>
-        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default(CancellationToken))
+        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default)
         {
             var sw = new Stopwatch();
             sw.Start();

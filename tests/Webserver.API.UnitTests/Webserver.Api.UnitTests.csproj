@@ -9,7 +9,20 @@
 		<AssemblyName>Webserver.API.UnitTests</AssemblyName>
 		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
 	</PropertyGroup>
-
+	
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+		<PlatformTarget>x64</PlatformTarget>
+		<Prefer32Bit>false</Prefer32Bit>
+		<Platforms>x64</Platforms>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="coverlet.collector" Version="6.0.4">
 			<PrivateAssets>all</PrivateAssets>

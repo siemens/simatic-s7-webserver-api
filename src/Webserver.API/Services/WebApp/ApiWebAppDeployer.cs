@@ -54,7 +54,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
         /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             Logger?.LogDebug(string.Format("start deploying webapp: {0} with {1} resources.", webApp.Name, webApp.ApplicationResources.Count));
             var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
@@ -133,7 +133,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// </param>
         /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, IProgress<int> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployOrUpdateAsync(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
@@ -176,7 +176,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         Logger?.LogDebug(string.Format("{0}: start deleting: {1} resources.", nameof(DeployOrUpdate), browsedExceptApp.Count));
                         await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
                     }
-                    if(browsedExceptApp.Count != 0)
+                    if (browsedExceptApp.Count != 0)
                     {
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: done deleting resources.");
                     }
@@ -257,7 +257,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                             throw;
                         }
                     }
-                    if(browsedWebApp.Version != webApp.Version)
+                    if (browsedWebApp.Version != webApp.Version)
                     {
                         Logger?.LogDebug($"{nameof(DeployOrUpdate)}: set Version");
                         await ApiRequestHandler.ApiWebAppSetVersionAsync(webApp.Name, webApp.Version, cancellationToken);

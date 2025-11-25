@@ -1,17 +1,16 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
-using System;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
-using Siemens.Simatic.S7.Webserver.API.Exceptions;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -67,7 +66,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     }
                     if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
                     {
-                        if(currentStream.Length > 5)
+                        if (currentStream.Length > 5)
                         {
                             // only append the comma if there already is one inside
                             currentStream.Append(commaBytes);
@@ -86,7 +85,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                         commaMissingSum += commaBytes.Length;
                     }
                 }
-                if(currentStream.Length > 0)
+                if (currentStream.Length > 0)
                 {
                     // save the current (last) stream
                     currentStream.Append(endBytes);

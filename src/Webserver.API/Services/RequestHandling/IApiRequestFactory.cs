@@ -190,27 +190,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// get an Plc.ReadOperatingMode Request without parameters
         /// </summary>
         /// <returns>Plc.ReadOperatingMode Request without parameters</returns>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcReadOperatingModeRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcReadOperatingModeRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// get an Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode
         /// </summary>
         /// <param name="apiPlcOperatingMode">Plc Operating mode wanted</param>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <returns>Plc.CheckPlcRequestChangeOperatingMode Request with parameter "mode": apiPlcOperatingMode</returns>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
-        IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcRequestChangeOperatingModeRequest(ApiPlcOperatingMode apiPlcOperatingMode, ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// Get a Plc.ReadModeSelectorState Request with redundancy id parameter
         /// </summary>
-        /// <param name="rhid">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
+        /// <param name="redundancyId">In an R/H system, a PLC with ID 1 (primary) or 2 (backup). For standard PLCs, enum value 0 (StandardPLC) is required.</param>
         /// <param name="id">Request Id</param>
         /// <param name="jsonRpc">JsonRpc to be used</param>
         /// <returns>Plc.ReadModeSelectorState request with redundancy id parameter</returns>
-        IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId rhid = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcReadModeSelectorStateRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
         /// <summary>
         /// check new Etag value
         /// get an WebApp.SetResourceETag Request with parameter "app_name" : webAppName,"name": resourceName, "etag" : newETagValue
@@ -549,7 +549,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
         /// <returns>Modules.DownloadServiceData request</returns>
-        IApiRequest GetModulesDownloadServiceData(ApiPlcHwId hwid, string jsonRpc = null, string id = null);
+        IApiRequest GetModulesDownloadServiceData(uint hwid, string jsonRpc = null, string id = null);
 
         /// <summary>
         /// Get a WebServer.ReadDefaultPage Request
@@ -572,7 +572,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Get a Syslog.Browse request
         /// </summary>
-        /// <param name="redundancy_id">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
+        /// <param name="redundancyId">(optional) The Redundancy ID parameter must be present when the request is executed on an R/H PLC. <br/> 
         ///                             In this case it must either have a value of 1 or 2, otherwise it is null.</param>
         /// <param name="count">(optional) The maximum number of syslog entries to be requested. Default value: 50 <br/>
         ///                     A count of 0 will omit any syslog entries from the response and only return the attributes last_modified, count_total and count_lost.</param>
@@ -581,7 +581,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id">Request Id, defaults to RequestIdGenerator.GetRandomString(8)</param>
         /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
         /// <returns>ApiSyslogBrowse request</returns>
-        IApiRequest GetApiSyslogBrowseRequest(ApiPlcRedundancyId? redundancy_id = null, uint? count = null, uint? first = null, string jsonRpc = null, string id = null);
+        IApiRequest GetApiSyslogBrowseRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, uint? count = null, uint? first = null, string jsonRpc = null, string id = null);
 
         /// <summary>
         /// Get a Alarms.Acknowledge request
@@ -727,13 +727,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <summary>
         /// Get a Plc.ReadModuleName request
         /// </summary>
-        /// <param name="redundancy_id">
+        /// <param name="redundancyId">
         /// The Redundancy ID parameter must be present when the request is executed on an R/H PLC. It must either have a value of 1 or 2. <br/> 
         /// On non-R/H PLCs, the parameter must not be part of the request.</param>
         /// <param name="jsonRpc"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        IApiRequest GetApiPlcReadModuleNameRequest(uint? redundancy_id = null, string jsonRpc = null, string id = null);
+        IApiRequest GetApiPlcReadModuleNameRequest(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, string jsonRpc = null, string id = null);
 
         /// <summary>
         /// Get a GetSessionInfo request
@@ -742,6 +742,105 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="id"></param>
         /// <returns></returns>
         IApiRequest GetApiGetSessionInfoRequest(string jsonRpc = null, string id = null);
-    }
 
+        /// <summary>
+        /// Get a Communication.ReadProtocolResources request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetCommunicationReadProtocolResourcesRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.Browse request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="mode"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesBrowseRequest(uint? hwid = null, string mode = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.ReadParameters request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="filters"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesReadParametersRequest(uint? hwid = null, ApiModules_RequestFilters filters = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.ReadIdentificationMaintenance request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesReadIdentificationMaintenanceRequest(uint hwid, uint index, string type, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.FlashLeds request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesFlashLedsRequest(uint? hwid = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.ReadLeds request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesReadLedsRequest(uint? hwid = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Modules.ReadStatus request
+        /// </summary>
+        /// <param name="hwid"></param>
+        /// <param name="language"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetModulesReadStatusRequest(uint? hwid = null, CultureInfo language = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Plc.ReadLoadMemoryInformation request
+        /// </summary>
+        /// <param name="redundancyId"></param>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetPlcReadLoadMemoryInformationRequest(ApiPlcRedundancyId? redundancyId = null, string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Plc.ReadRuntimeInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetPlcReadRuntimeInformationRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a PlcProgram.ReadMemoryInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetPlcReadMemoryInformationRequest(string jsonRpc = null, string id = null);
+
+        /// <summary>
+        /// Get a Project.ReadInformation request
+        /// </summary>
+        /// <param name="jsonRpc"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        IApiRequest GetProjectReadInformationRequest(string jsonRpc = null, string id = null);
+    }
 }

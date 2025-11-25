@@ -45,6 +45,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
         public TimeSpan? Remaining_time { get; set; }
 
         /// <summary>
+        /// The BaseID encoded as string containing a hexadecimal representation of the 64-bit BaseID.
+        /// </summary>
+        public string Base_id { get; set; }
+
+        /// <summary>
         /// Checks if the incoming object is the same as this
         /// </summary>
         /// <param name="obj">Object to check</param>
@@ -54,7 +59,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
             return obj is FailsafeCPU cpu &&
                    Last_f_program_modification == cpu.Last_f_program_modification &&
                    Remaining_time == cpu.Remaining_time &&
-                   Collective_signature == cpu.Collective_signature;
+                   Collective_signature == cpu.Collective_signature &&
+                   Base_id == cpu.Base_id;
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters
         /// <returns>(LastFProgramModification, CollectiveSignature).GetHashCode()</returns>
         public override int GetHashCode()
         {
-            return (Last_f_program_modification, Collective_signature, Remaining_time).GetHashCode();
+            return (Last_f_program_modification, Collective_signature, Remaining_time, Base_id).GetHashCode();
         }
 
         /// <summary>

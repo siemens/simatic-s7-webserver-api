@@ -351,8 +351,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 if (utcOffset.Seconds != 0 || utcOffset.Milliseconds != 0 ||
                     utcOffset.TotalHours > 13 || utcOffset.TotalHours < -12)
                 {
-                    throw new ApiInvalidUTCOffsetException($"The Utc Offset must be between +13hrs and -12hrs. Please do not use seconds and milliseconds." +
-                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidUTCOffset, Message = "Invalid UTC offset" } }));
+                    throw new ApiInvalidUtcOffsetException($"The UTC offset must be between +13hrs and -12hrs. Please do not use seconds and milliseconds." +
+                    $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidUtcOffset, Message = "Invalid UTC offset" } }));
                 }
                 //allowed value range must be between -180 and +180 (inclusive).
                 //If it contains a precision higher than minutes, it must be considered invalid.

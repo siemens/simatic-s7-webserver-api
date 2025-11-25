@@ -47,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
-        public async Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
             if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
             {
@@ -77,7 +77,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
-        public async Task<FileInfo> DataLogs_DownloadAndClearAsync(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<FileInfo> DataLogs_DownloadAndClearAsync(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
             if (pathToDownloadDirectory != null && !Directory.Exists(pathToDownloadDirectory))
             {
@@ -105,7 +105,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <param name="filePath">path to the local file to upload</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>Task to upload the file</returns>
-        public async Task DeployFileAsync(string resource, string filePath, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployFileAsync(string resource, string filePath, CancellationToken cancellationToken = default)
         {
             var ticket = await ApiRequestHandler.FilesCreateAsync(resource, cancellationToken);
             await ApiTicketHandler.HandleUploadAsync(ticket.Result, filePath, cancellationToken);
@@ -123,7 +123,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">resource to upload - filepath built via the ResourcePathResolver, name on PLC File Api built via GetVarNameForMethods()</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        public async Task DeployFileAsync(ApiFileResource resource, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeployFileAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
             var varNameForMethods = resource.GetVarNameForMethods();
             var accordingFile = Path.Combine(resource.PathToLocalDirectory, resource.Name);

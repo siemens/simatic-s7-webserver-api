@@ -4,6 +4,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using RichardSzalay.MockHttp;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
@@ -11,14 +12,17 @@ using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Models.FailsafeParameters;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults;
 using Siemens.Simatic.S7.Webserver.API.Models.Technology;
 using Siemens.Simatic.S7.Webserver.API.Models.TimeSettings;
+using Siemens.Simatic.S7.Webserver.API.Services.Converters.JsonConverters;
 using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -3650,10 +3654,10 @@ namespace Webserver.API.UnitTests
             Assert.Multiple(() =>
             {
                 Assert.That(result.Username, Is.EqualTo("MyUser"));
-                Assert.That(result.Authentication_Mode, Is.EqualTo(ApiUserAuthenticationMode.Local));
-                Assert.That(result.Runtime_Timeout, Is.EqualTo(new TimeSpan(0, 30, 0)));
-                Assert.That(result.Password_Expiration.Timestamp, Is.EqualTo(new DateTime(2012, 4, 23, 18, 25, 43)));
-                Assert.That(result.Password_Expiration.Warning, Is.EqualTo(true));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(ApiUserAuthenticationMode.Local));
+                Assert.That(result.RuntimeTimeout, Is.EqualTo(new TimeSpan(0, 30, 0)));
+                Assert.That(result.PasswordExpiration.Timestamp, Is.EqualTo(new DateTime(2012, 4, 23, 18, 25, 43)));
+                Assert.That(result.PasswordExpiration.Warning, Is.EqualTo(true));
             });
         }
 
@@ -3677,9 +3681,9 @@ namespace Webserver.API.UnitTests
             Assert.Multiple(() =>
             {
                 Assert.That(result.Username, Is.EqualTo("Anonymous"));
-                Assert.That(result.Authentication_Mode, Is.EqualTo(ApiUserAuthenticationMode.None));
-                Assert.That(result.Password_Expiration, Is.Null);
-                Assert.That(result.Runtime_Timeout, Is.Null);
+                Assert.That(result.AuthenticationMode, Is.EqualTo(ApiUserAuthenticationMode.None));
+                Assert.That(result.PasswordExpiration, Is.Null);
+                Assert.That(result.RuntimeTimeout, Is.Null);
             });
         }
 
@@ -3793,8 +3797,16 @@ namespace Webserver.API.UnitTests
             var result = TestHandler.ApiGetPlcCpuType().Result;
             Assert.Multiple(() =>
             {
-                Assert.That(result.Product_Name, Is.EqualTo("CPU 1513F-1 PN"));
-                Assert.That(result.Order_Number, Is.EqualTo("6ES7 513-1FM03-0AB0"));
+                var expectedOrderNumber = "6ES7 513-1FM03-0AB0";
+                var expectedProductName = "CPU 1513F-1 PN";
+                Assert.That(result.Product_Name, Is.EqualTo(expectedProductName));
+                Assert.That(result.Order_Number, Is.EqualTo(expectedOrderNumber));
+                ApiPlcReadCpuTypeResult expected = new ApiPlcReadCpuTypeResult()
+                {
+                    Product_Name = expectedProductName,
+                    Order_Number = expectedOrderNumber
+                };
+                Assert.That(result.Equals(expected), "The result object is not as expected!");
             });
         }
 
@@ -3814,7 +3826,13 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip.ToString()}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = TestHandler.ApiGetPlcStationName().Result;
-            Assert.That(result.Station_Name, Is.EqualTo("1513F"));
+            var expectedStationName = "1513F";
+            Assert.That(result.Station_Name, Is.EqualTo(expectedStationName));
+            var expectedResult = new ApiPlcReadStationNameResult()
+            {
+                Station_Name = expectedStationName
+            };
+            Assert.That(result, Is.EqualTo(expectedResult), "The result object is not as expected!");
         }
 
         /// <summary>
@@ -3834,6 +3852,11 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var result = TestHandler.ApiGetPlcModuleName().Result;
             Assert.That(result.Module_name, Is.EqualTo("1513F"));
+            var expectedResult = new ApiPlcReadModuleNameResult()
+            {
+                Module_name = "1513F"
+            };
+            Assert.That(result, Is.EqualTo(expectedResult), "The result object is not as expected!");
         }
 
         /// <summary>
@@ -4036,6 +4059,8 @@ namespace Webserver.API.UnitTests
             {
                 Assert.That(resp.Result.Objects[i].Equals(exp[i]));
             }
+            var result = new ApiTechnologyBrowseObjectsResult() { Objects = exp, Type = ApiTechnologyPlcType.S71500 };
+            Assert.That(resp.Result, Is.EqualTo(result));
         }
 
         /// <summary>
@@ -4055,6 +4080,22 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyBrowseObjectsAsync();
             Assert.That(!resp.Result.Objects.Any());
+        }
+
+        [Test]
+        public async Task T080_03_TechnologyBrowseObjects_NearlyEmpty()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.TechnologyBrowseObjectsResponse1500Empty); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var resp = await TestHandler.TechnologyBrowseObjectsAsync();
+            Assert.That(!resp.Result.Objects.Any());
+            Assert.That(resp.Result.Type, Is.EqualTo(ApiTechnologyPlcType.S71500));
         }
 
         /// <summary>
@@ -4269,9 +4310,6 @@ namespace Webserver.API.UnitTests
             Assert.ThrowsAsync<ApiRequestTooLargeException>(async () => await TestHandler.ApiWebServerChangeResponseHeadersAsync("this is the header"));
         }
 
-        /// <summary>
-        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
-        /// </summary>
         [Test]
         public void T090_ApiLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
         {
@@ -4300,9 +4338,6 @@ namespace Webserver.API.UnitTests
             });
         }
 
-        /// <summary>
-        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
-        /// </summary>
         [Test]
         public void T091_ReLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
         {
@@ -4331,9 +4366,6 @@ namespace Webserver.API.UnitTests
             });
         }
 
-        /// <summary>
-        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
-        /// </summary>
         [Test]
         public void T092_ApiChangePassword_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
         {
@@ -4365,9 +4397,6 @@ namespace Webserver.API.UnitTests
             });
         }
 
-        /// <summary>
-        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
-        /// </summary>
         [Test]
         public void T093_ApiBulkWithLogin_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
         {
@@ -4401,9 +4430,6 @@ namespace Webserver.API.UnitTests
             });
         }
 
-        /// <summary>
-        /// We should not throw an exception containing the credentials that the user tried to login with (applications might log those to logfiles otherwise)
-        /// </summary>
         [Test]
         public void T093_RestoreBackup_WithErrorMessage_DoesNotThrowIncludingApiRequestString()
         {
@@ -4429,5 +4455,551 @@ namespace Webserver.API.UnitTests
             });
         }
 
+        [Test]
+        public async Task T094_Modules_Browse()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiModulesBrowseResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = await TestHandler.ModulesBrowseAsync(mode: "children");
+            Console.WriteLine($"first has children: {response.Result.Nodes.First().HasChildren}, child has children: {response.Result.Nodes.First().Children.First().HasChildren}");
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Result.Nodes.Count, Is.EqualTo(1));
+                Assert.That(response.Result.Nodes.First(), Is.EqualTo(new Module()
+                {
+                    Hwid = 32,
+                    Type = ApiModulesNodeType.Device,
+                    Name = "CPU1518",
+                    SubType = ApiModulesNodeSubType.CentralDevice,
+                    HasChildren = true,
+                    Children = new List<Module>()
+                { new Module() { Hwid = 49, Name ="CPU1518", Type = ApiModulesNodeType.Module, SubType = ApiModulesNodeSubType.Cpu, Attributes = new List<ApiModulesNodeAttribute>() { ApiModulesNodeAttribute.FirmwareUpdate, ApiModulesNodeAttribute.ServiceData }, HasChildren = true }  }
+                }));
+            });
+        }
+
+        [Test]
+        public async Task T095_01_Modules_Read_Leds_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiModulesReadLedsResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = await TestHandler.ModulesReadLedsAsync(0);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Result.Leds.Count, Is.EqualTo(3));
+                Assert.That(response.Result.Leds[0], Is.EqualTo(new ModulesLed() { Colors = new List<ApiLedColor>() { ApiLedColor.Green }, Status = ApiLedStatus.On, Type = ApiLedType.RunStop }));
+                Assert.That(response.Result.Leds[1], Is.EqualTo(new ModulesLed() { Status = ApiLedStatus.Off, Type = ApiLedType.Error }));
+                Assert.That(response.Result.Leds[2], Is.EqualTo(new ModulesLed() { Status = ApiLedStatus.Off, Type = ApiLedType.Maintenance }));
+            });
+        }
+
+        [Test]
+        public async Task T095_02_Modules_Read_Leds_Works()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ApiModulesReadLedsFlashingResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = await TestHandler.ModulesReadLedsAsync(0);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Result.Leds.Count, Is.EqualTo(3));
+                Assert.That(response.Result.Leds[0], Is.EqualTo(new ModulesLed() { Colors = new List<ApiLedColor>() { ApiLedColor.Green, ApiLedColor.Yellow }, Status = ApiLedStatus.Flashing, Type = ApiLedType.RunStop, Period = ParseISO8601Duration("PT0.5S") }));
+                Assert.That(response.Result.Leds[1], Is.EqualTo(new ModulesLed() { Colors = new List<ApiLedColor>() { ApiLedColor.Red }, Status = ApiLedStatus.Flashing, Type = ApiLedType.Error, Period = ParseISO8601Duration("PT0.5S") }));
+                Assert.That(response.Result.Leds[2], Is.EqualTo(new ModulesLed() { Colors = new List<ApiLedColor>() { ApiLedColor.Yellow }, Status = ApiLedStatus.Flashing, Type = ApiLedType.Maintenance, Period = ParseISO8601Duration("PT0.5S") }));
+            });
+        }
+
+        [Test]
+        public async Task T096_PlcReadMemoryInformationResponse()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcReadMemoryInformationResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            PlcMemoryInformationResponse response = await TestHandler.PlcReadMemoryInformationAsync();
+            Assert.Multiple(() =>
+            {
+                var codeWorkMemory = new PlcMemoryInformationAbsolute() { FreeBytes = 11816885, TotalBytes = 12582912 };
+                var dataWorkMemory = new PlcMemoryInformationAbsolute() { FreeBytes = 148802946, TotalBytes = 157286400 };
+                var retentiveMemory = new PlcMemoryInformationAbsolute() { FreeBytes = 4704634, TotalBytes = 4719264 };
+                var dataTypeMemory = new PlcMemoryInformationPercentage() { FreePercentage = (float)98.6 };
+                var plcMemoryInf = new PlcMemoryInformation() { CodeWorkMemory = codeWorkMemory, DataWorkMemory = dataWorkMemory, RetentiveMemory = retentiveMemory, DataTypeMemory = dataTypeMemory };
+                Assert.That(response.Result.CodeWorkMemory, Is.EqualTo(codeWorkMemory));
+                Assert.That(response.Result.DataWorkMemory, Is.EqualTo(dataWorkMemory));
+                Assert.That(response.Result.RetentiveMemory, Is.EqualTo(retentiveMemory));
+                Assert.That(response.Result.DataTypeMemory, Is.EqualTo(dataTypeMemory));
+                Assert.That(response.Result, Is.EqualTo(plcMemoryInf));
+            });
+        }
+
+        [Test]
+        public async Task T097_ProjectReadInformation()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ProjectReadInformationResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            ProjectInformationResponse response = await TestHandler.ProjectReadInformationAsync();
+            Assert.Multiple(() =>
+            {
+                var expectedVersions = new List<ProjectInformationVersion>()
+                {
+                     new ProjectInformationVersion() { Source = ApiVersionSource.TiaPortal, Version = "V21.0.0.0"}
+                };
+                ProjectInformation expected = new ProjectInformation() { ProjectName = "ThisIsAnAwesomeTestProjectName", Versions = expectedVersions };
+                Assert.That(response.Result.Versions.SequenceEqual(expectedVersions));
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T098_PlcRuntimeInformation()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcRuntimeInformationResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            PlcRuntimeInformationResponse response = await TestHandler.PlcReadRuntimeInformationAsync();
+            Assert.Multiple(() =>
+            {
+
+                var expectedLoad = new PlcRuntimeInformationLoad()
+                {
+                    Actual = new PlcRuntimeInformationLoadActual() { ProgramLoadCyclicProgramObsPercentage = 0, ProgramLoadHighPriorityObsPercentage = 0, CurrentCommunicationLoadPercentage = 1 },
+                    Configured = new PlcRuntimeInformationLoadConfigured() { MaxCommunicationLoadPercentage = 50 }
+                };
+                var expectedCycleTime = new PlcRuntimeInformationCycleTime()
+                {
+                    Actual = new PlcRuntimeInformationCycleTimeActual()
+                    {
+                        Shortest = ParseISO8601Duration("PT0.000206S"),
+                        Current = ParseISO8601Duration("PT0.000973S"),
+                        Longest = ParseISO8601Duration("PT2.009973S")
+                    },
+                    Configured = new PlcRuntimeInformationCycleTimeConfigured() { Min = TimeSpan.Zero, Max = ParseISO8601Duration("PT0.15S") }
+                };
+                var expected = new PlcRuntimeInformation() { Load = expectedLoad, CycleTime = expectedCycleTime };
+                Assert.That(response.Result.Load, Is.EqualTo(expectedLoad));
+                Assert.That(response.Result.CycleTime, Is.EqualTo(expectedCycleTime));
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        private TimeSpan ParseISO8601Duration(string iso8601Duration)
+        {
+            // Use your existing TimeSpanISO8601Converter
+            var converter = new TimeSpanISO8601Converter();
+            using (var reader = new JsonTextReader(new StringReader($"\"{iso8601Duration}\"")))
+            {
+                reader.Read();
+                return (TimeSpan)converter.ReadJson(reader, typeof(TimeSpan), null, JsonSerializer.Create());
+            }
+        }
+
+
+        [Test]
+        public async Task T099_CommunicationReadProtocolResources()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.CommunicationReadProtocolResourcesResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            CommunicationProtocolResourcesResponse response = await TestHandler.CommunicationReadProtocolResourcesAsync();
+            Assert.Multiple(() =>
+            {
+                var expectedProtocols = new CommunicationProtocolResourcesProtocols() { Hmi = new CommunicationProtocolResourcesProtocolsHmi() { Subscriptions = new CommunicationProtocolResourcesProtocolsHmiSubscriptions() { Free = 750, Max = 750 } } };
+                var expected = new CommunicationProtocolResources() { Protocols = expectedProtocols };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+
+        [Test]
+        public async Task T100_ModulesReadParameters()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadParametersResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            ModulesParametersResponse response = await TestHandler.ModulesReadParametersAsync(49);
+            Assert.Multiple(() =>
+            {
+                var expectedGeneral = new ModulesNodeGeneral()
+                {
+                    Name = "CPU1518",
+                    Class = "CPU 1518-3 PN",
+                    Type = ApiModulesNodeType.Module,
+                    Sub_Type = ApiModulesNodeSubType.None,
+                    Attributes = new List<ApiModulesNodeAttribute>() { ApiModulesNodeAttribute.FirmwareUpdate, ApiModulesNodeAttribute.ServiceData },
+                };
+                var expectedGeoAddress = new ModulesNodeGeoAddress()
+                {
+                    Actual = new ModulesNodeGeoAddressActual() { IoSystem = 0, Device = 0, Slot = 1, Subslot = 0, Rack = 0, RemovedByConfigurationControl = false },
+                    Configured = new ModulesNodeGeoAddressConfigured() { IoSystem = 0, Device = 0, Slot = 1, Subslot = 0, Rack = 0 },
+                };
+                var expectedParameters = new ModulesNodeParameters()
+                {
+                    Versions = new ModulesNodeVersions()
+                    {
+                        Bootloader = new ModuleVersion() { Type = 'V', Major = 4, Patch = 1, Minor = 0 },
+                        Motion = new ModulesNodeVersions_Motion() { Packages = new List<ModulesNodeVersions_Motion_Package>() { new ModulesNodeVersions_Motion_Package() { Name = "MC Base", External = "V10.0.2" } } }
+                    }
+                };
+                var expected = new ModulesParameters()
+                {
+                    General = expectedGeneral,
+                    GeoAddress = expectedGeoAddress,
+                    Parameters = expectedParameters
+                };
+                Assert.That(response.Result.General, Is.EqualTo(expectedGeneral));
+                Assert.That(response.Result.GeoAddress, Is.EqualTo(expectedGeoAddress));
+                Assert.That(response.Result.Parameters, Is.EqualTo(expectedParameters));
+                Assert.That(response.Result.Parameters.Versions, Is.EqualTo(expectedParameters.Versions));
+                Assert.That(response.Result.Parameters.Versions.Motion, Is.EqualTo(expectedParameters.Versions.Motion));
+                Assert.That(response.Result.Parameters.Versions.Bootloader, Is.EqualTo(expectedParameters.Versions.Bootloader));
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T101_ModulesReadIdentificationMaintenanceAsync_IM0_Actual()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm0ResponseActualResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)0, "actual"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM0_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM0_Data() { ManufacturerId = 42, OrderNumber = "6ES7 518-3AT10-0AB0 ", SerialNumber = "10S C-521E1fFj24", SoftwareRevision = new ModuleVersion() { Type = 'V', Major = 4, Minor = 1, Patch = 0 }, ImSupported = 14, ImVersion = new ModulesIdentificationMaintenance_IM0_ImVersion() { Minor = 1, Major = 1 } };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM0_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result.Data.SoftwareRevision, Is.EqualTo(expected.Data.SoftwareRevision));
+                Assert.That(casted.Result.Data.ImVersion, Is.EqualTo(expected.Data.ImVersion));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+
+        [Test]
+        public async Task T102_ModulesReadIdentificationMaintenanceAsync_IM1_Actual()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm1ResponseActualResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)1, "actual"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM1_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM1_Data() { PlantDesignation = "CPU1518                         ", LocationIdentifier = "                      " };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM1_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T103_ModulesReadIdentificationMaintenanceAsync_IM2_Actual()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm2ResponseActualResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)2, "actual"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM2_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM2_Data() { InstallationDate = DateTime.Parse("2025-10-10 07:31") };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM2_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T104_ModulesReadIdentificationMaintenanceAsync_IM3_Actual()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm3ResponseActualResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)3, "actual"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM3_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM3_Data() { AdditionalInformation = "ThisIsAnAwesomeTestProjectName                           " };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM3_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T105_ModulesReadIdentificationMaintenanceAsync_IM0_Configured()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm0ResponseConfiguredResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)0, "configured"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM0_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM0_Data() { ManufacturerId = 42, OrderNumber = "6ES7 518-3AT10-0AB0 ", SerialNumber = "                ", SoftwareRevision = new ModuleVersion() { Type = 'V', Major = 4, Minor = 1, Patch = 0 }, ImSupported = 0, ImVersion = new ModulesIdentificationMaintenance_IM0_ImVersion() { Minor = 0, Major = 0 } };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM0_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result.Data.SoftwareRevision, Is.EqualTo(expected.Data.SoftwareRevision));
+                Assert.That(casted.Result.Data.ImVersion, Is.EqualTo(expected.Data.ImVersion));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+
+        [Test]
+        public async Task T106_ModulesReadIdentificationMaintenanceAsync_IM1_Configured()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm1ResponseConfiguredResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)1, "configured"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM1_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM1_Data() { PlantDesignation = "CPU1518                         ", LocationIdentifier = "                      " };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM1_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T107_ModulesReadIdentificationMaintenanceAsync_IM2_Configured()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm2ResponseConfiguredResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)2, "configured"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM2_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM2_Data() { InstallationDate = DateTime.Parse("2025-10-10 07:31") };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM2_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T108_01_ModulesReadIdentificationMaintenanceAsync_IM3_Configured()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm3ResponseConfiguredResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, (uint)3, "configured"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM3_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM3_Data() { AdditionalInformation = "ThisIsAnAwesomeTestProjectName                           " };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM3_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T108_02_ModulesReadIdentificationMaintenanceAsync_IM3_Configured()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadIdentificationMaintenanceIm3ResponseConfiguredResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var response = (await TestHandler.ModulesReadIdentificationMaintenanceAsync(49, ModulesReadIdentificationMaintenanceNumber.Im3, "configured"));
+            var casted = response as ModulesIMxResponse<ModulesIdentificationMaintenance_IM3_Data>;
+            Assert.That(casted, Is.Not.Null);
+            Assert.That(casted.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expectedData = new ModulesIdentificationMaintenance_IM3_Data() { AdditionalInformation = "ThisIsAnAwesomeTestProjectName                           " };
+                var expected = new ModulesIMxResult<ModulesIdentificationMaintenance_IM3_Data>() { Data = expectedData };
+                Assert.That(casted.Result.Data, Is.EqualTo(expected.Data));
+                Assert.That(casted.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T109_ModulesReadStatus_en()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadStatusResponse_EN); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            ModulesStatusResponse response = (await TestHandler.ModulesReadStatusAsync(49, new CultureInfo("en-us")));
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expected = new ModulesStatus() { Status = new ModulesStatusDetails() { Own = ApiModulesNodeState.Good, Subordinate = ApiModulesNodeState.Good }, Language = new CultureInfo("en-US") };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T110_ModulesReadStatus_de()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadStatusResponse_DE); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            ModulesStatusResponse response = (await TestHandler.ModulesReadStatusAsync(49, new CultureInfo("de-de")));
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expected = new ModulesStatus() { Status = new ModulesStatusDetails() { Own = ApiModulesNodeState.Good, Subordinate = ApiModulesNodeState.Good }, Language = new CultureInfo("de-de") };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T110_ModulesReadStatus_invalidLanguage()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.ModulesReadStatusResponse_InvalidCulture); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            ModulesStatusResponse response = (await TestHandler.ModulesReadStatusAsync(49));
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expected = new ModulesStatus() { Status = new ModulesStatusDetails() { Own = ApiModulesNodeState.Good, Subordinate = ApiModulesNodeState.Good } };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        [Test]
+        public async Task T111_PlcReadLoadMemoryInformationResponse()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+                .Respond("application/json", ResponseStrings.PlcReadLoadMemoryInformationResponse); // Respond with JSON
+            // Inject the handler or client into your application code
+            var client = new HttpClient(mockHttp);
+            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            PlcLoadMemoryInformationResponse response = (await TestHandler.PlcReadLoadMemoryInformationAsync());
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                var expected = new PlcLoadMemoryInformation() { LoadMemory = new PlcLoadMemory() { Aging = new PlcLoadMemoryAging() { }, FreeBytes = 22499328, TotalBytes = 25176064 } };
+                Assert.That(response.Result, Is.EqualTo(expected));
+            });
+        }
+
+        //
     }
 }

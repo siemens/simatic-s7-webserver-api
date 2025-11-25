@@ -4,10 +4,11 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<TargetFrameworks>net48;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 		<AssemblyName>Webserver.API.UnitTests</AssemblyName>
 		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
+		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">

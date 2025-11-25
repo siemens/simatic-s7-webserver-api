@@ -1,6 +1,6 @@
 ![1518F](./docs/screens/1518F.png)
 # WebserverApi Client Library for .NET
-This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
+This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0, 10.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
 
 * Package name: **Siemens.Simatic.S7.Webserver.API**
 
@@ -22,16 +22,16 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0 and .NET Standard
   - [WebApps](#webapps)
     - [AsyncWebAppDeployer, WebAppConfigParser](#asyncwebappdeployer-webappconfigparser)
   - [PlcProgram Browse Read and Write](#plcprogram-browse-read-and-write)
-  - [ApiBulk - PlcProgram](#apibulk---plcprogram)
+  - [Modules](#modules)
+    - [ModulesBrowser](#modulesbrowser)
+    - [Modules.ReadIdentificationMaintenance](#modulesreadidentificationmaintenance)
 - [Compatibility](#compatibility)
   - [SIMATIC S7-1500:](#simatic-s7-1500)
-  - [SIMATIC S7-1200:](#simatic-s7-1200)
 - [Limitations](#limitations)
 - [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S7-1500:](#simatic-s7-1500-1)
-  - [SIMATIC S7-1200 G2:](#simatic-s7-1200-g2)
-  - [SIMATIC S7-1200:](#simatic-s7-1200-1)
+  - [SIMATIC S7-1200:](#simatic-s7-1200)
 
 # [License](LICENSE.md)
 
@@ -62,6 +62,8 @@ So generally all available methods of the S7 Web API can be called easily withou
     * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory (todo: download + deltadownload)
 * Backups
     * ApiBackupHandler: Download/Restore a backup
+* Modules
+    * ModulesBrowser: Get all available modules.
 
 ## Functionality
 The Functionalities come together in the [ApiHttpClientRequestHandler](#apihttpclientrequesthandler) that implements the IAsyncApiRequesthandler (and also in any implementation of the IApiRequestHandler - not given by example). 
@@ -236,69 +238,43 @@ myBool.Value = (await requestHandler.PlcProgramReadAsync<bool>(myBool)).Result;
 Console.WriteLine(myBool.Value);
 ```
 
-## ApiBulk - PlcProgram
-Just as an example to how a Bulk Request can be built up and used here you can see how supported datatypes within a datablock (structs need further handling - for simplification this example just focuses on the datatypes directly within the DB that can be read) are all read and later written back with just their values.
+## Modules
+The Modules.* methods of the plc provide access to various data.
+### ModulesBrowser
+The ModulesBrowser can retrieve all stations available at the plc:
 ```cs
-...
-using System.Collections.Generic;
-using Siemens.Simatic.S7.Webserver.API.Enums;
-using Siemens.Simatic.S7.Webserver.API.Models;
-using Siemens.Simatic.S7.Webserver.API.Models.Requests;
-using Siemens.Simatic.S7.Webserver.API.Models.Responses;
-using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
-...
-var browseHandler = ServiceFactory.GetPlcProgramHandler(TestHandler);
-var allDBs = (await TestHandler.PlcProgramBrowseAsync(ApiPlcProgramBrowseMode.Children)).Result;
-var wantedDB = allDBs.FirstOrDefault(el => el.Name == "<Enter_Your_DB_Name>");
-var subElements = (await browseHandler.PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, wantedDB)).Result;
-var requestFactory = ServiceFactory.GetApiRequestFactory();
-var requests = new List<IApiRequest>();
-foreach (var subelement in subElements)
-{
-    if (subelement.Datatype.IsSupportedByPlcProgramReadOrWrite())
-    { 
-        var readRequest = requestFactory.GetApiPlcProgramReadRequest(subelement.GetVarNameForMethods(), ApiPlcDataRepresentation.Simple);
-        requests.Add(readRequest);
-    }
-}
-var bulkResponse = await TestHandler.ApiBulkAsync(requests);
-Assert.That(bulkResponse.ErrorResponses.Count() == 0, "There were errors in the Bulk Read Response!");
-var bulkWriteRequests = new List<IApiRequest>();
-foreach (var successResponse in bulkResponse.SuccessfulResponses)
-{
-    var castedReadResponse = successResponse as ApiResultResponse<object>;
-    var accordingRequest = requests.FirstOrDefault(el => el?.Id == castedReadResponse?.Id);
-    if(castedReadResponse != null && accordingRequest != null)
-    {
-        var writeRequest = requestFactory.GetApiPlcProgramWriteRequest(accordingRequest.Params["var"].ToString(), castedReadResponse.Result, ApiPlcDataRepresentation.Simple);
-        bulkWriteRequests.Add(writeRequest);
-    }
-}
-var bulkWriteResponse = await TestHandler.ApiBulkAsync(bulkWriteRequests);
-Assert.That(bulkWriteResponse.ErrorResponses.Count() == 0, "There were errors in the Bulk Write Response!");
+var browser = new ModulesBrowser(requestHandler, Logger);
+var browseResult = await browser.BrowseAllModulesAsync();
 ```
+### Modules.ReadIdentificationMaintenance
+Modules.ReadIdentificationMaintenance can be used in the library via 2 ways:
+1. By passing generic types (for those (as long as you use the ones from the library) no 'number' parameter is needed):
+```cs
+var hwIds = await requestHandler.ModulesBrowseAsync(mode: ModulesBrowseMode.Children);
+var resp = await requestHandler.ModulesReadIdentificationMaintenanceAsync<ModulesIdentificationMaintenance_IM0_Data>(hwIds.Result.Nodes.FirstOrDefault().Children.First().Hwid, ModulesReadIdentificationMaintenanceType.Actual);
+```
+2. By passing the number and receiving an 'object'
+```cs
+var hwIds = await requestHandler.ModulesBrowseAsync(mode: ModulesBrowseMode.Children);
+var resp = await requestHandler.ModulesReadIdentificationMaintenanceAsync(hwIds.Result.Nodes.FirstOrDefault().Children.First().Hwid, ModulesReadIdentificationMaintenanceNumber.Im0, ModulesReadIdentificationMaintenanceType.Actual);
+```
+
 
 # Compatibility
 
 Use the following table to find the correct client version for each Plc version (server)
 
 ## SIMATIC S7-1500:
-Plc Version | Client Library Version
-------------------|---------------
-2.9.x              | 1.0.x
-2.9.x              | 2.0.x
-3.0.x              | 2.1.x
-3.1.x              | 2.2.x
-4.0.x              | 3.0.x
+Plc Version (S7-1500 + RH) | Client Library Version | S7-1200 G2 | S7-1200
+---------------------------|------------------------|------------|---------------
+2.9.x                      | 1.0.x                  |            | 4.5.x
+2.9.x                      | 2.0.x                  |            | 4.5.x
+3.0.x                      | 2.1.x                  |            | 4.6.x
+3.1.x                      | 2.2.x                  |            | 4.7.x
+4.0.x                      | 3.0.x                  | 1.0.x      | 
+4.1.x                      | 3.3.x                  | 4.1.x      | 
 
-## SIMATIC S7-1200:
-Plc Version | Client Library Version
-------------------|---------------
-4.5.x             | 1.0.x
-4.5.x             | 2.0.x
-4.6.x             | 2.1.x
-
-**Hint**: This Library supports more API calls than the current S7-1200 does - the S7-1200 will likely(!) support the API calls of last version of the s7-1500 but this does NOT necessarily have to be the case - for details please always check the manual for the according version.
+**Hint**: This Library supports more API calls than the current S7-1200 (G2) does - the S7-1200 (G2) will likely(!) support the API calls of last version of the s7-1500 but this does NOT necessarily have to be the case - for details please always check the manual for the according version.
 
 # Limitations
 
@@ -327,10 +303,10 @@ See Also:
 - SIMATIC S7-1500 Webserver Manual: https://support.industry.siemens.com/cs/us/en/view/59193560
 - SIMATIC S7-1500 Manual Collection: https://support.industry.siemens.com/cs/us/en/view/86140384
 
-
 ## SIMATIC S7-1200 G2:
 - SIMATIC S7-1200 G2 Manual: https://support.industry.siemens.com/cs/de/de/view/109972011
-
+- 
 ## SIMATIC S7-1200:
+- SIMATIC S7-1200: https://new.siemens.com/global/en/products/automation/systems/industrial/plc/s7-1200.html
 - SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/ch/en/view/109797241
 - SIMATIC S7-1200 Manual: https://support.industry.siemens.com/cs/us/en/view/91696622/45063671307

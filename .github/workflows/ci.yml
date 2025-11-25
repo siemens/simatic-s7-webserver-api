@@ -102,8 +102,8 @@ jobs:
             dotnet-sdk: 9.0.x
           - dotnet-tfm: net9.0
             dotnet-sdk: 9.0.x
-          #- dotnet-tfm: net10.0
-          #  dotnet-sdk: 10.0.x
+          - dotnet-tfm: net10.0
+            dotnet-sdk: 10.0.x
 
     steps:
       - name: Checkout sources

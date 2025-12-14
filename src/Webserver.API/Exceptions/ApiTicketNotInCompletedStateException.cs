@@ -21,7 +21,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
                 $"further ticket Information:{Environment.NewLine}" +
                 $"ticket Provider: {ticket.Provider.ToString() + Environment.NewLine}" +
                 $"date created: {ticket.Date_created}" +
-                ((ticket.Data != null && ticket.Data.ToString() != "{}") ? $"ticket data: {ticket.Data.ToString()}" : ""))
+                ((ticket.Data != null && ticket.Data != "{}") ? $"ticket data: {ticket.Data}" : ""))
         { }
     }
 }

@@ -23,28 +23,28 @@ namespace Webserver.API.UnitTests
             ApiWebAppResource resource = null;
             if (resource == null)
             {
-                ;
+                // Expected case: resource is null - no action needed.
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null altough its null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null although its null!");
             }
             if (resource != null)
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null altough its null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null although its null!");
             }
             resource = new ApiWebAppResource();
             if (resource.Equals(null))
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null altough its not null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null although its not null!");
             }
             if (!resource.Equals(null))
             {
-                ;
+                // Expected case: resource is null - no action needed.
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null altough its not null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null although its not null!");
             }
             var resource2 = new ApiWebAppResource();
             Assert.That(resource.Equals(resource2));
@@ -71,16 +71,16 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource not null altough its null!");
+                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource not null although its null!");
             }
             if (app != null)
             {
-                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource not null altough its null!");
+                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource not null although its null!");
             }
             app = new ApiWebAppData();
             if (app.Equals(null))
             {
-                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource null altough its not null!");
+                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource null although its not null!");
             }
             if (!app.Equals(null))
             {
@@ -88,7 +88,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource null altough its not null!");
+                Assert.Fail("WebAppNullEqualAndSequenceEqual - resource null although its not null!");
             }
             var app2 = new ApiWebAppData();
             Assert.That(app.Equals(app2));
@@ -147,16 +147,16 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("S5TimeNullEqualAndSequenceEqual - s5Time not null altough its null!");
+                Assert.Fail("S5TimeNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             if (s5Time != null)
             {
-                Assert.Fail("S5TimeNullEqualAndSequenceEqual - s5Time not null altough its null!");
+                Assert.Fail("S5TimeNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             s5Time = new ApiS5Time(10, 1);
             if (s5Time.Equals(null))
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null altough its null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             if (!s5Time.Equals(null))
             {
@@ -164,7 +164,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null altough its null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             var s5Time2 = new ApiS5Time(10, 1);
             Assert.That(s5Time.Equals(s5Time2));
@@ -260,17 +260,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("apiDateAndTime - apiDateAndTime not null altough its null!");
+                Assert.Fail("apiDateAndTime - apiDateAndTime not null although its null!");
             }
 
             if (apiDateAndTime != null)
             {
-                Assert.Fail("apiDateAndTime - apiDateAndTime not null altough its null!");
+                Assert.Fail("apiDateAndTime - apiDateAndTime not null although its null!");
             }
             apiDateAndTime = new ApiDateAndTime();
             if (apiDateAndTime.Equals(null))
             {
-                Assert.Fail("apiDateAndTime - apiDateAndTime not null altough its null!");
+                Assert.Fail("apiDateAndTime - apiDateAndTime not null although its null!");
             }
             if (!apiDateAndTime.Equals(null))
             {
@@ -278,7 +278,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - apiDateAndTime not null altough its null!");
+                Assert.Fail("ResourcNullEqualAndSequenceEqual - apiDateAndTime not null although its null!");
             }
         }
 
@@ -426,17 +426,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiClass)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiClass)} not null although its null!");
             }
 
             if (apiClass != null)
             {
-                Assert.Fail($"{nameof(ApiClass)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiClass)} not null although its null!");
             }
             apiClass = new ApiClass();
             if (apiClass.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiClass)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiClass)} not null although its null!");
             }
             if (!apiClass.Equals(null))
             {
@@ -444,7 +444,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiClass)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiClass)} not null although its null!");
             }
 
             var apiClass2 = new ApiClass();
@@ -472,17 +472,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiError)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiError)} not null although its null!");
             }
 
             if (apiError != null)
             {
-                Assert.Fail($"{nameof(ApiError)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiError)} not null although its null!");
             }
             apiError = new ApiError();
             if (apiError.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiError)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiError)} not null although its null!");
             }
             if (!apiError.Equals(null))
             {
@@ -490,7 +490,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiError)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiError)} not null although its null!");
             }
 
             var apiError2 = new ApiError();
@@ -518,17 +518,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiPlcProgramData)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramData)} not null although its null!");
             }
 
             if (apiPlcProgramData != null)
             {
-                Assert.Fail($"{nameof(ApiPlcProgramData)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramData)} not null although its null!");
             }
             apiPlcProgramData = new ApiPlcProgramData();
             if (apiPlcProgramData.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiPlcProgramData)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramData)} not null although its null!");
             }
             if (!apiPlcProgramData.Equals(null))
             {
@@ -536,7 +536,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiPlcProgramData)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramData)} not null although its null!");
             }
 
             var apiPlcProgramData2 = new ApiPlcProgramData();
@@ -564,17 +564,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null although its null!");
             }
 
             if (apiPlcProgramDataArrayIndexer != null)
             {
-                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null although its null!");
             }
             apiPlcProgramDataArrayIndexer = new ApiPlcProgramDataArrayIndexer();
             if (apiPlcProgramDataArrayIndexer.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null although its null!");
             }
             if (!apiPlcProgramDataArrayIndexer.Equals(null))
             {
@@ -582,7 +582,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiPlcProgramDataArrayIndexer)} not null although its null!");
             }
 
             var apiPlcProgramDataArrayIndexer2 = new ApiPlcProgramDataArrayIndexer();
@@ -610,17 +610,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiTicket)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiTicket)} not null although its null!");
             }
 
             if (apiTicket != null)
             {
-                Assert.Fail($"{nameof(ApiTicket)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiTicket)} not null although its null!");
             }
             apiTicket = new ApiTicket();
             if (apiTicket.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiTicket)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiTicket)} not null although its null!");
             }
             if (!apiTicket.Equals(null))
             {
@@ -628,7 +628,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiTicket)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiTicket)} not null although its null!");
             }
             var ticket2 = new ApiTicket();
             Assert.That(apiTicket.Equals(ticket2));
@@ -655,17 +655,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null although its null!");
             }
 
             if (apiWebAppDataSaveSetting != null)
             {
-                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null although its null!");
             }
             apiWebAppDataSaveSetting = new ApiWebAppDataSaveSetting();
             if (apiWebAppDataSaveSetting.Equals(null))
             {
-                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null although its null!");
             }
             if (!apiWebAppDataSaveSetting.Equals(null))
             {
@@ -673,7 +673,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null altough its null!");
+                Assert.Fail($"{nameof(ApiWebAppDataSaveSetting)} not null although its null!");
             }
         }
 
@@ -687,17 +687,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null although its null!");
             }
 
             if (httpClientAndWebAppCookie != null)
             {
-                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null although its null!");
             }
             httpClientAndWebAppCookie = new HttpClientAndWebAppCookie(null, null);
             if (httpClientAndWebAppCookie.Equals(null))
             {
-                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null although its null!");
             }
             if (!httpClientAndWebAppCookie.Equals(null))
             {
@@ -705,7 +705,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientAndWebAppCookie)} not null although its null!");
             }
             var httpClientAndWebAppCookie2 = new HttpClientAndWebAppCookie(null, null);
             Assert.That(httpClientAndWebAppCookie2.Equals(httpClientAndWebAppCookie));
@@ -732,17 +732,17 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null although its null!");
             }
 
             if (httpClientConnectionConfiguration != null)
             {
-                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null although its null!");
             }
             httpClientConnectionConfiguration = new HttpClientConnectionConfiguration(null, null, null, TimeSpan.Zero, false, false, false);
             if (httpClientConnectionConfiguration.Equals(null))
             {
-                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null although its null!");
             }
             if (!httpClientConnectionConfiguration.Equals(null))
             {
@@ -750,7 +750,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null altough its null!");
+                Assert.Fail($"{nameof(HttpClientConnectionConfiguration)} not null although its null!");
             }
             var httpClientConnectionConfiguration2 = new HttpClientConnectionConfiguration(null, null, null, TimeSpan.Zero, false, false, false);
             Assert.That(httpClientConnectionConfiguration2.Equals(httpClientConnectionConfiguration));
@@ -878,12 +878,12 @@ namespace Webserver.API.UnitTests
             ApiPlcSyslog not_equal1 = new ApiPlcSyslog() { Count_Lost = 4, Count_Total = 100, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal2 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 101, Entries = apiSyslog_Entries };
             ApiPlcSyslog not_equal3 = new ApiPlcSyslog() { Count_Lost = 5, Count_Total = 100, Entries = apiSyslog_Entries_other };
-            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), "GetHashcode was not equal altough it should be");
-            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), "GetHashcode was not equal altough it should be");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), "GetHashcode was not equal although it should be");
+            Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), "GetHashcode was not equal although it should be");
 
-            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal altough it should not be");
-            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal2.GetHashCode()), "GetHashcode was equal altough it should not be");
-            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal3.GetHashCode()), "GetHashcode was equal altough it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal although it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal2.GetHashCode()), "GetHashcode was equal although it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal3.GetHashCode()), "GetHashcode was equal although it should not be");
         }
         [Test]
         public void ApiSyslog_Entry_HashCodeCheck()
@@ -894,7 +894,7 @@ namespace Webserver.API.UnitTests
             Assert.That(equal1.GetHashCode(), Is.EqualTo(equal1.GetHashCode()), $"equal1.GetHashCode() not equal equal1.GetHashCode()");
             Assert.That(equal1.GetHashCode(), Is.EqualTo(equal2.GetHashCode()), $"equal1.GetHashCode() not equal equal2.GetHashCode()");
 
-            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal altough it should not be");
+            Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal1.GetHashCode()), "GetHashcode was equal although it should not be");
         }
 
         [Test]
@@ -906,7 +906,7 @@ namespace Webserver.API.UnitTests
             Assert.That(equal1.Equals(equal2), $"{equal1} not equal\n{equal2}");
             Assert.That(equal2.Equals(equal1), $"{equal2} not equal\n{equal1}");
 
-            Assert.That(equal1, Is.Not.EqualTo(not_equal), "was equal altough it should not be");
+            Assert.That(equal1, Is.Not.EqualTo(not_equal), "was equal although it should not be");
         }
 
         [Test]

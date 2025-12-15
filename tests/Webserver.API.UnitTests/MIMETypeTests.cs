@@ -12,26 +12,21 @@ namespace Webserver.API.UnitTests
         public void GetMIMEType_Defaults_ApplicationOctetStream()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping("");
-            if (res != "application/octet-stream")
-            {
-                Assert.Fail();
-            }
+            Assert.That(res, Is.EqualTo("application/octet-stream"));
         }
 
         [Test]
         public void GetMIMEType_HTML_textHtml()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping(".html");
-            if (res != "text/html")
-            {
-                Assert.Fail();
-            }
+            Assert.That(res, Is.EqualTo("text/html"));
         }
 
         [Test]
         public void GetFileExtension_DefaultsTo_Txt()
         {
             var res = MimeMapping.MimeUtility.GetExtensions("text/plain");
+            Assert.That(res, Contains.Item("txt"));
             if (!res.Any(ext => ext == "txt"))
             {
                 Assert.Fail();
@@ -43,6 +38,7 @@ namespace Webserver.API.UnitTests
         {
             var res = MimeMapping.MimeUtility.GetExtensions("text/html");
             // CARE - getfileext will take the first match it will find - cannot determine what the original file was!
+            Assert.That(res, Contains.Item("htm"));
             if (!res.Any(ext => ext == "htm"))
             {
                 Assert.Fail();
@@ -54,14 +50,13 @@ namespace Webserver.API.UnitTests
         public void MicrosoftMimeMapping()
         {
             var res = MimeMapping.MimeUtility.GetMimeMapping(".html");
-            if (res != "text/html")
-            {
-                Assert.Fail();
-            }
-            //MimeMapping.GetMimeMapping("");
+            Assert.That(res, Is.EqualTo("text/html"));
             res = MimeMapping.MimeUtility.GetMimeMapping("asdf.html");
+            Assert.That(res, Is.EqualTo("text/html"));
             res = MimeMapping.MimeUtility.GetMimeMapping(".html");
+            Assert.That(res, Is.EqualTo("text/html"));
             res = MimeMapping.MimeUtility.GetMimeMapping("");
+            Assert.That(res, Is.EqualTo("application/octet-stream"));
         }
 
     }

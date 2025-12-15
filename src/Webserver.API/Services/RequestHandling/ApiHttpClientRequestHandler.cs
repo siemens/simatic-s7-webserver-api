@@ -2934,7 +2934,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             var req = _apiRequestFactory.GetApiLoginRequest(userName, password, includeWebApplicationCookie, mode);
             string response = await SendPostRequestAsync(req, cancellationToken);
-            var responseObj = new ApiLoginResponse();
+            ApiLoginResponse responseObj;
             responseObj = JsonConvert.DeserializeObject<ApiLoginResponse>(response);
             if (!string.IsNullOrEmpty(responseObj.Result.Token))
             {
@@ -4044,7 +4044,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ModulesIMxResponse</returns>
         public async Task<ModulesIMxResponse<T>> ModulesReadIdentificationMaintenanceAsync<T>(uint hwid, string type, CancellationToken cancellationToken = default) where T : class
         {
-            var number = uint.MaxValue;
+            uint number = uint.MaxValue;
             var typeString = typeof(T).Name;
             switch (typeString)
             {

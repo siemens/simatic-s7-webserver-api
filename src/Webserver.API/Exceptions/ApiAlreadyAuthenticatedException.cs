@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiAlreadyAuthenticatedException : Exception
     {
-        private static string message = "The given X-Auth-Token is already authenticated. Use Api.Logout before logging in again";
+        private static readonly string message = "The given X-Auth-Token is already authenticated. Use Api.Logout before logging in again";
         /// <summary>
         /// "The given X-Auth-Token is already authenticated. Use Api.Logout before logging in again"
         /// </summary>

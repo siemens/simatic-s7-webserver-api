@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiMemoryCardWriteProtectedException : Exception
     {
-        private static string message = "The memory card is write-protected";
+        private static readonly string message = "The memory card is write-protected";
         /// <summary>
         /// The memory card is write-protected
         /// </summary>

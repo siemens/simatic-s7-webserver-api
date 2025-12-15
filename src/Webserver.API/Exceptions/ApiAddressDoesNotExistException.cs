@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiAddresDoesNotExistException : Exception
     {
-        private static string message = "The requested address does not exist or the webserver cannot access the requested address.";
+        private static readonly string message = "The requested address does not exist or the webserver cannot access the requested address.";
         /// <summary>
         /// The requested address does not exist or the webserver cannot access the requested address.
         /// </summary>

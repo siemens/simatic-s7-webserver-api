@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiResourceLimitReachedException : Exception
     {
-        private static string message = "The maximum amount of resources has been reached for this application. Delete some resources before calling this method again.";
+        private static readonly string message = "The maximum amount of resources has been reached for this application. Delete some resources before calling this method again.";
         /// <summary>
         /// The maximum amount of resources has been reached for this application. Delete some resources before calling this method again.
         /// </summary>

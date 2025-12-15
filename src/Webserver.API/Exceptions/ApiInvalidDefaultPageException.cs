@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidDefaultPageException : Exception
     {
-        private static string message = "The given default page is invalid cannot be set";
+        private static readonly string message = "The given default page is invalid cannot be set";
         /// <summary>
         /// The given default page is invalid cannot be set
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiRestoreNotPossibleException : Exception
     {
-        private static string message = "A backup restoration is not possible.";
+        private static readonly string message = "A backup restoration is not possible.";
         /// <summary>
         /// A backup restoration is not possible
         /// </summary>

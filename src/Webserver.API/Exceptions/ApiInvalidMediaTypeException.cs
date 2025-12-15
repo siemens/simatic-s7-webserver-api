@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidMediaTypeException : Exception
     {
-        private static string message = "The proposed media type is inalid. Adjust the proposed media type before calling this method again.";
+        private static readonly string message = "The proposed media type is inalid. Adjust the proposed media type before calling this method again.";
         /// <summary>
         /// The proposed media type is inalid. Adjust the proposed media type before calling this method again.
         /// </summary>

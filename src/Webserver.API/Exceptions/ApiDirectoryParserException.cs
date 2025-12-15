@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiDirectoryParserException : Exception
     {
-        private static string message = "The Configuration of the given file is invalid.";
+        private static readonly string message = "The Configuration of the given file is invalid.";
         /// <summary>
         /// The Configuration of the given file is invalid.
         /// </summary>

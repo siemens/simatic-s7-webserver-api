@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityInUseException : Exception
     {
-        private static string message = "The requested entity is already in use.";
+        private static readonly string message = "The requested entity is already in use.";
         /// <summary>
         /// The requested entity is already in use.
         /// </summary>

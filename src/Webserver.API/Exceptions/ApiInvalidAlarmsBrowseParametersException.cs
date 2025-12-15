@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidAlarmsBrowseParametersException : Exception
     {
-        private static string message = "The request is invalid. The user provided invalid parameters, e. g. alarm ID and count are present at the same time.";
+        private static readonly string message = "The request is invalid. The user provided invalid parameters, e. g. alarm ID and count are present at the same time.";
         /// <summary>
         /// The request is invalid. The user provided invalid parameters, e. g. alarm ID and count are present at the same time.
         /// </summary>

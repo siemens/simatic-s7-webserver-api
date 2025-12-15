@@ -15,7 +15,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNoResourcesException : Exception
     {
-        private static string message = $"The system does not have the necessary resources to execute the Web API request. " +
+        private static readonly string message = $"The system does not have the necessary resources to execute the Web API request. " +
             $"{Environment.NewLine}Execute the request again as soon as sufficient resources are available again. Some examples: you have{Environment.NewLine}" +
             $" -reached the limit for logins (depending on plc)=> wait 150 seconds and call the method (login) again.{Environment.NewLine}" +
             $" -reached the limit for tickets for one user session or still a ticket for e.g. a download that is not closed yet. " +

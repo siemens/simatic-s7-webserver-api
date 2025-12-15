@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiIMdataNotSupportedException : Exception
     {
-        private static string message = "Reading of I and M data is not supported for the requested hardware identifier";
+        private static readonly string message = "Reading of I and M data is not supported for the requested hardware identifier";
         /// <summary>
         /// Reading of I and M data is not supported for the requested hardware identifier
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiRestoreInProgressException : Exception
     {
-        private static string message = "A backup restoration is currently in progress.";
+        private static readonly string message = "A backup restoration is currently in progress.";
         /// <summary>
         /// A backup restoration is currently in progress
         /// </summary>

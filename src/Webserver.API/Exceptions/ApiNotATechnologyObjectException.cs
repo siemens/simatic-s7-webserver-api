@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNotATechnologyObjectException : Exception
     {
-        private static string message = "The accessed variable is not a variable of a technology object and cannot be read.";
+        private static readonly string message = "The accessed variable is not a variable of a technology object and cannot be read.";
         /// <summary>
         /// The accessed variable is not a variable of a technology object and cannot be read.
         /// </summary>

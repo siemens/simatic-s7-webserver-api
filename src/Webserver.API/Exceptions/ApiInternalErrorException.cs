@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInternalErrorException : Exception
     {
-        private static string message = "Upon trying to execute the requested operation an internal error occured.";
+        private static readonly string message = "Upon trying to execute the requested operation an internal error occured.";
         /// <summary>
         /// Upon trying to execute the requested operation an internal error occured.
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidApplicationNameException : Exception
     {
-        private static string message = $"The given application name is invalid.Set a name that is applying to the naming conventions for an application name from the manual.{Environment.NewLine}";
+        private static readonly string message = $"The given application name is invalid.Set a name that is applying to the naming conventions for an application name from the manual.{Environment.NewLine}";
         /// <summary>
         /// The given application name is invalid. Set a name that is applying to the naming conventions for an application name from the manual.
         /// </summary>

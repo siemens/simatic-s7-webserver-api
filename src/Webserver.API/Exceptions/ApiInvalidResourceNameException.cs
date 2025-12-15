@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidResourceNameException : Exception
     {
-        private static string message = $"The given resource name is invalid. Correct the resource name according to the manuals naming convention " +
+        private static readonly string message = $"The given resource name is invalid. Correct the resource name according to the manuals naming convention " +
             $"before calling this method again.";
         /// <summary>
         /// The given resource name is invalid. Correct the resource name according to the manuals naming convention before calling this method again.

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiApplicationDoesNotExistException : Exception
     {
-        private static string message = "There is no existing application with the given name. Create an application with the given name before calling this method.";
+        private static readonly string message = "There is no existing application with the given name. Create an application with the given name before calling this method.";
         /// <summary>
         /// There is no existing application with the given name. Create an application with the given name before calling this method.
         /// </summary>

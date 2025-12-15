@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiRequestBiggerThanMaxMessageSizeException : Exception
     {
-        private static string message = "The Api Request is bigger than the Max Message Size. The request cannot be sent to the server.";
+        private static readonly string message = "The Api Request is bigger than the Max Message Size. The request cannot be sent to the server.";
         /// <summary>
         /// The Api Request is bigger than the Max Message Size. The request cannot be sent to the server.
         /// </summary>

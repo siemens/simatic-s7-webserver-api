@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNewPasswordMatchesOldPasswordException : Exception
     {
-        private static string message = "The provided new password is identical with the former password.";
+        private static readonly string message = "The provided new password is identical with the former password.";
         /// <summary>
         /// The provided new password is identical with the former password.
         /// </summary>

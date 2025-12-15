@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiParseErrorException : Exception
     {
-        private static string message = "The given request could not be parsed successfully";
+        private static readonly string message = "The given request could not be parsed successfully";
         /// <summary>
         /// The given request could not be parsed successfully
         /// </summary>

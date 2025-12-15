@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiPathTooDeepException : Exception
     {
-        private static string message = "The given path is too deep";
+        private static readonly string message = "The given path is too deep";
         /// <summary>
         /// The given path is too deep
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiPasswordExpiredException : Exception
     {
-        private static string message = "The password of the user account has expired. The user needs to change the password to successfully authenticate again.";
+        private static readonly string message = "The password of the user account has expired. The user needs to change the password to successfully authenticate again.";
         /// <summary>
         /// The password of the user account has expired. The user needs to change the password to successfully authenticate again.
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiMoveNotLegalException : Exception
     {
-        private static string message = "Moving of the given entity is not allowed";
+        private static readonly string message = "Moving of the given entity is not allowed";
         /// <summary>
         /// Moving of the given entity is not allowed
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiApplicationAlreadyExistsException : Exception
     {
-        private static string message = "An application with the given name already exists.";
+        private static readonly string message = "An application with the given name already exists.";
         /// <summary>
         /// An application with the given name already exists.
         /// </summary>

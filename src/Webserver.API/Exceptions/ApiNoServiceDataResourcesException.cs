@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNoServiceDataResourcesException : Exception
     {
-        private static string message = "Only one simultaneous ticket resource for service data across all users is possible at a time.";
+        private static readonly string message = "Only one simultaneous ticket resource for service data across all users is possible at a time.";
         /// <summary>
         /// Only one simultaneous ticket resource for service data across all users is possible at a time
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidTimeRuleException : Exception
     {
-        private static string message = "The provided rule is invalid. Check the DaylightSavingsRule object. If the Rule object is present, both DST and STD is required.";
+        private static readonly string message = "The provided rule is invalid. Check the DaylightSavingsRule object. If the Rule object is present, both DST and STD is required.";
         /// <summary>
         /// The provided rule is invalid. Check the DaylightSavingsRule object. If the Rule object is present, both DST and STD is required.
         /// </summary>

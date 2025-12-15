@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiSystemIsBusyException : Exception
     {
-        private static string message = "The requested operation cannot be executet since the system is currently processing another request." +
+        private static readonly string message = "The requested operation cannot be executet since the system is currently processing another request." +
             " Send the request again once the currently processed request is completed";
         /// <summary>
         /// The requested operation cannot be executet since the system is currently processing another request. 

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiMotionFunctionalityActiveException : Exception
     {
-        private static string message = "The request cannot be performed while motion functionality is active";
+        private static readonly string message = "The request cannot be performed while motion functionality is active";
         /// <summary>
         /// The request cannot be performed while motion functionality is active
         /// </summary>

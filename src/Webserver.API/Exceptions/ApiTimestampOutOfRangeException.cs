@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiTimestampOutOfRangeException : Exception
     {
-        private static string message = "The timestamp is not within the allowed range";
+        private static readonly string message = "The timestamp is not within the allowed range";
         /// <summary>
         /// The timestamp is not within the allowed range
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiLegitimationFailedException : Exception
     {
-        private static string message = "Legitimation to continue the backup restoration failed";
+        private static readonly string message = "Legitimation to continue the backup restoration failed";
         /// <summary>
         /// Legitimation to continue the backup restoration failed
         /// </summary>

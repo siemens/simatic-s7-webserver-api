@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiPartnerNotAccessibleException : Exception
     {
-        private static string message = "The data of a PLC of an R/H system is not accessible. This may happen if the system is in state Syncup or RUN-redundant.";
+        private static readonly string message = "The data of a PLC of an R/H system is not accessible. This may happen if the system is in state Syncup or RUN-redundant.";
         /// <summary>
         /// The data of a PLC of an R/H system is not accessible. This may happen if the system is in state Syncup or RUN-redundant or if the service data of the partner PLC has been requested.
         /// </summary>

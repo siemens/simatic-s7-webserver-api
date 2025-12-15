@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidModificationTimeException : Exception
     {
-        private static string message = "The proposed modification time is inalid. Adjust the proposed modification before calling this method again.";
+        private static readonly string message = "The proposed modification time is inalid. Adjust the proposed modification before calling this method again.";
         /// <summary>
         /// The proposed modification time is inalid. Adjust the proposed modification before calling this method again.
         /// </summary>

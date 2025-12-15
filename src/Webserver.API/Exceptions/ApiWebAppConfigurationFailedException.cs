@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiWebAppConfigurationFailedException : Exception
     {
-        private static string message = "WebApp configuration failed!";
+        private static readonly string message = "WebApp configuration failed!";
         /// <summary>
         /// WebApp Configuration failed (by deployer)
         /// </summary>

@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiResourceVisibilityIsNotPublicException : Exception
     {
-        private static string message = "The requested resource is not marked as \"public\". You should either change the resource to be \"public\" or request another resource that is already marked as \"public\".";
+        private static readonly string message = "The requested resource is not marked as \"public\". You should either change the resource to be \"public\" or request another resource that is already marked as \"public\".";
         /// <summary>
         /// The requested resource is not marked as \"public\". 
         /// You should either change the resource to be \"public\" or request another resource that is already marked as \"public\".

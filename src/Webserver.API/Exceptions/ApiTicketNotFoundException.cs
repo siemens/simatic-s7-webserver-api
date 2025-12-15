@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiTicketNotFoundException : Exception
     {
-        private static string message = "the given Ticket-ID was not found in the user(-token)s list of tickets";
+        private static readonly string message = "the given Ticket-ID was not found in the user(-token)s list of tickets";
         /// <summary>
         /// the given Ticket-ID was not found in the user(-token)s list of tickets
         /// </summary>

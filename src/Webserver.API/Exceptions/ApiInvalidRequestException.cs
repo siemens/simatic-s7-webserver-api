@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidRequestException : Exception
     {
-        private static string message = "The method request was invalid";
+        private static readonly string message = "The method request was invalid";
         /// <summary>
         /// The method request was invalid
         /// </summary>

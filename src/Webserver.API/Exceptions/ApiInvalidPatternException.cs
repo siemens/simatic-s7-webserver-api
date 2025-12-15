@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidPatternException : Exception
     {
-        private static string message = "The provided pattern is not in the allowed list. Choose a pattern that is allowed to be configured.";
+        private static readonly string message = "The provided pattern is not in the allowed list. Choose a pattern that is allowed to be configured.";
         /// <summary>
         /// The provided pattern is not in the allowed list. Choose a pattern that is allowed to be configured.
         /// </summary>

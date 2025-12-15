@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidTicketIdValueException : Exception
     {
-        private static string message = "Api Tickets must have 28 bytes of data!";
+        private static readonly string message = "Api Tickets must have 28 bytes of data!";
         /// <summary>
         /// The given Ticket Id value does not match 28 Chars which is the only valid value for a ticket id
         /// </summary>

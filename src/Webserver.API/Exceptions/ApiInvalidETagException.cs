@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidETagException : Exception
     {
-        private static string message = "The proposed ETag-value is inalid. Adjust the proposed ETag-value before calling this method again.";
+        private static readonly string message = "The proposed ETag-value is inalid. Adjust the proposed ETag-value before calling this method again.";
         /// <summary>
         /// The proposed ETag-value is inalid. Adjust the proposed ETag-value before calling this method again.
         /// </summary>

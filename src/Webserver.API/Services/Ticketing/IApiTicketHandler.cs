@@ -16,13 +16,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
     public interface IApiTicketHandler
     {
         /// <summary>
-        /// Control wether or not to call BrowseTickets for the provided ticket and check for the state to be completed after 
+        /// Control whether or not to call BrowseTickets for the provided ticket and check for the state to be completed after 
         /// downloading data
         /// </summary>
         bool CheckAfterDownload { get; set; }
 
         /// <summary>
-        /// Control wether or not to call BrowseTickets for the provided ticket and check for the state to be completed after 
+        /// Control whether or not to call BrowseTickets for the provided ticket and check for the state to be completed after 
         /// uploading data
         /// </summary>
         bool CheckAfterUpload { get; set; }
@@ -76,7 +76,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
@@ -88,7 +88,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
@@ -99,7 +99,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
@@ -111,7 +111,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
@@ -122,7 +122,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
@@ -134,7 +134,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
@@ -145,7 +145,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
@@ -157,7 +157,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="filePath">Path for the file to be downloaded</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
         /// <exception cref="DirectoryNotFoundException">Given Download Directory does not exist</exception>
         /// <exception cref="Exception">File has no content</exception>
@@ -168,7 +168,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
@@ -223,7 +223,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
@@ -236,7 +236,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
@@ -250,7 +250,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
@@ -263,7 +263,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
@@ -277,7 +277,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticketId">ID of the ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
         /// <returns>The Ticket for that the Download has been performed</returns>
@@ -290,7 +290,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
@@ -304,7 +304,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// </summary>
         /// <param name="ticket">Ticket to perform the download for</param>
         /// <param name="pathToDownloadDirectory">Path to the download directory</param>
-        /// <param name="overwriteExistingFile">wether or not to overwrite an existing file</param>
+        /// <param name="overwriteExistingFile">whether or not to overwrite an existing file</param>
         /// <param name="fileName">file name for the file to be downloaded</param>
         /// <param name="fileExtension">file extension for the file to be downloaded</param>
         /// <returns>The Ticket for that the Download has been performed</returns>

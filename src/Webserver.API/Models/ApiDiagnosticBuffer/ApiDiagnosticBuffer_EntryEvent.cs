@@ -19,7 +19,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer
         /// </summary>
         public int Text_Id { get; set; }
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiDiagnosticBuffer_EntryEvent</param>
         /// <returns>Returns true if the DiagnosticBufferEvents are the same</returns>

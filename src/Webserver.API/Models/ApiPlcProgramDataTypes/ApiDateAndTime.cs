@@ -11,6 +11,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
     /// </summary>
     public class ApiDateAndTime
     {
+        /// <summary>
+        /// allowed tolerance for float comparison
+        /// </summary>
+        private const float Tolerance = 1e-6f;
+
         private int _year;
         /// <summary>
         /// Year of the Date And Time Tag
@@ -196,7 +201,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiPlcProgramDataTypes
             if (other is null)
                 return false;
             return this.Year == other.Year && this.Month == other.Month && this.Day == other.Day && this.Hour == other.Hour
-                && this.Minute == other.Minute && this.Second == other.Second;
+                && this.Minute == other.Minute && Math.Abs(this.Second - other.Second) < Tolerance;
         }
 
         /// <summary>

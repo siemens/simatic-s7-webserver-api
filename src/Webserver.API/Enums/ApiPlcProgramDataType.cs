@@ -7,12 +7,12 @@ using System;
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
     /// <summary>
-    /// ApiPlcProgramDataTypes - static Helper Class for Determination wether PlcProgramDataType is supported by simple mode or not (is a structure or not)
+    /// ApiPlcProgramDataTypes - static Helper Class for Determination whether PlcProgramDataType is supported by simple mode or not (is a structure or not)
     /// </summary>
     public static class ApiPlcProgramDataTypes
     {
         /// <summary>
-        /// function to determine wethere the PlcProgramDataType is supported by simple mode for reading/writing - status: Firmware >=2.8 and less than at least 2.9 (planned V18)
+        /// function to determine whethere the PlcProgramDataType is supported by simple mode for reading/writing - status: Firmware >=2.8 and less than at least 2.9 (planned V18)
         /// </summary>
         /// <param name="plcProgramDataType"></param>
         /// <returns></returns>

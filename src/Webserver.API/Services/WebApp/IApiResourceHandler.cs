@@ -68,7 +68,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="pathToDownloadDirectory">Directory the file should be stored in</param>
         /// <param name="fileName">name for the downloaded file</param>
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
-        /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overrideExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>task/void</returns>
         FileInfo DownloadResource(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null);
         /// <summary>
@@ -80,7 +80,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileName">name for the downloaded file</param>
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overrideExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>task/void</returns>
         Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default);
     }

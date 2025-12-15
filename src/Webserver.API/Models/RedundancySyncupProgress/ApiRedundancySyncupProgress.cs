@@ -35,7 +35,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.RedundancySyncupProgress
         public ApiRedundancySyncupProgress_MinimizingDelay Minimizing_delay { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiRedundancySyncupProgress</param>
         /// <returns>Returns true if the ApiRedundancySyncupProgress are the same</returns>

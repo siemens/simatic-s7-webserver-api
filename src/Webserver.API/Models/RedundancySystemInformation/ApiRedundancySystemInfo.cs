@@ -38,7 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.RedundancySystemInformation
         public ApiRedundancySystemInfo_Plcs Plcs { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiRedundancySystemInfo</param>
         /// <returns>Returns true if the ApiRedundancySystemInfo are the same</returns>

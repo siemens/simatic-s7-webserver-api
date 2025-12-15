@@ -21,7 +21,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.RedundancySyncupProgress
         public int Total { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiRedundancySyncupProgress_CopyWorkMemory</param>
         /// <returns>Returns true if the ApiRedundancySyncupProgress_CopyWorkMemory are the same</returns>

@@ -159,7 +159,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
-        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default);
@@ -170,7 +170,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
-        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         Task<ApiLoginResponse> ApiLoginAsync(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null, CancellationToken cancellationToken = default);
@@ -1076,7 +1076,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
-        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         ApiLoginResponse ApiLogin(string userName, string password, bool? includeWebApplicationCookie = null);
 
@@ -1086,7 +1086,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="userName">Username to login with</param>
         /// <param name="password">Password for the user to login with</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed.</param>
-        /// <param name="includeWebApplicationCookie">Used to determine wether or not a WebApplicationCookie should be included in the Response (Result)</param>
+        /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
         ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode loginMode, bool? includeWebApplicationCookie = null);
         /// <summary>

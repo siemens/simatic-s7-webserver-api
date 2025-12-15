@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
     /// <summary>
-    /// A Class that will be returned in some ApiFunctions - contains the information of the Name! - Equals uses that Name to determine wether they are equal or not1
+    /// A Class that will be returned in some ApiFunctions - contains the information of the Name! - Equals uses that Name to determine whether they are equal or not1
     /// </summary>
     public class ApiClass
     {
@@ -17,7 +17,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// A Class that will be returned in some ApiFunctions - contains the information of the Name! - Equals uses that Name to determine wether they are equal or not1
+        /// A Class that will be returned in some ApiFunctions - contains the information of the Name! - Equals uses that Name to determine whether they are equal or not1
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>true if the name matches the "other".Name</returns>

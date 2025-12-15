@@ -41,7 +41,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
 
         private ApiWebAppResourceVisibility visibility;
         /// <summary>
-        /// Resource Visibility - (plc uses to) determine wether a user is allowed to access the Resource (has cookie with according rights)
+        /// Resource Visibility - (plc uses to) determine whether a user is allowed to access the Resource (has cookie with according rights)
         /// </summary>
         public ApiWebAppResourceVisibility Visibility
         {
@@ -78,14 +78,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public bool? IgnoreBOMDifference { get; set; }
 
         /// <summary>
-        /// Method used to determine wether the file is an HTML file or not
+        /// Method used to determine whether the file is an HTML file or not
         /// </summary>
         /// <returns>resource.Media_type == "text/html"</returns>
         public bool IsHtmlFile() => this.Media_type.Equals("text/html");
 
         /// <summary>
         /// Depending on the configured IgnoreBOMDifference =>
-        /// Compare resources Name,Size,Media_Type,Visibility, LastModified and Etag wether the resources are Equal or not
+        /// Compare resources Name,Size,Media_Type,Visibility, LastModified and Etag whether the resources are Equal or not
         /// IF IgnoreBOMDifference is set
         /// 3 bytes more or less will be accepted aswell (Byte Order Mark has 3 bytes length and will not be sent using JavaScript e.g.)
         /// </summary>

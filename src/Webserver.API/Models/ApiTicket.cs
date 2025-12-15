@@ -91,7 +91,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public FileInfo File_Downloaded { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">to compare</param>
         /// <returns>true if properties match</returns>

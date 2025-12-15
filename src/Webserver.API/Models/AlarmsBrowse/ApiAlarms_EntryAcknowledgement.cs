@@ -30,7 +30,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse
         public DateTime Timestamp { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Returns true if the ApiAlarmsBrowse are the same</returns>

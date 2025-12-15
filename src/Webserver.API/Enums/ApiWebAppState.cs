@@ -5,7 +5,7 @@
 namespace Siemens.Simatic.S7.Webserver.API.Enums
 {
     /// <summary>
-    /// Possible api Webapp states => determines wether (get) requests (e.g. browser: access plc webapp) to the endpoint are responded with the requested resources or not
+    /// Possible api Webapp states => determines whether (get) requests (e.g. browser: access plc webapp) to the endpoint are responded with the requested resources or not
     /// </summary>
     public enum ApiWebAppState
     {

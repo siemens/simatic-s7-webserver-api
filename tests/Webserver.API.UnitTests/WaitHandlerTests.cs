@@ -13,13 +13,15 @@ namespace Webserver.API.UnitTests
         {
             // Arrange
             var waitHandler = new WaitHandler(TimeSpan.FromSeconds(30));
-            var cancellationTokenSource = new CancellationTokenSource();
-            cancellationTokenSource.Cancel(); // Cancel the token immediately
-            // Act & Assert
-            Assert.Throws<OperationCanceledException>(() =>
+            using(var cancellationTokenSource = new CancellationTokenSource())
             {
-                waitHandler.ForTrue(() => true, "Condition should be true", cancellationTokenSource.Token);
-            });
+                cancellationTokenSource.Cancel(); // Cancel the token immediately
+                                                  // Act & Assert
+                Assert.Throws<OperationCanceledException>(() =>
+                {
+                    waitHandler.ForTrue(() => true, "Condition should be true", cancellationTokenSource.Token);
+                });
+            }
         }
 
 

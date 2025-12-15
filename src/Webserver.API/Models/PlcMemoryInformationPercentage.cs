@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 using Newtonsoft.Json;
+using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -11,6 +12,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     /// </summary>
     public class PlcMemoryInformationPercentage
     {
+        /// <summary>
+        /// allowed tolerance for float comparison
+        /// </summary>
+        private const float Tolerance = 1e-6f;
+
         /// <summary>
         /// Percentage of free memory
         /// </summary>
@@ -25,7 +31,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public override bool Equals(object obj)
         {
             return obj is PlcMemoryInformationPercentage percentage &&
-                   FreePercentage == percentage.FreePercentage;
+                   Math.Abs(FreePercentage - percentage.FreePercentage) < Tolerance;
         }
 
         /// <summary>

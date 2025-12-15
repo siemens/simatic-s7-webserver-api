@@ -2536,7 +2536,8 @@ namespace Webserver.API.UnitTests
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceModificationTimeAsync(webAppName, "resName", "2020-08-24T07:08:06Z");
             Assert.That(resp.TrueOnSuccesResponse.Result);
-            Assert.That(resp.NewResource.Last_modified, Is.EqualTo(DateTime.Parse("2020-08-24T05:08:06Z"))); // utc conversion from datetime parse
+            var expectedTime = DateTime.Parse("2020-08-24T07:08:06Z").ToUniversalTime();
+            Assert.That(resp.NewResource.Last_modified, Is.EqualTo(expectedTime)); // utc conversion from datetime parse
             Assert.That(resp.NewResource.Name, Is.EqualTo("resName"));
         }
 

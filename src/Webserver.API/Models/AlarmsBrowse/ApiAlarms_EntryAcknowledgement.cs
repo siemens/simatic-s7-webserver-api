@@ -38,8 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse
         {
             var structure = obj as ApiAlarms_EntryAcknowledgement;
             if (structure == null) { return false; }
-            return structure != null &&
-                   structure.State == this.State &&
+            return structure.State == this.State &&
                    structure.Timestamp == this.Timestamp;
         }
 

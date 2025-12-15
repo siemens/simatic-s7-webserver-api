@@ -81,8 +81,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.AlarmsBrowse
             {
                 return false;
             }
-            return structure != null &&
-                   structure.Id == this.Id &&
+            return structure.Id == this.Id &&
                    structure.Alarm_Number == this.Alarm_Number &&
                    structure.Status == this.Status &&
                    structure.Timestamp == this.Timestamp &&

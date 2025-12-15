@@ -701,7 +701,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Run)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -721,7 +721,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Stop)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -741,7 +741,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Startup)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -761,7 +761,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Hold)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -781,7 +781,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync();
             if (res.Result != ApiPlcOperatingMode.Stop_fwupdate)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -837,7 +837,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_1);
             if (res.Result != ApiPlcOperatingMode.Run_redundant)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -857,7 +857,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Syncup)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -877,7 +877,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Run_syncup)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -897,7 +897,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcReadOperatingModeAsync(ApiPlcRedundancyId.RedundancyId_2);
             if (res.Result != ApiPlcOperatingMode.Remote_unknown)
-                Assert.Fail("unexpected response:" + res.Result.ToString());
+                Assert.Fail($"unexpected response:{res.Result}");
         }
 
         /// <summary>
@@ -1535,7 +1535,7 @@ namespace Webserver.API.UnitTests
                     Assert.Fail("not casted to \"false\" bool!");
             }
             else
-                Assert.Fail("raw mode returned sth else than jarray: " + resp.Result.GetType().ToString());
+                Assert.Fail($"raw mode returned sth else than jarray: {resp.Result.GetType()}");
         }
 
         /// <summary>

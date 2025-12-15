@@ -71,7 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             string result = $"{nameof(AuthenticationMode)}: {AuthenticationMode} | " +
                             $"{nameof(Username)}: {Username}";
-            if (PasswordExpiration != null) { result += $" | {nameof(PasswordExpiration)}: ({PasswordExpiration.ToString()})"; }
+            if (PasswordExpiration != null) { result += $" | {nameof(PasswordExpiration)}: ({PasswordExpiration})"; }
             if (RuntimeTimeout != null) { result += $" | {nameof(RuntimeTimeout)}: {RuntimeTimeout}"; }
             return result;
         }

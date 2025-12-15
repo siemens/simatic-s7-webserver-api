@@ -24,11 +24,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBrowseResponse); // Respond with JSON
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
 
             var requests = new List<ApiRequest>();
@@ -45,11 +45,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<ApiRequest>();
             for (int i = 0; i < 100; i++)
@@ -65,11 +65,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
@@ -101,11 +101,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
@@ -148,11 +148,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
@@ -197,11 +197,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 
@@ -234,11 +234,11 @@ namespace Webserver.API.UnitTests
         {
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When(HttpMethod.Post, $"https://{Ip.ToString()}/api/jsonrpc")
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
                 .Respond("application/json", ResponseStrings.ApiBulkManyResponses); // Respond with JSON -> 100 requests
             // Inject the handler or client into your application code
             var client = new HttpClient(mockHttp);
-            client.BaseAddress = new Uri($"https://{Ip.ToString()}");
+            client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var requests = new List<IApiRequest>();
 

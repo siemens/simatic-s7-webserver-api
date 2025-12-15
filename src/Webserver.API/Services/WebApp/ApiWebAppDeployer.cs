@@ -193,7 +193,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         }
                         catch (ApiTicketNotInCompletedStateException e)
                         {
-                            Logger?.LogWarning(e, $"Upload for resource: {r.Name} failed for the {(tries + 1).ToString()}. time!");
+                            Logger?.LogWarning(e, $"Upload for resource: {r.Name} failed for the {(tries + 1)}. time!");
                         }
                     }
                     if (appExceptBrowsed.Count != 0)

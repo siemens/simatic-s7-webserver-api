@@ -53,7 +53,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 if (value == ApiWebAppResourceVisibility.None)
                 {
-                    throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
+                    throw new ApiInvalidResponseException($"Returned from api was:{value} - which is not valid! contact Siemens");
                 }
                 visibility = value;
             }

@@ -31,7 +31,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 if (value == ApiVersionSource.None)
                 {
-                    throw new ApiInvalidResponseException($"Returned from API was:{value.ToString()} - which is not valid! contact Siemens");
+                    throw new ApiInvalidResponseException($"Returned from API was:{value} - which is not valid! contact Siemens");
                 }
                 source = value;
             }

@@ -13,10 +13,10 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0, 10.0 and .NET St
   - [Functionality](#functionality)
   - [Dependencies](#dependencies)
 - [Engineering](#engineering)
-  - [Hardwaresetup](#hardwaresetup)
+  - [Hardware setup](#hardware-setup)
   - [Configuration](#configuration)
   - [Operation](#operation)
-  - [Errorhandling](#errorhandling)
+  - [Error handling](#error-handling)
 - [Topics (Web API methods)](#topics-web-api-methods)
   - [ApiHttpClientRequestHandler](#apihttpclientrequesthandler)
   - [WebApps](#webapps)
@@ -31,6 +31,7 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0, 10.0 and .NET St
 - [OPC UA or Web API?](#opc-ua-or-web-api)
 - [Further Information about PLC (Webserver)](#further-information-about-plc-webserver)
   - [SIMATIC S7-1500:](#simatic-s7-1500-1)
+  - [SIMATIC S7-1200 G2:](#simatic-s7-1200-g2)
   - [SIMATIC S7-1200:](#simatic-s7-1200)
 
 # [License](LICENSE.md)
@@ -83,7 +84,7 @@ MimeMapping   | https://www.nuget.org/packages/MimeMapping/	| https://github.com
 
 # Engineering
 
-## Hardwaresetup
+## Hardware setup
 Depending on the plc you are having a different number of sessions can co-exist during operation. For details please check the manual.
 
 ## Configuration 
@@ -92,13 +93,13 @@ See [ApiHttpClientRequestHandler](#apihttpclientrequesthandler).
 ## Operation
 See [ApiHttpClientRequestHandler](#apihttpclientrequesthandler), if you are able to successfully send the ApiBrowse request and log the responses the setup is fine.
 
-## Errorhandling
+## Error handling
 Depending on the requests sent and the plc state there might be errors occurring. As an example there can only be 1 ApiTicket which needs to be closed after use. Therefore when calling e.g. WebApp.CreateResource the result might look like the following:<br>{"error":{"code":4,"message":"No Resources"},"id":"81dcdb3c-0704-454f-94a3-364a75b7eb4d","jsonRpc":"2.0"}<br>In this case the ApiHttpClientRequestHandler will throw an ApiNoResourcesException containing different scenarios when this exception might occur.
 
 # Topics (Web API methods)
 
 ## ApiHttpClientRequestHandler
-In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Anonymous"(preivously "Everybody") with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Anonymous" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
+In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Anonymous"(previously "Everybody") with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Anonymous" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
 
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs

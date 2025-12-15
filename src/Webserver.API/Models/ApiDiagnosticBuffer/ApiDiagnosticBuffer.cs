@@ -38,7 +38,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer
         public List<ApiDiagnosticBuffer_Entry> Entries { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiDiagnosticBuffer</param>
         /// <returns>Returns true if the ApiDiagnosticBuffer are the same</returns>

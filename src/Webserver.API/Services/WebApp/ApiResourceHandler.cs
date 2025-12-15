@@ -105,7 +105,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="fileName">will default to "resource.name"</param>
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
-        /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overrideExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>Task/void</returns>
         public async Task<FileInfo> DownloadResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null, CancellationToken cancellationToken = default)
         {
@@ -121,7 +121,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
         /// <param name="fileName">will default to "resource.name"</param>
         /// <param name="fileExtension">in case you want to set a specific fileExtension (normally included in filename)</param>
-        /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overrideExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         public FileInfo DownloadResource(ApiWebAppData webApp, ApiWebAppResource resource, bool overrideExistingFile = false, string pathToDownloadDirectory = null, string fileName = null, string fileExtension = null)
             => DownloadResourceAsync(webApp, resource, overrideExistingFile, pathToDownloadDirectory, fileName, fileExtension).GetAwaiter().GetResult();
     }

@@ -169,7 +169,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         }
 
         /// <summary>
-        /// Bool that indicates wether "this" was set by ArrayDimensions
+        /// Bool that indicates whether "this" was set by ArrayDimensions
         /// </summary>
         public bool IsArrayElement { get; set; }
         /// <summary>

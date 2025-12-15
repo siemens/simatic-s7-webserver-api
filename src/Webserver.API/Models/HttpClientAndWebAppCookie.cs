@@ -37,7 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// Check for HttpClient and WebAppCookie
         /// </summary>
         /// <param name="obj">to compare</param>
-        /// <returns>wether Properties are having the same values</returns>
+        /// <returns>whether Properties are having the same values</returns>
         public override bool Equals(object obj)
         {
             var cookie = obj as HttpClientAndWebAppCookie;

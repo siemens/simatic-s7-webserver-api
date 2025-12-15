@@ -21,13 +21,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         public readonly string ConfigurationName;
 
         /// <summary>
-        /// Defaults to "true" - will be used to control, wether the "basic" checks for the webapp(data) are performed 
+        /// Defaults to "true" - will be used to control, whether the "basic" checks for the webapp(data) are performed 
         /// so that it is "saveable"
         /// </summary>
         public readonly bool CheckConsistency;
 
         /// <summary>
-        /// Defaults to "true" - will be used to determine wether a directory will be created for saving in case 
+        /// Defaults to "true" - will be used to determine whether a directory will be created for saving in case 
         /// it does not yet exist and is provided via DirectoryPath
         /// </summary>
         public readonly bool CreateDirectoryIfNotExists;
@@ -60,8 +60,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         /// <param name="directoryPath">Path where the ApiWebAppData should be saved to</param>
         /// <param name="configurationName">name for the file to be saved</param>
-        /// <param name="checkConsistency">will be used to control, wether the "basic" checks for the webapp(data) are performed </param>
-        /// <param name="createDirectoryIfNotExists">will be used to determine wether a directory will be created 
+        /// <param name="checkConsistency">will be used to control, whether the "basic" checks for the webapp(data) are performed </param>
+        /// <param name="createDirectoryIfNotExists">will be used to determine whether a directory will be created 
         /// for saving in case it does not yet exist and is provided via DirectoryPath</param>
         /// <param name="jsonSerializerSetting">Setting for the Serialization</param>
         public ApiWebAppDataSaveSetting(string directoryPath, string configurationName,

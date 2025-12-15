@@ -20,7 +20,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Check ApiWebAppState => None isnt valid!
         /// </summary>
         /// <param name="apiWebAppState">Web Application State</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckWebAppState(ApiWebAppState apiWebAppState, bool performCheck)
         {
             if (performCheck)
@@ -37,7 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// valid charset: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.+\""
         /// </summary>
         /// <param name="webAppName">Name of the Web Application</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckWebAppName(string webAppName, bool performCheck)
         {
             if (performCheck)
@@ -65,7 +65,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// None isnt valid (unsupported type = -1)
         /// </summary>
         /// <param name="apiPlcProgramData">PlcProgramData</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckPlcProgramReadOrWriteDataType(ApiPlcProgramDataType apiPlcProgramData, bool performCheck)
         {
             if (performCheck)
@@ -88,7 +88,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// valid charset: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.+()|,/.*!\"'"
         /// </summary>
         /// <param name="resourceName">Name of the resource that should be checked for the valid charset</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckResourceName(string resourceName, bool performCheck)
         {
             if (performCheck)
@@ -116,7 +116,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Only run or stop are valid!
         /// </summary>
         /// <param name="plcOperatingMode">Operating mode that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckPlcRequestChangeOperatingMode(ApiPlcOperatingMode plcOperatingMode, bool performCheck)
         {
             if (performCheck)
@@ -132,7 +132,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// None isnt valid!
         /// </summary>
         /// <param name="plcProgramBrowseMode">PlcProgramBrowseMode that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckPlcProgramBrowseMode(ApiPlcProgramBrowseMode plcProgramBrowseMode, bool performCheck)
         {
             if (performCheck)
@@ -149,7 +149,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// None isnt valid!
         /// </summary>
         /// <param name="apiPlcProgramReadMode">Determines the response format for various methods that return data from the PLC</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckPlcDataRepresentationMode(ApiPlcDataRepresentation? apiPlcProgramReadMode, bool performCheck)
         {
             if (performCheck)
@@ -169,7 +169,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// 28 Chars is the only accepted length for the ticketId!
         /// </summary>
         /// <param name="ticketId">TicketId that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckTicket(string ticketId, bool performCheck)
         {
             if (performCheck)
@@ -186,7 +186,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// an etag has got a max. amount of characters of 128
         /// </summary>
         /// <param name="etag">etag (of resource) to be checked</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckETag(string etag, bool performCheck)
         {
             if (performCheck)
@@ -207,7 +207,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// Not checking anything currently!
         /// </summary>
         /// <param name="mediaType">MediaType that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckMediaType(string mediaType, bool performCheck)
         {
             if (performCheck)
@@ -221,7 +221,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// None isnt valid!
         /// </summary>
         /// <param name="apiWebAppResourceVisibility">ResourceVisibility that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckWebAppResourceVisibility(ApiWebAppResourceVisibility apiWebAppResourceVisibility, bool performCheck)
         {
             if (performCheck)
@@ -237,7 +237,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// regex used: Regex regex = new Regex(@"\d{4}(-\d{2})(-\d{2})T(\d{2}):(\d{2}):(\d{2})(\.[0-9]{1,3})*Z"); string has to match!
         /// </summary>
         /// <param name="lastModified">LastModified that should be checked for being valid</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckLastModified(string lastModified, bool performCheck)
         {
             if (performCheck)
@@ -256,7 +256,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// DateTime is only supported from 1970-01-01 to 2554-07-21 23:34:33.709551615
         /// </summary>
         /// <param name="timestamp">Timestamp to check</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckSystemTimeStamp(DateTime timestamp, bool performCheck)
         {
             if (performCheck)
@@ -341,7 +341,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <param name="utcOffset">The time zone offset from the UTC time in hours</param>
         /// <param name="daylightSavings">Represents the settings for daylight-savings.</param>
-        /// <param name="performCheck">Bool to determine wether to really perform the check or not</param>
+        /// <param name="performCheck">Bool to determine whether to really perform the check or not</param>
         public void CheckTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings, bool performCheck)
         {
             if (performCheck)

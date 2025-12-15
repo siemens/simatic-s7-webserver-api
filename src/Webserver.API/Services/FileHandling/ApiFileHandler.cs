@@ -44,7 +44,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overwriteExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         public async Task<FileInfo> DownloadFileAsync(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
@@ -62,7 +62,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Path of the file relative to the memory card root.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="overrideExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overrideExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
         public FileInfo DownloadFile(string resource, string pathToDownloadDirectory = null, bool overrideExistingFile = false)
             => DownloadFileAsync(resource, pathToDownloadDirectory, overrideExistingFile).GetAwaiter().GetResult();
@@ -73,7 +73,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overwriteExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <returns>FileInfo</returns>
         /// <exception cref="DirectoryNotFoundException"></exception>
@@ -93,7 +93,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource">Resource name of data log to retrieve, including the path.</param>
         /// <param name="pathToDownloadDirectory">will default to Downloads but will determine path from -DESKTOP-, replaced "Desktop" by "Downloads"</param>
-        /// <param name="overwriteExistingFile">choose wether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
+        /// <param name="overwriteExistingFile">choose whether you want to replace an existing file or add another file with that name to you download directory in case one already exists</param>
         /// <returns>FileInfo</returns>
         public FileInfo DataLogs_DownloadAndClear(string resource, string pathToDownloadDirectory = null, bool overwriteExistingFile = false)
             => DataLogs_DownloadAndClearAsync(resource, pathToDownloadDirectory, overwriteExistingFile).GetAwaiter().GetResult();

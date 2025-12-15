@@ -67,7 +67,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         }
 
         /// <summary>
-        /// Will check the wether the webApp is saveable or not
+        /// Will check the whether the webApp is saveable or not
         /// </summary>
         /// <param name="apiWebApp">the ApiWebAppData that should be checked</param>
         public void CheckConsistency_Saveable(IApiWebAppData apiWebApp)

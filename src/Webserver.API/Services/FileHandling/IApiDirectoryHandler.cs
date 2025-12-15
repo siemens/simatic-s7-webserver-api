@@ -70,7 +70,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed webappdirectory</param>
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
-        /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
+        /// used to determine whether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
         void DeployOrUpdate(ApiFileResource resource, int amountOfTriesForResourceDeployment = 1);
         /// <summary>
@@ -84,7 +84,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// </summary>
         /// <param name="resource"><see cref="ApiFileResource"/> - e.g. from parsed webappdirectory</param>
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
-        /// used to determine wether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
+        /// used to determine whether the DirectoryHandler should retry a upload and compare of the resources found or give up right away (default)
         /// </param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
         /// <param name="progress">Progress to report to.</param>

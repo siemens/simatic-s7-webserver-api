@@ -44,7 +44,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
-        /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away
+        /// used to determine whether the deployer should retry a upload and compare of the resources found or give up right away
         /// </param>
         void DeployOrUpdate(ApiWebAppData webApp, int amountOfTriesForResourceDeployment = 1);
         /// <summary>
@@ -60,7 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// </summary>
         /// <param name="webApp"><see cref="ApiWebAppData"/> - e.g. from parsed webappdirectory</param>
         /// <param name="amountOfTriesForResourceDeployment">optional parameter:
-        /// used to determine wether the deployer should retry a upload and compare of the resources found or give up right away
+        /// used to determine whether the deployer should retry a upload and compare of the resources found or give up right away
         /// </param>
         /// /// <param name="progress">Progress to report to</param>
         /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>

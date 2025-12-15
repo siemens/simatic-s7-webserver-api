@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     public interface IApiWebAppDataSaveSetting
     {
         /// <summary>
-        /// Defaults to "true" - will be used to control, wether the "basic" checks for the webapp(data) are performed 
+        /// Defaults to "true" - will be used to control, whether the "basic" checks for the webapp(data) are performed 
         /// so that it is "saveable"
         /// </summary>
         bool CheckConsistency { get; set; }
@@ -20,7 +20,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// </summary>
         string ConfigurationName { get; set; }
         /// <summary>
-        /// Defaults to "true" - will be used to determine wether a directory will be created for saving in case 
+        /// Defaults to "true" - will be used to determine whether a directory will be created for saving in case 
         /// it does not yet exist and is provided via DirectoryPath
         /// </summary>
         bool CreateDirectoryIfNotExists { get; set; }

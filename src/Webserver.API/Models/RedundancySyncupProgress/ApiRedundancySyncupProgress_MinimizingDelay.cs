@@ -25,7 +25,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.RedundancySyncupProgress
         public TimeSpan Tolerable_cycle_time { get; set; }
 
         /// <summary>
-        /// Check wether properties match
+        /// Check whether properties match
         /// </summary>
         /// <param name="obj">ApiRedundancySyncupProgress_MinimizingDelay</param>
         /// <returns>Returns true if the ApiRedundancySyncupProgress_MinimizingDelay are the same</returns>

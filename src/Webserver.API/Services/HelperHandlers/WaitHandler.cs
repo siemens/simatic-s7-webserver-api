@@ -71,7 +71,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
             sw.Start();
             var start = DateTime.UtcNow;
             Exception lastException = null;
-            while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
+            while (!(DateTime.UtcNow.Subtract(start) > timeOut))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 // https://github.com/nunit/nunit/issues/2040
@@ -89,10 +89,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
                     Logger?.LogDebug(e, $"While waiting for a condition!");
                     lastException = e;
                 }
+                // skip last sleep when not necessary - avoid overshooting the timeout, also good for unit tests
+                var timeSpentSinceStartingWaitForCondition = DateTime.UtcNow.Subtract(start);
+                var timeSpentAfterSleeping = timeSpentSinceStartingWaitForCondition.Add(cycleTime);
+                if (timeSpentAfterSleeping > timeOut)
+                {
+                    Logger?.LogTrace($"Skipping sleep since {timeSpentAfterSleeping} will be bigger than configured timeout: {timeOut}!");
+                    break;
+                }
                 // Cylcle time
-                Thread.Sleep(CycleTime);
+                Thread.Sleep(cycleTime);
             }
-            var exc = new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {TimeOut}!{Environment.NewLine}Retried every {CycleTime}!{Environment.NewLine}{errorMessageForException}", lastException);
+            var exc = new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {timeOut}!{Environment.NewLine}Retried every {cycleTime}!{Environment.NewLine}{errorMessageForException}", lastException);
             Logger?.LogError(exc, $"trying to {nameof(WaitForCondition)}!");
             throw exc;
         }

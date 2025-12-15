@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Webserver.API.UnitTests
 {
-    public class WaitHandlerTests
+    public class WaitHandlerTests 
     {
 
         [Test]
@@ -27,7 +27,7 @@ namespace Webserver.API.UnitTests
         public void WaitHandler_ThrowsAfterTime_IncludingErrorInfo()
         {
             // Arrange
-            var waitHandler = new WaitHandler(TimeSpan.FromMilliseconds(300));
+            var waitHandler = new WaitHandler(TimeSpan.FromMilliseconds(40));
             // Act & Assert
             var exc = Assert.Throws<TimeoutException>(() =>
             {
@@ -36,7 +36,40 @@ namespace Webserver.API.UnitTests
                     throw new InvalidOperationException($"Test");
                 });
             });
-            Assert.That(exc.Message, Contains.Substring("test"));
+            Assert.That(exc.InnerException.Message, Contains.Substring("Test"));
+            Assert.That(exc.InnerException is InvalidOperationException);
+            Assert.That(exc.ToString(), Contains.Substring("Test"));
+        }
+
+        [Test]
+        public void WaitHandler_WorksWhenReturningTrue()
+        {
+            // Arrange
+            var waitHandler = new WaitHandler(TimeSpan.FromMilliseconds(10));
+            // Act & Assert
+            var ts = waitHandler.ForTrue(() =>
+            {
+                return true;
+            });
+            Assert.That(ts, Is.LessThan(TimeSpan.FromMilliseconds(100)));
+        }
+
+        [Test]
+        public void WaitHandler_ThrowsAfterTime_SleepsWhenNecessary()
+        {
+            // Arrange
+            var waitHandler = new WaitHandler(TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(10));
+            // Act & Assert
+            var exc = Assert.Throws<TimeoutException>(() =>
+            {
+                waitHandler.ForTrue(() =>
+                {
+                    return false;
+                });
+            });
+            Assert.That(exc.ToString(), Contains.Substring($"{TimeSpan.FromMilliseconds(20)}"));
+            Assert.That(exc.ToString(), Contains.Substring($"{TimeSpan.FromMilliseconds(10)}"));
         }
     }
 }
+

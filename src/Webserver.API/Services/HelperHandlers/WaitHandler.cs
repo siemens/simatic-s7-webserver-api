@@ -84,6 +84,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
                 catch (ConditionNotYetReachedException) { }
                 catch (Exception e)
                 {
+                    if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                        throw;
                     Logger?.LogDebug(e, $"While waiting for a condition!");
                     lastException = e;
                 }

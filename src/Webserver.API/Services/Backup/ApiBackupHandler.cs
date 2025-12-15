@@ -180,6 +180,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                 }
                 catch (Exception e)
                 {
+                    if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                        throw;
                     Logger?.LogDebug(e, $"Plc should be rebooting now.");
                     return true;
                 }

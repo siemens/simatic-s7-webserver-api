@@ -107,30 +107,32 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             if (!restoreMode)
             {
                 uploadTicket = (await ApiRequestHandler.PlcRestoreBackupAsync(password, externalCancellationToken)).Result;
-                CancellationTokenSource internalCancellationTokenSource = new CancellationTokenSource();
-                try
+                using (var internalCancellationTokenSource = new CancellationTokenSource())
                 {
-                    Task<Models.ApiTicket> uploadTask = ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, internalCancellationTokenSource.Token);
-                    Stopwatch sw = Stopwatch.StartNew();
-                    while (sw.ElapsedMilliseconds < 60_000 || uploadTask.IsCompleted || uploadTask.IsFaulted)
+                    try
                     {
-                        var brTicketsResp = ApiRequestHandler.ApiBrowseTickets(uploadTicket);
-                        string apiTicketData = brTicketsResp.Result.Tickets.First().Data.ToString();
-                        if (apiTicketData.Contains("\"restore_state\": \"rebooting_format\"") || externalCancellationToken.IsCancellationRequested)
+                        Task<Models.ApiTicket> uploadTask = ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, internalCancellationTokenSource.Token);
+                        Stopwatch sw = Stopwatch.StartNew();
+                        while (sw.ElapsedMilliseconds < 60_000 || uploadTask.IsCompleted || uploadTask.IsFaulted)
                         {
-                            internalCancellationTokenSource.Cancel();
-                            break;
+                            var brTicketsResp = ApiRequestHandler.ApiBrowseTickets(uploadTicket);
+                            string apiTicketData = brTicketsResp.Result.Tickets.First().Data.ToString();
+                            if (apiTicketData.Contains("\"restore_state\": \"rebooting_format\"") || externalCancellationToken.IsCancellationRequested)
+                            {
+                                internalCancellationTokenSource.Cancel();
+                                break;
+                            }
                         }
+                        sw.Stop();
+                        await uploadTask;
                     }
-                    sw.Stop();
-                    await uploadTask;
+                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) { }
+                    finally
+                    {
+                        externalCancellationToken.ThrowIfCancellationRequested();
+                    }
                 }
-                catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) { }
-                finally
-                {
-                    internalCancellationTokenSource.Dispose();
-                    externalCancellationToken.ThrowIfCancellationRequested();
-                }
+                    
                 WaitForPlcReboot(waitHandler, externalCancellationToken);
                 await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
             }

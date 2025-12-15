@@ -79,7 +79,7 @@ jobs:
         run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage"
 
       - name: Upload coverage for ${{ matrix.os }} (${{ matrix.dotnet-tfm }})
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Code coverage ${{ matrix.os }}-${{ matrix.dotnet-tfm }}
           path: "**/coverage.cobertura.xml"
@@ -126,7 +126,7 @@ jobs:
         run: dotnet test --framework ${{ matrix.dotnet-tfm }} --collect:"XPlat Code Coverage" --runtime linux-arm64 /p:PlatformTarget=arm64
 
       - name: Upload coverage for ARM64 (${{ matrix.dotnet-tfm }})
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Code coverage ubuntu-latest-arm64-${{ matrix.dotnet-tfm }}
           path: "**/coverage.cobertura.xml"
@@ -159,7 +159,7 @@ jobs:
           # You can also use 'Html_Light', 'Html_Dark', etc., for specific themes.
           reporttypes: "Html;Cobertura" 
       - name: Upload HTML coverage report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: HTML Coverage Report
           # Upload the entire directory where ReportGenerator placed the HTML files
@@ -187,7 +187,7 @@ jobs:
       - name: Create packages
         run: dotnet pack --configuration Release --output ./packages
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: NuGet packages
           path: packages/*.*

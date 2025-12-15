@@ -373,10 +373,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 {
                     var split = usedFilename.Split('/');
                     var paths = "";
-                    foreach (var s in split)
+                    foreach (var s in split.Take(split.Length - 1))
                     {
-                        if (s == split.Last())
-                            continue;
                         paths += $"\\{s}";
                         if (!Directory.Exists(usedPathToDownloadDirectory + paths))
                         {

@@ -116,13 +116,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
                 MillisecondsDetermined.Add(end - start);
             }
             TimeSpan result = TimeSpan.FromSeconds(0);
-            foreach (var element in MillisecondsDetermined)
-            {
-                if (element > result)
-                {
-                    result = element;
-                }
-            }
+            result = MillisecondsDetermined.Max();
             return result;
         }
 

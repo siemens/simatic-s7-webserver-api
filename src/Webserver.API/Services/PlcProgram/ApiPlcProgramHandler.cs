@@ -224,9 +224,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                             if (item.ArrayElements.Any())
                             {
                                 var requests = new List<IApiRequest>();
-                                foreach (var element in item.ArrayElements)
+                                foreach (var varNameForMethods in item.ArrayElements.Select(el => el.GetVarNameForMethods()))
                                 {
-                                    var varNameForMethods = element.GetVarNameForMethods();
                                     var requestToAdd = _requestFactory.GetApiPlcProgramBrowseRequest(ApiPlcProgramBrowseMode.Children, varNameForMethods);
                                     _logger?.LogTrace($"Add PlcProgram Browse request for '{varNameForMethods}' -> mode '{ApiPlcProgramBrowseMode.Children}'");
                                     requests.Add(requestToAdd);

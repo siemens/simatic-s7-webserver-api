@@ -98,12 +98,12 @@ Depending on the requests sent and the plc state there might be errors occurring
 # Topics (Web API methods)
 
 ## ApiHttpClientRequestHandler
-In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Everybody" with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Everybody" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
+In the following example code you'll have to adjust the IpAddress ("192.168.1.1") and the login for your system - the Login "Anonymous"(preivously "Everybody") with the password "" is a default user that is downloaded to the plc for the webserver once the webserver is activated in TIA portal. The used functions would fail for the default case that he doesn't have the permissions call the method (that he tried to call). It is not good practice to give a lot of rights to the user "Anonymous" therefore please adjust the connectionconfiguration to your configured user with a safe password that should be able to call the methods.
 
 To use e.g. the Api Method "Api.Browse" to get all the Methods supported by the PLC Api do the following
 ```cs
 var serviceFactory = new ApiStandardServiceFactory();
-var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.1.1", "Everybody", "");
+var reqHandler = await serviceFactory.GetApiHttpClientRequestHandlerAsync("192.168.1.1", "Anonymous", "");
 var apiBrowseResponse = await reqHandler.ApiBrowseAsync();
 foreach(var method in apiBrowseResponse.Result)
 {

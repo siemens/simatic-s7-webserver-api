@@ -301,7 +301,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             toReturn &= this.Value?.ToString().Equals(obj.Value?.ToString()) ?? this.Value == null && obj.Value == null;
             if (this.Children != null && obj.Children != null)
             {
-                toReturn &= this.Children.Count == obj.Children.Count ? this.Children.SequenceEqual(obj.Children) : false;
+                toReturn &= this.Children.Count == obj.Children.Count && this.Children.SequenceEqual(obj.Children);
             }
             else
             {

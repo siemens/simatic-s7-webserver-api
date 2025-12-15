@@ -18,7 +18,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void DefaultValueCheckerTrue()
         {
-            if (ApiRequestFactory.PerformCheck == false)
+            if (!ApiRequestFactory.PerformCheck)
             {
                 Assert.Fail("Perform Check by default is false!");
             }

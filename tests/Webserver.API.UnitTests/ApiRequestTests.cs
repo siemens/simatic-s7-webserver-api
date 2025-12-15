@@ -1507,8 +1507,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.PlcProgramReadAsync<object>("\"DataTypes\".\"Bool\"");
-            if ((bool)resp.Result != false)
-                Assert.Fail("not casted to \"false\" bool!");
+            Assert.That(resp.Result, Is.EqualTo(false));
         }
 
         /// <summary>
@@ -1531,8 +1530,7 @@ namespace Webserver.API.UnitTests
             {
                 var jarr = (JArray)resp.Result;
                 var respRes = jarr.ToObject<List<bool>>();
-                if (respRes[0] != false)
-                    Assert.Fail("not casted to \"false\" bool!");
+                Assert.That(respRes[0], Is.EqualTo(false));
             }
             else
                 Assert.Fail($"raw mode returned sth else than jarray: {resp.Result.GetType()}");
@@ -3990,8 +3988,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.TechnologyReadAsync<object>("\"DataTypes\".\"Bool\"");
-            if ((bool)resp.Result != false)
-                Assert.Fail("not casted to \"false\" bool!");
+            Assert.That(resp.Result, Is.EqualTo(false));
         }
 
         /// <summary>
@@ -4014,8 +4011,7 @@ namespace Webserver.API.UnitTests
             {
                 var jarr = (JArray)resp.Result;
                 var respRes = jarr.ToObject<List<bool>>();
-                if (respRes[0] != false)
-                    Assert.Fail("not casted to \"false\" bool!");
+                Assert.That(respRes[0], Is.EqualTo(false));
             }
             else
                 Assert.Fail($"raw mode returned sth else than jarray: {resp.Result.GetType()}");

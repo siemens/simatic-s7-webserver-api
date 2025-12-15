@@ -38,8 +38,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                         {
                             apiRequestString = "not provided since it might contain credentials!";
                         }
-                        var messageForException = $"Request:{apiRequestString.ToString() + Environment.NewLine}" +
-                        $"has been responded with{((int)message.StatusCode).ToString() + message.ReasonPhrase}";
+                        var messageForException = $"Request:{apiRequestString + Environment.NewLine}" +
+                        $"has been responded with{((int)message.StatusCode)}{message.ReasonPhrase}";
                         throw new InvalidHttpRequestException(messageForException);
                 }
             }

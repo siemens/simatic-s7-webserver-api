@@ -16,12 +16,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
         /// </summary>
         /// <param name="ticket"></param>
         public ApiTicketNotInCompletedStateException(ApiTicket ticket) :
-            base($"Ticket: {ticket.Id + Environment.NewLine} is not in completed state! " +
-                $"instead: {ticket.State.ToString() + Environment.NewLine} " +
+            base($"Ticket: {ticket.Id}{Environment.NewLine} is not in completed state! " +
+                $"instead: {ticket.State}{Environment.NewLine} " +
                 $"further ticket Information:{Environment.NewLine}" +
-                $"ticket Provider: {ticket.Provider.ToString() + Environment.NewLine}" +
+                $"ticket Provider: {ticket.Provider}{Environment.NewLine}" +
                 $"date created: {ticket.Date_created}" +
-                ((ticket.Data != null && ticket.Data.ToString() != "{}") ? $"ticket data: {ticket.Data.ToString()}" : ""))
+                ((ticket.Data != null && ticket.Data.ToString() != "{}") ? $"ticket data: {ticket.Data}" : ""))
         { }
     }
 }

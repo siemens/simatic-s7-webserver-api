@@ -48,7 +48,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 if (value == ApiTicketState.None)
                 {
-                    throw new Exception($"{value.ToString()} is not an expected value for ApiTicketState!");
+                    throw new Exception($"{value} is not an expected value for ApiTicketState!");
                 }
                 state = value;
             }
@@ -75,7 +75,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
                 if (value == ApiTicketProvider.None)
                 {
                     //throw new ApiException(new Responses.ApiErrorModel() { Error = new ApiError() {  } })
-                    throw new Exception($"{value.ToString()} is not an expected value for ApiTicketProvider!");
+                    throw new Exception($"{value} is not an expected value for ApiTicketProvider!");
                 }
                 provider = value;
             }

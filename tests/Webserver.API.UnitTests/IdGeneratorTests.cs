@@ -31,22 +31,21 @@ namespace Webserver.API.UnitTests
         [Test]
         public void CharSetIdGenerator_InvalidLengthOrCharSet_ThrowsArgumentOutOfRangeException()
         {
-            var reqIdGen = new CharSetIdGenerator();
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator(null, 1);
+                var reqIdGen = new CharSetIdGenerator(null, 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("", 1);
+                var reqIdGen = new CharSetIdGenerator("", 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("a", 0);
+                var reqIdGen = new CharSetIdGenerator("a", 0);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("a", -10);
+                var reqIdGen = new CharSetIdGenerator("a", -10);
             });
         }
     }

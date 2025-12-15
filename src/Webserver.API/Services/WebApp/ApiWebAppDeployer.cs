@@ -57,7 +57,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         public async Task DeployAsync(ApiWebAppData webApp, IProgress<int> progress = null, CancellationToken cancellationToken = default)
         {
             Logger?.LogDebug(string.Format("start deploying webapp: {0} with {1} resources.", webApp.Name, webApp.ApplicationResources.Count));
-            var res = await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
+            await ApiRequestHandler.WebAppCreateAsync(webApp, cancellationToken);
             var progressCounter = 0;
             foreach (var r in webApp.ApplicationResources)
             {

@@ -183,9 +183,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiPlcProgramData">ApiPlcProgramDataType of the valueWanted</param>
         /// <param name="valueWanted">value the user wants</param>
         /// <returns>the value in the correct format for the api (8bytes and string: string, otherwise: object - e.g. int)</returns>
-        /// <param name="id">Request Id</param>
-        /// <param name="jsonRpc">JsonRpc to be used</param>
-        object GetApiPlcProgramWriteValueToBeSet(ApiPlcProgramDataType apiPlcProgramData, object valueWanted, string jsonRpc = null, string id = null);
+        object GetApiPlcProgramWriteValueToBeSet(ApiPlcProgramDataType apiPlcProgramData, object valueWanted);
         /// <summary>
         /// get an Plc.ReadOperatingMode Request without parameters
         /// </summary>

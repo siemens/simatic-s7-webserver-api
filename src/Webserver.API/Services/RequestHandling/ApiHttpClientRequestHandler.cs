@@ -192,17 +192,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default)
         {
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+            using(var request_body = new ByteArrayContent(byteArr))
+            {
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken))
+                {
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
 #if NET6_0_OR_GREATER
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 #else
-            var responseString = await response.Content.ReadAsStringAsync();
+                    var responseString = await response.Content.ReadAsStringAsync();
 #endif
-            _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
-            return responseString;
+                    _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+                    return responseString;
+                }
+            }
+            
         }
 
         /// <summary>
@@ -216,15 +221,19 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             List<string> result = new List<string>();
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-            var response = await _httpClient.PostAsync(JsonRpcApi, request_body);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
-            var responseString = await response.Content.ReadAsStringAsync();
-            _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
-            result.Add(responseString);
-            //result.Add(response.Content.Headers.ContentDisposition.FileName);
-            return result;
+            using (var request_body = new ByteArrayContent(byteArr))
+            {
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
+                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body))
+                {
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    _apiResponseChecker.CheckResponseStringForErros(responseString, apiRequestString);
+                    result.Add(responseString);
+                    //result.Add(response.Content.Headers.ContentDisposition.FileName);
+                    return result;
+                }
+            }
         }
 
         /// <summary>
@@ -2623,11 +2632,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>HTTP response</returns>
         public async Task<HttpResponseMessage> DownloadTicketAndGetResponseAsync(string ticketId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var request_body = new ByteArrayContent(new byte[0]);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-            var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            return response;
+            using (var request_body = new ByteArrayContent(new byte[0]))
+            {
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                using (var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body, cancellationToken))
+                {
+                    response.EnsureSuccessStatusCode();
+                    return response;
+                }
+            }
         }
 
         /// <summary>
@@ -2703,8 +2716,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             data.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
             try
             {
-                var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data, cancellationToken);
-                response.EnsureSuccessStatusCode();
+                using (var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", data, cancellationToken))
+                {
+                    response.EnsureSuccessStatusCode();
+                }
             }
             catch (Exception e)
             {
@@ -2755,8 +2770,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 throw new FileNotFoundException($"file at: {pathToFile} not found!");
             }
-            var fileContent = new ByteArrayContent(File.ReadAllBytes(pathToFile));
-            await UploadTicketAsync(ticketId, fileContent, cancellationToken);
+            using (var fileContent = new ByteArrayContent(File.ReadAllBytes(pathToFile)))
+            {
+                await UploadTicketAsync(ticketId, fileContent, cancellationToken);
+            }
         }
         /// <summary>
         /// Function to Read and send the ByteArrayContent for a file with the Ticketing Endpoint Ticket (e.g. CreateResource)
@@ -2973,26 +2990,28 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 using (var requestBody = new ByteArrayContent(chunk))
                 {
                     requestBody.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-                    var response = await _httpClient.PostAsync(JsonRpcApi, requestBody, cancellationToken);
-                    _apiResponseChecker.CheckHttpResponseForErrors(response, Encoding.UTF8.GetString(chunk));
-                    var responseString = await response.Content.ReadAsStringAsync();
-
-                    // Deserialize error and success responses.
-                    var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
-                        .Where(el => el.Error != null);
-                    var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
-                        .Where(el => el.Result != null);
-
-                    if (errorResponses.Any())
+                    using (var response = await _httpClient.PostAsync(JsonRpcApi, requestBody, cancellationToken))
                     {
-                        var bulkResponse = new ApiBulkResponse
+                        _apiResponseChecker.CheckHttpResponseForErrors(response, Encoding.UTF8.GetString(chunk));
+                        var responseString = await response.Content.ReadAsStringAsync();
+
+                        // Deserialize error and success responses.
+                        var errorResponses = JsonConvert.DeserializeObject<IEnumerable<ApiErrorModel>>(responseString)
+                            .Where(el => el.Error != null);
+                        var successfulResponses = JsonConvert.DeserializeObject<IEnumerable<ApiResultResponse<object>>>(responseString)
+                            .Where(el => el.Result != null);
+
+                        if (errorResponses.Any())
                         {
-                            ErrorResponses = errorResponses,
-                            SuccessfulResponses = successfulResponses
-                        };
-                        throw new ApiBulkRequestException(bulkResponse);
+                            var bulkResponse = new ApiBulkResponse
+                            {
+                                ErrorResponses = errorResponses,
+                                SuccessfulResponses = successfulResponses
+                            };
+                            throw new ApiBulkRequestException(bulkResponse);
+                        }
+                        successResponses.AddRange(successfulResponses);
                     }
-                    successResponses.AddRange(successfulResponses);
                 }
             }
 

@@ -59,49 +59,54 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var chunkLenSum = 0;
                 var commaMissingSum = 0;
 #endif
-                var currentStream = new MemoryStream();
-                currentStream.Append(beginBytes);
-                foreach (var request in apiRequests)
+
+                using (var currentStream = new MemoryStream())
                 {
-                    string requestString = JsonConvert.SerializeObject(request, jsonSettings);
-                    byte[] requestByteArr = Encoding.UTF8.GetBytes(requestString);
-                    if (requestByteArr.Length > MaxRequestSize)
+                    currentStream.Append(beginBytes);
+                    foreach (var request in apiRequests)
                     {
-                        throw new ApiRequestBiggerThanMaxMessageSizeException($"Request size {requestByteArr.Length} exceeds MaxRequestSize {MaxRequestSize}.");
-                    }
-                    if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
-                    {
-                        if (currentStream.Length > 5)
+                        string requestString = JsonConvert.SerializeObject(request, jsonSettings);
+                        byte[] requestByteArr = Encoding.UTF8.GetBytes(requestString);
+                        if (requestByteArr.Length > MaxRequestSize)
                         {
-                            // only append the comma if there already is one inside
-                            currentStream.Append(commaBytes);
+                            throw new ApiRequestBiggerThanMaxMessageSizeException($"Request size {requestByteArr.Length} exceeds MaxRequestSize {MaxRequestSize}.");
                         }
-                        currentStream.Append(requestByteArr); // append it to the current stream
-                    }
-                    else // save the current stream, add the current request to a new byte array
-                    {
-                        currentStream.Append(endBytes);
-                        var currentBuffer = currentStream.ToArray();
-                        messageChunks.Add(currentBuffer);
+                        if (currentStream.Length + requestByteArr.Length + commaBytes.Length < MaxRequestSize)
+                        {
+                            if (currentStream.Length > 5)
+                            {
+                                // only append the comma if there already is one inside
+                                currentStream.Append(commaBytes);
+                            }
+                            currentStream.Append(requestByteArr); // append it to the current stream
+                        }
+                        else // save the current stream, add the current request to a new byte array
+                        {
+                            currentStream.Append(endBytes);
+                            var currentBuffer = currentStream.ToArray();
+                            messageChunks.Add(currentBuffer);
 #if DEBUG
-                        chunkLenSum += currentBuffer.Length;
+                            chunkLenSum += currentBuffer.Length;
+                            commaMissingSum += commaBytes.Length;
+#endif
+                            // Reset the stream for reuse instead of disposing and creating new
+                            currentStream.SetLength(0);
+                            currentStream.Position = 0;
+                            currentStream.Append(beginBytes);
+                            currentStream.Append(requestByteArr);
+                        }
+                    }
+                    if (currentStream.Length > 0)
+                    {
+                        // save the current (last) stream
+                        currentStream.Append(endBytes);
+                        var currentBufferAfterwards = currentStream.ToArray();
+                        messageChunks.Add(currentBufferAfterwards);
+#if DEBUG
+                        chunkLenSum += currentBufferAfterwards.Length;
                         commaMissingSum += commaBytes.Length;
 #endif
-                        currentStream = new MemoryStream();
-                        currentStream.Append(beginBytes);
-                        currentStream.Append(requestByteArr);
                     }
-                }
-                if (currentStream.Length > 0)
-                {
-                    // save the current (last) stream
-                    currentStream.Append(endBytes);
-                    var currentBufferAfterwards = currentStream.ToArray();
-                    messageChunks.Add(currentBufferAfterwards);
-#if DEBUG
-                    chunkLenSum += currentBufferAfterwards.Length;
-                    commaMissingSum += commaBytes.Length;
-#endif
                 }
                 
 #if DEBUG

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Enums;
+using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models.Technology
 {
@@ -11,6 +12,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Technology
     /// </summary>
     public class ApiTechnologyObject
     {
+        /// <summary>
+        /// allowed tolerance for float comparison
+        /// </summary>
+        private const float Tolerance = 1e-6f;
         /// <summary>
         /// The block number of the technology object
         /// </summary>
@@ -39,7 +44,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Technology
                    Number == technologyObject.Number &&
                    Name == technologyObject.Name &&
                    Type == technologyObject.Type &&
-                   Version == technologyObject.Version;
+                   Math.Abs(Version - technologyObject.Version) < Tolerance;
         }
 
         /// <summary>

@@ -286,7 +286,7 @@ namespace Webserver.API.UnitTests
         public void ApiDateAndTime_ValuesAreAsExpected()
         {
             var myDate = new ApiDateAndTime();
-            if (!(myDate.Year == 1990 && myDate.Month == 1 && myDate.Day == 1 && myDate.Hour == 0 && myDate.Minute == 0 && myDate.Second == 0.0))
+            if (!(myDate.Year == 1990 && myDate.Month == 1 && myDate.Day == 1 && myDate.Hour == 0 && myDate.Minute == 0 && Math.Abs(myDate.Second - 0.0) < 1e-9))
             {
                 Assert.Fail($"Unexpected date: {myDate}");
             }

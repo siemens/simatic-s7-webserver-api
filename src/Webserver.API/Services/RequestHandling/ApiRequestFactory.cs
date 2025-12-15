@@ -991,7 +991,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
             var pwd = string.IsNullOrEmpty(password) ? string.Empty : password;
-            var reqParams = new Dictionary<string, object>() { { "password", password?.ToString() } };
+            var reqParams = new Dictionary<string, object>() { { "password", password } };
             return new ApiRequest("Plc.RestoreBackup", jsonRpcReq, idReq, reqParams);
         }
 

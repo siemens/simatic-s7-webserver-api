@@ -101,7 +101,7 @@ namespace Webserver.API.UnitTests
             {
                 var accType = apiPlcProgData.GetAccordingDataType();
                 Assert.That(accType.Equals(expectedType), $"For ApiPlcProgramData:" +
-                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {accType.ToString()} instead of {expectedType.ToString()}!");
+                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {accType} instead of {expectedType}!");
             }
         }
 
@@ -116,7 +116,7 @@ namespace Webserver.API.UnitTests
             {
                 var accBytes = apiPlcProgData.GetBytesOfDataType();
                 Assert.That(accBytes.Equals(expectedBytes), $"For ApiPlcProgramData:" +
-                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {accBytes.ToString()} instead of {expectedBytes}!");
+                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {accBytes} instead of {expectedBytes}!");
             }
         }
 
@@ -131,7 +131,7 @@ namespace Webserver.API.UnitTests
             {
                 var isSupportedByDt = apiPlcProgData.IsSupportedByPlcProgramReadOrWrite();
                 Assert.That(isSupportedByDt.Equals(expectedSupport), $"For ApiPlcProgramData:" +
-                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {isSupportedByDt.ToString()} instead of {expectedSupport}!");
+                    $"{apiPlcProgData.ToString()}:{(int)apiPlcProgData} the according Data Type was {isSupportedByDt} instead of {expectedSupport}!");
             }
         }
 

@@ -51,7 +51,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             set
             {
                 if (value == ApiPlcProgramDataType.None)
-                    throw new ApiInvalidResponseException("Api PlcProgramDataType:" + value.ToString() + " was invalid!");
+                    throw new ApiInvalidResponseException($"Api PlcProgramDataType:{value} was invalid!");
                 dataType = value;
             }
         }

@@ -47,7 +47,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 if (value == ApiWebAppState.None)
                 {
-                    throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
+                    throw new ApiInvalidResponseException($"Returned from api was:{value} - which is not valid! contact Siemens");
                 }
                 state = value;
             }
@@ -68,7 +68,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             {
                 if (value == ApiWebAppType.None)
                 {
-                    throw new ApiInvalidResponseException($"Returned from api was:{value.ToString()} - which is not valid! contact Siemens");
+                    throw new ApiInvalidResponseException($"Returned from api was:{value} - which is not valid! contact Siemens");
                 }
                 type = value;
             }

@@ -27,7 +27,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (apiWebAppState == ApiWebAppState.None)
                 {
-                    throw new ApiInvalidParametersException($"WebApp function shall not be called with state None:{Environment.NewLine + apiWebAppState.ToString()}" +
+                    throw new ApiInvalidParametersException($"WebApp function shall not be called with state None:{Environment.NewLine}{apiWebAppState}" +
                     $"{Environment.NewLine}Probably Api would send: ", new ApiException(new ApiErrorModel() { Error = new ApiError() { Code = ApiErrorCode.InvalidParams, Message = "Invalid Params" } }));
                 }
             }
@@ -72,7 +72,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 if (apiPlcProgramData == ApiPlcProgramDataType.None)
                 {
-                    throw new ApiHelperInvalidPlcProgramDataTypeException($"PlcProgram Read or Write Comfort functions are not available without the DataType!(Given:{apiPlcProgramData.ToString()})" +
+                    throw new ApiHelperInvalidPlcProgramDataTypeException($"PlcProgram Read or Write Comfort functions are not available without the DataType!(Given:{apiPlcProgramData})" +
                         $"{Environment.NewLine}Browse for the PlcProgramData first, set it and then use comfort functionality with given DataType!");
                 }
                 var bytesOfDataType = apiPlcProgramData.GetBytesOfDataType();

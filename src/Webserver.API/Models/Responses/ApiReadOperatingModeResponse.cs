@@ -21,7 +21,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses
             set
             {
                 if (value == ApiPlcOperatingMode.None || value == ApiPlcOperatingMode.Unknown)
-                    throw new ApiInvalidResponseException($"ApiPlcOperatingmode returned from api was:{value.ToString()} - which is not valid! contact Siemens");
+                    throw new ApiInvalidResponseException($"ApiPlcOperatingmode returned from api was:{value} - which is not valid! contact Siemens");
                 base.Result = value;
             }
         }

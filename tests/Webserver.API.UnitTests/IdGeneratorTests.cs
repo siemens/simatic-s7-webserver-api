@@ -7,16 +7,16 @@ using System;
 
 namespace Webserver.API.UnitTests
 {
-    class IdGeneratorTests : Base
+    public class IdGeneratorTests : Base
     {
 
         [Test]
         public void GUIDGenerator_InvalidLength_ThrowsArgumentOutOfRangeException()
         {
-            var reqIdGen = new GUIDGenerator();
+            var guidGenerator = new GUIDGenerator();
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                new GUIDGenerator(reqIdGen.DefaultLength + 1);
+                new GUIDGenerator(guidGenerator.DefaultLength + 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {

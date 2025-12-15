@@ -52,18 +52,18 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// Wait for a custom condition to be met
         /// </summary>
         /// <param name="Condition">Custom condition to wait for</param>
-        /// <param name="TimeOut">Timeout</param>
-        /// <param name="CycleTime">Cycle time</param>
+        /// <param name="timeOut">Timeout</param>
+        /// <param name="cycleTime">Cycle time</param>
         /// <param name="errorMessageForException">error message for the excption</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns></returns>
-        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default)
+        public TimeSpan WaitForCondition(Action Condition, TimeSpan timeOut, TimeSpan cycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default)
         {
             var sw = new Stopwatch();
             sw.Start();
             var start = DateTime.UtcNow;
             bool throwCancellation = false;
-            while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
+            while (!(DateTime.UtcNow.Subtract(start) > timeOut))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -78,13 +78,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
                 }
                 catch (Exception) { }
                 // Cylcle time
-                Thread.Sleep(CycleTime);
+                Thread.Sleep(cycleTime);
             }
             if (throwCancellation)
             {
                 cancellationToken.ThrowIfCancellationRequested();
             }
-            throw new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {TimeOut}!{Environment.NewLine}Retried every {CycleTime}!{Environment.NewLine}{errorMessageForException}");
+            throw new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {timeOut}!{Environment.NewLine}Retried every {cycleTime}!{Environment.NewLine}{errorMessageForException}");
         }
     }
 }

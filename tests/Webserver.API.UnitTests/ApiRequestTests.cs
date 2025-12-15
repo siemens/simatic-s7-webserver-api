@@ -661,7 +661,7 @@ namespace Webserver.API.UnitTests
             var client = new HttpClient(mockHttp);
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var res = await TestHandler.ApiPingAsync();
+            await TestHandler.ApiPingAsync();
         }
 
         /// <summary>
@@ -1590,6 +1590,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcProgramWriteAsync("\"DataTypes\".Bool", true, ApiPlcDataRepresentation.Simple);
+            Assert.That(res.Result);
         }
 
         /// <summary>
@@ -1608,6 +1609,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var res = await TestHandler.PlcProgramWriteAsync("\"DataTypes\".Bool", new int[1] { 1 }, ApiPlcDataRepresentation.Raw);
+            Assert.That(res.Result);
         }
 
         /// <summary>
@@ -1774,6 +1776,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.WebAppCreateAsync("thirdwebapp");
+            Assert.That(resp.Result);
         }
 
         /// <summary>
@@ -1936,6 +1939,7 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             var resp = await TestHandler.WebAppCreateResourceAsync("customerExampleManualAdjusted", "someresName", "text/html", "2020-08-24T07:08:06.000Z");
+            Assert.That(resp.Result, Is.EqualTo("YUryW9vc8FRVLU054XYWyHee9GWu"));
         }
 
 
@@ -2117,6 +2121,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppDeleteAsync(webAppName);
+            Assert.That(resp.Result);
         }
 
         /// <summary>
@@ -2156,6 +2161,7 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppDeleteResourceAsync(webAppName, "resName");
+            Assert.That(resp.Result);
         }
 
         /// <summary>
@@ -2235,6 +2241,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppRenameAsync(webAppName, "newWebAppName");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewWebApp.Name, Is.EqualTo("newWebAppName"));
         }
 
         /// <summary>
@@ -2275,6 +2283,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppRenameResourceAsync(webAppName, "resName", "newResName");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewResource.Name, Is.EqualTo("newResName"));
         }
 
         /// <summary>
@@ -2315,6 +2325,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetDefaultPageAsync(webAppName, "resName");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewWebApp.Default_page, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2354,6 +2366,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetNotFoundPageAsync(webAppName, "resName");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewWebApp.Not_found_page, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2393,6 +2407,8 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetNotAuthorizedPageAsync(webAppName, "resName");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewWebApp.Not_authorized_page, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2433,6 +2449,9 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceETagAsync(webAppName, "resName", "etagVal");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewResource.Etag, Is.EqualTo("etagVal"));
+            Assert.That(resp.NewResource.Name, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2473,7 +2492,10 @@ namespace Webserver.API.UnitTests
             client.BaseAddress = new Uri($"https://{Ip}");
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
-            var resp = await TestHandler.WebAppSetResourceMediaTypeAsync(webAppName, "resName", "etagVal");
+            var resp = await TestHandler.WebAppSetResourceMediaTypeAsync(webAppName, "resName", "meadiaTypeVal");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewResource.Media_type, Is.EqualTo("meadiaTypeVal"));
+            Assert.That(resp.NewResource.Name, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2513,6 +2535,10 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceModificationTimeAsync(webAppName, "resName", "2020-08-24T07:08:06Z");
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            var expectedTime = DateTime.Parse("2020-08-24T07:08:06Z").ToUniversalTime();
+            Assert.That(resp.NewResource.Last_modified, Is.EqualTo(expectedTime)); // utc conversion from datetime parse
+            Assert.That(resp.NewResource.Name, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2553,6 +2579,9 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetResourceVisibilityAsync(webAppName, "resName", ApiWebAppResourceVisibility.Public);
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewResource.Visibility, Is.EqualTo(ApiWebAppResourceVisibility.Public));
+            Assert.That(resp.NewResource.Name, Is.EqualTo("resName"));
         }
 
         /// <summary>
@@ -2592,6 +2621,9 @@ namespace Webserver.API.UnitTests
             TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
             string webAppName = "webApp";
             var resp = await TestHandler.WebAppSetStateAsync(webAppName, ApiWebAppState.Disabled);
+            Assert.That(resp.TrueOnSuccesResponse.Result);
+            Assert.That(resp.NewWebApp.Name, Is.EqualTo(webAppName));
+            Assert.That(resp.NewWebApp.State, Is.EqualTo(ApiWebAppState.Disabled));
         }
 
         /// <summary>
@@ -2695,6 +2727,15 @@ namespace Webserver.API.UnitTests
                 JsonConvert.DeserializeObject<ApiSingleStringResponse>(JsonConvert.SerializeObject(third));
             ApiArrayOfApiClassResponse casted4 =
                 JsonConvert.DeserializeObject<ApiArrayOfApiClassResponse>(JsonConvert.SerializeObject(fourth));
+            Assert.Multiple(() =>
+            {
+                Assert.That(casted.Result, Is.EqualTo(ApiPlcOperatingMode.Run));
+                Assert.That(firstcasted2.Result, Is.EqualTo(ApiPlcOperatingMode.Run));
+                Assert.That(casted2.Result.First().Name, Is.EqualTo("DataTypes"));
+                Assert.That(casted2.Result.First().Has_children, Is.EqualTo(true));
+                Assert.That(casted3.Result, Is.EqualTo("/MiniWebCA_Cer.crt"));
+                Assert.That(casted4.Result, Contains.Item(new ApiClass() { Name = "restore_plc" }));
+            });
         }
 
         /// <summary>
@@ -2717,7 +2758,7 @@ namespace Webserver.API.UnitTests
             bulkRequest.Add(ApiRequestFactory.GetApiPingRequest());
             Assert.ThrowsAsync<ApiBulkRequestException>(async () =>
             {
-                var bulkResult = (await TestHandler.ApiBulkAsync(bulkRequest));
+                await TestHandler.ApiBulkAsync(bulkRequest);
             });
         }
 

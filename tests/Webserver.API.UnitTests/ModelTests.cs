@@ -20,8 +20,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiWebAppResource_NullEqualAndSequenceEqual_AsExpected()
         {
-            var resource = new ApiWebAppResource();
-            resource = null;
+            ApiWebAppResource resource = null;
             if (resource == null)
             {
                 // Expected case: resource is null - no action needed.
@@ -65,8 +64,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void WebApp_NullEqualAndSequenceEqual_AsExpected()
         {
-            var app = new ApiWebAppData();
-            app = null;
+            ApiWebAppData app = null;
             if (app == null)
             {
                 ;
@@ -142,8 +140,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiS5Time_NullEqualAndSequenceEqual_AsExpected()
         {
-            var s5Time = new ApiS5Time(10, 1);
-            s5Time = null;
+            ApiS5Time s5Time = null;
             if (s5Time == null)
             {
                 ;
@@ -256,8 +253,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiDateAndTime_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiDateAndTime = new ApiDateAndTime();
-            apiDateAndTime = null;
+            ApiDateAndTime apiDateAndTime = null;
             if (apiDateAndTime == null)
             {
                 ;
@@ -423,8 +419,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiClass_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiClass = new ApiClass();
-            apiClass = null;
+            ApiClass apiClass = null;
             if (apiClass == null)
             {
                 ;
@@ -470,8 +465,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiError_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiError = new ApiError();
-            apiError = null;
+            ApiError apiError = null;
             if (apiError == null)
             {
                 ;
@@ -517,8 +511,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiPlcProgramData_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiPlcProgramData = new ApiPlcProgramData();
-            apiPlcProgramData = null;
+            ApiPlcProgramData apiPlcProgramData = null;
             if (apiPlcProgramData == null)
             {
                 ;
@@ -564,8 +557,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiPlcProgramDataArrayIndexer_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiPlcProgramDataArrayIndexer = new ApiPlcProgramDataArrayIndexer();
-            apiPlcProgramDataArrayIndexer = null;
+            ApiPlcProgramDataArrayIndexer apiPlcProgramDataArrayIndexer = null;
             if (apiPlcProgramDataArrayIndexer == null)
             {
                 ;
@@ -611,8 +603,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiTicket_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiTicket = new ApiTicket();
-            apiTicket = null;
+            ApiTicket apiTicket = null;
             if (apiTicket == null)
             {
                 ;
@@ -657,8 +648,7 @@ namespace Webserver.API.UnitTests
         [Test]
         public void ApiWebAppDataSaveSetting_NullEqualAndSequenceEqual_AsExpected()
         {
-            var apiWebAppDataSaveSetting = new ApiWebAppDataSaveSetting();
-            apiWebAppDataSaveSetting = null;
+            ApiWebAppDataSaveSetting apiWebAppDataSaveSetting = null;
             if (apiWebAppDataSaveSetting == null)
             {
                 ;

@@ -337,13 +337,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="apiPlcProgramData">ApiPlcProgramDataType of the valueWanted</param>
         /// <param name="valueWanted">value the user wants</param>
         /// <returns>the value in the correct format for the api (8bytes and string: string, otherwise: object - e.g. int)</returns>
-        /// <param name="id">Request Id, defaults to RequestIdGenerator.Generate()</param>
-        /// <param name="jsonRpc">JsonRpc to be used - defaults to  JsonRpcVersion</param>
-        public virtual object GetApiPlcProgramWriteValueToBeSet(ApiPlcProgramDataType apiPlcProgramData, object valueWanted, string jsonRpc = null, string id = null)
+        public virtual object GetApiPlcProgramWriteValueToBeSet(ApiPlcProgramDataType apiPlcProgramData, object valueWanted)
         {
             RequestParameterChecker.CheckPlcProgramReadOrWriteDataType(apiPlcProgramData, PerformCheck);
-            string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
-            string idReq = id ?? RequestIdGenerator.Generate();
             var bytesOfDataType = apiPlcProgramData.GetBytesOfDataType();
             var type = apiPlcProgramData.GetAccordingDataType();
             var objToReturn = (bytesOfDataType == 8 && apiPlcProgramData != ApiPlcProgramDataType.Lreal || type == typeof(string)) ? valueWanted.ToString() :
@@ -990,7 +986,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            var pwd = string.IsNullOrEmpty(password) ? string.Empty : password;
             var reqParams = new Dictionary<string, object>() { { "password", password } };
             return new ApiRequest("Plc.RestoreBackup", jsonRpcReq, idReq, reqParams);
         }

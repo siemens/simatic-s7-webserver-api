@@ -135,7 +135,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             string apiRequestString = JsonConvert.SerializeObject(apiRequest, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            byte[] byteArr = Encoding.GetBytes(apiRequestString);
             var started = DateTime.Now;
             _logger?.LogTrace($"Start sending request {apiRequest.Id}");
             var response = await SendPostRequestAsync(apiRequestString, cancellationToken);
@@ -168,7 +167,6 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             string apiRequestString = JsonConvert.SerializeObject(apiRequestWithIntId, new JsonSerializerSettings()
             { NullValueHandling = NullValueHandling.Ignore, ContractResolver = new CamelCasePropertyNamesContractResolver() });
-            byte[] byteArr = Encoding.GetBytes(apiRequestString);
             var started = DateTime.Now;
             _logger?.LogTrace($"Start sending request {apiRequestWithIntId.Id}");
             var response = await SendPostRequestAsync(apiRequestString, cancellationToken);

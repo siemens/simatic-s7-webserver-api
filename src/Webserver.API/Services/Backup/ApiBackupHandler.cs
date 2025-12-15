@@ -172,7 +172,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             {
                 try
                 {
-                    var pingRes = ApiRequestHandler.ApiPing();
+                    ApiRequestHandler.ApiPing();
                     return false;
                 }
                 catch (Exception e)

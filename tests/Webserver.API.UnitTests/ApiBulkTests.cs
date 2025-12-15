@@ -90,9 +90,9 @@ namespace Webserver.API.UnitTests
             TestHandler.MaxRequestSize = 5; // -> 20 chunks
             requests.Add(sampleReq);
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
-            var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
+            Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
             {
-                var response = await TestHandler.ApiBulkAsync(requests);
+                await TestHandler.ApiBulkAsync(requests);
             });
         }
 
@@ -138,7 +138,7 @@ namespace Webserver.API.UnitTests
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
             {
-                var response = await TestHandler.ApiBulkAsync(requests);
+                await TestHandler.ApiBulkAsync(requests);
             });
             Assert.That(exc.Message, Contains.Substring("exceeds MaxRequestSize"));
         }
@@ -187,7 +187,7 @@ namespace Webserver.API.UnitTests
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
             var exc = Assert.ThrowsAsync<ApiRequestBiggerThanMaxMessageSizeException>(async () =>
             {
-                var response = await TestHandler.ApiBulkAsync(requests);
+                await TestHandler.ApiBulkAsync(requests);
             });
             Assert.That(exc.Message, Contains.Substring("exceeds MaxRequestSize"));
         }

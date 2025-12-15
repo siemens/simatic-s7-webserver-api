@@ -28,7 +28,7 @@ namespace Webserver.API.UnitTests
         /// </summary>
         /// <param name="loopAmount">amount of loops -> Api Ping requests to be split.</param>
         [Test]
-        public void ApiRequestSplitter_AndByBytes_SameResult([Values(10, 30/*5000, 100_000, 500_000*/)] int loopAmount)
+        public void ApiRequestSplitter_AndByBytes_SameResult([Values(10, 30, 5000, 100_000, 500_000)] int loopAmount)
         {
             var requests = new List<ApiRequest>();
             for (int i = 0; i < loopAmount; i++)

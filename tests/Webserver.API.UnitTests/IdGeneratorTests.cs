@@ -16,37 +16,36 @@ namespace Webserver.API.UnitTests
             var reqIdGen = new GUIDGenerator();
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new GUIDGenerator(reqIdGen.DefaultLength + 1);
+                new GUIDGenerator(reqIdGen.DefaultLength + 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new GUIDGenerator(0);
+                new GUIDGenerator(0);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new GUIDGenerator(-3);
+                new GUIDGenerator(-3);
             });
         }
 
         [Test]
         public void CharSetIdGenerator_InvalidLengthOrCharSet_ThrowsArgumentOutOfRangeException()
         {
-            var reqIdGen = new CharSetIdGenerator();
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator(null, 1);
+                new CharSetIdGenerator(null, 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("", 1);
+                new CharSetIdGenerator("", 1);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("a", 0);
+                new CharSetIdGenerator("a", 0);
             });
             Assert.Throws<ArgumentOutOfRangeException>(() =>
             {
-                var reqIdGen2 = new CharSetIdGenerator("a", -10);
+                new CharSetIdGenerator("a", -10);
             });
         }
     }

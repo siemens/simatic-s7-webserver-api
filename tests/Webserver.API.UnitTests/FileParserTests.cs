@@ -27,7 +27,6 @@ namespace Webserver.API.UnitTests
                 {
                     Directory.CreateDirectory(dirPath);
                 }
-                var serializerSettings = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
                 ApiWebAppData missingStateApp = new ApiWebAppData()
                 {
                     Name = "validName",
@@ -44,7 +43,7 @@ namespace Webserver.API.UnitTests
                 ApiWebAppConfigParser parser = new ApiWebAppConfigParser(dirPath, fileName, new ApiWebAppResourceBuilder());
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
-                    var invalidApp = parser.Parse();
+                    parser.Parse();
                 });
                 var missingTypeApp = new ApiWebAppData()
                 {
@@ -59,7 +58,7 @@ namespace Webserver.API.UnitTests
                 ;
                 Assert.Throws<ApiWebAppConfigParserException>(() =>
                 {
-                    var invalidApp = parser.Parse();
+                    parser.Parse();
                 });
             }
             finally

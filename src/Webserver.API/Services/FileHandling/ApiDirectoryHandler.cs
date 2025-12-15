@@ -119,7 +119,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     await ApiRequestHandler.FilesDeleteDirectoryAsync(dirName, cancellationToken);
                 }
-                catch (ApiEntityDoesNotExistException) {
+                catch (ApiEntityDoesNotExistException e) {
                     Logger?.LogDebug(e, $"Trying to call {nameof(DeleteAsync)} within {nameof(ApiDirectoryHandler)} -> seems the directory has already been deleted.");
                 }
 

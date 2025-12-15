@@ -73,6 +73,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
             Exception lastException = null;
             while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 // https://github.com/nunit/nunit/issues/2040
                 try
                 {

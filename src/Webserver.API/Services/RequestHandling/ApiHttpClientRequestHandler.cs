@@ -2723,6 +2723,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             }
             catch (Exception e)
             {
+                _logger?.LogError(e, $"Trying to {nameof(UploadTicketAsync)} within {nameof(ApiHttpClientRequestHandler)}!");
                 throw new ApiTicketingEndpointUploadException(ticketId, e);
             }
         }

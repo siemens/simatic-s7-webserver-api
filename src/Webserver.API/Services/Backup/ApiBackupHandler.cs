@@ -102,7 +102,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             var browseResult = (await ApiRequestHandler.ApiBrowseAsync(externalCancellationToken)).Result;
             bool restoreMode = !browseResult.Any(x => x.Name == "Plc.CreateBackup");
             string uploadTicket;
-            var waitHandler = new WaitHandler(timeToWait);
+            var waitHandler = new WaitHandler(timeToWait, logger: Logger);
 
             if (!restoreMode)
             {
@@ -126,13 +126,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                         sw.Stop();
                         await uploadTask;
                     }
-                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) { }
+                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) {
+                        Logger?.LogDebug($"Upload cancelled as expecteded due to plc rebooting for format - {e.Message}.");
+                    }
                     finally
                     {
                         externalCancellationToken.ThrowIfCancellationRequested();
                     }
                 }
-                    
                 WaitForPlcReboot(waitHandler, externalCancellationToken);
                 await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
             }
@@ -186,16 +187,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             Logger?.LogDebug("Wait for plc to be pingable again (reboot).");
             waitHandler.ForTrue(() =>
             {
-                try
-                {
-                    var pingRes = ApiRequestHandler.ApiPing();
-                    Logger?.LogDebug(string.Format("Plc pingable again via api pingresult: {0}", pingRes.Result));
-                    return true;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                var pingRes = ApiRequestHandler.ApiPing();
+                Logger?.LogDebug(string.Format("Plc pingable again via api pingresult: {0}", pingRes.Result));
+                return true;
             });
         }
     }

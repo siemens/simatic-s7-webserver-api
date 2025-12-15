@@ -21,5 +21,22 @@ namespace Webserver.API.UnitTests
                 waitHandler.ForTrue(() => true, "Condition should be true", cancellationTokenSource.Token);
             });
         }
+
+
+        [Test]
+        public void WaitHandler_ThrowsAfterTime_IncludingErrorInfo()
+        {
+            // Arrange
+            var waitHandler = new WaitHandler(TimeSpan.FromMilliseconds(300));
+            // Act & Assert
+            var exc = Assert.Throws<TimeoutException>(() =>
+            {
+                waitHandler.ForTrue(() =>
+                {
+                    throw new InvalidOperationException($"Test");
+                });
+            });
+            Assert.That(exc.Message, Contains.Substring("test"));
+        }
     }
 }

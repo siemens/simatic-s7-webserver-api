@@ -52,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         {
             return WaitForCondition(() =>
             {
-                if (!Value()) throw new Exception();
+                if (!Value()) throw new ConditionNotYetReachedException();
             }, TimeOut, CycleTime, errorMessageForException, cancellationToken);
         }
 

@@ -60,7 +60,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     {
                         var.Children = new List<ApiPlcProgramData>();
                     }
-                    if (el.ArrayElements?.Count != 0)
+                    if (el.ArrayElements != null && el.ArrayElements.Count != 0)
                     {
                         foreach (var arrayEl in el.ArrayElements)
                         {
@@ -113,7 +113,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                 {
                     await PlcProgramReadStructByChildValuesAsync(child, childrenReadMode, cancellationToken);
                 }
-                else if (child.ArrayElements?.Count != 0)
+                else if (child.ArrayElements != null && child.ArrayElements.Count != 0)
                 {
                     foreach (var arrayElement in child.ArrayElements)
                     {
@@ -247,7 +247,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                                             {
                                                 item.Children = new List<ApiPlcProgramData>();
                                             }
-                                            if (el.ArrayElements?.Count != 0)
+                                            if (el.ArrayElements != null && el.ArrayElements.Count != 0)
                                             {
                                                 foreach (var arrayEl in el.ArrayElements)
                                                 {

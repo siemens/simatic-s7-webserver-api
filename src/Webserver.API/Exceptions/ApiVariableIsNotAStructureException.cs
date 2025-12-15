@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiVariableIsNotAStructureException : Exception
     {
-        private static string message = "Browsing the specific address is not possible since the given variable is not a structure.";
+        private static readonly string message = "Browsing the specific address is not possible since the given variable is not a structure.";
         /// <summary>
         /// Browsing the specific address is not possible since the given variable is not a structure.
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidArrayIndexException : Exception
     {
-        private static string message = "The dimensions and edges of the array-indexes do not match the typeinformation of the plc. Did you provide a (correct) index?";
+        private static readonly string message = "The dimensions and edges of the array-indexes do not match the typeinformation of the plc. Did you provide a (correct) index?";
         /// <summary>
         /// The dimensions and edges of the array-indexes do not match the typeinformation of the plc. Did you provide a (correct) index?
         /// </summary>

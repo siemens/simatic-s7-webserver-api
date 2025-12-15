@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInfrastructureErrorException : Exception
     {
-        private static string message = "Authentication on the UMC server was not successful. This may happen due to various reasons, e.g. the UMC server could not be reached by the PLC.";
+        private static readonly string message = "Authentication on the UMC server was not successful. This may happen due to various reasons, e.g. the UMC server could not be reached by the PLC.";
         /// <summary>
         /// Authentication on the UMC server was not successful. This may happen due to various reasons, e.g. the UMC server could not be reached by the PLC.
         /// </summary>

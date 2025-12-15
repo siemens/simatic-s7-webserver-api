@@ -12,7 +12,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNotAcceptedException : Exception
     {
-        private static string message = "Not accepted;\r\n" +
+        private static readonly string message = "Not accepted;\r\n" +
             "In login: The authentication cannot be performed. This may happen because the requested mode is not supported by the PLC. Not accepted in password change: The password change cannot be performed. This is caused for example if an older PLC project is present where password changes are not supported.\r\n" +
             "For WebApp.SetUrlRedirectMode: ​The method cannot be executed because this method of the application is not supported either for this application type or for the loaded project version.";
         /// <summary>

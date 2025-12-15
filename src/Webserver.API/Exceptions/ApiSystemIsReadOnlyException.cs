@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiSystemIsReadOnlyException : Exception
     {
-        private static string message = "The system is currently in a write-protected state. Changes to Web Applications are currently not allowed.";
+        private static readonly string message = "The system is currently in a write-protected state. Changes to Web Applications are currently not allowed.";
         /// <summary>
         /// The system is currently in a write-protected state. Changes to Web Applications are currently not allowed.
         /// </summary>

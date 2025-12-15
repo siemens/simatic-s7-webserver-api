@@ -102,23 +102,23 @@ namespace Webserver.API.UnitTests
                 }
                 if (app.DirectoriesToIgnoreForUpload == null || app.DirectoriesToIgnoreForUpload.Count != 0)
                 {
-                    Assert.Fail($"DirectroiesToIgnore dont default to empty List!:{Environment.NewLine}" +
-                        $"{app.DirectoriesToIgnoreForUpload}");
+                    Assert.Fail($"DirectoriesToIgnore dont default to empty List!:{Environment.NewLine}" +
+                        $"{string.Join(Environment.NewLine, app.DirectoriesToIgnoreForUpload)}");
                 }
                 if (app.FileExtensionsToIgnoreForUpload == null || app.FileExtensionsToIgnoreForUpload.Count != 0)
                 {
                     Assert.Fail($"FileExtensionsToIgnoreForUpload dont default to empty List!:{Environment.NewLine}" +
-                        $"{app.FileExtensionsToIgnoreForUpload}");
+                        $"{string.Join(Environment.NewLine, app.FileExtensionsToIgnoreForUpload)}");
                 }
                 if (app.ResourcesToIgnoreForUpload == null || app.ResourcesToIgnoreForUpload.Count != 0)
                 {
                     Assert.Fail($"ResourcesToIgnoreForUpload dont default to empty List!:{Environment.NewLine}" +
-                        $"{app.ResourcesToIgnoreForUpload}");
+                        $"{string.Join(Environment.NewLine, app.ResourcesToIgnoreForUpload)}");
                 }
                 if (app.ProtectedResources == null || app.ProtectedResources.Count != 0)
                 {
                     Assert.Fail($"ProtectedResources dont default to empty List!:{Environment.NewLine}" +
-                        $"{app.ProtectedResources}");
+                        $"{string.Join(Environment.NewLine, app.ProtectedResources)}");
                 }
                 if (app.ApplicationResources == null || app.ApplicationResources.Count != 0)
                 {

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiBackupInProgressException : Exception
     {
-        private static string message = "The datatype of the given address cannot be read or written.";
+        private static readonly string message = "The datatype of the given address cannot be read or written.";
         /// <summary>
         /// A backup creation is currently in progress
         /// </summary>

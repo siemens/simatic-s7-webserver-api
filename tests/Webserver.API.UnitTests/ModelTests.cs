@@ -27,16 +27,16 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null although its null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - resource not null although its null!");
             }
             if (resource != null)
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource not null although its null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - resource not null although its null!");
             }
             resource = new ApiWebAppResource();
             if (resource.Equals(null))
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null although its not null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - resource null although its not null!");
             }
             if (!resource.Equals(null))
             {
@@ -44,7 +44,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - resource null although its not null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - resource null although its not null!");
             }
             var resource2 = new ApiWebAppResource();
             Assert.That(resource.Equals(resource2));
@@ -156,7 +156,7 @@ namespace Webserver.API.UnitTests
             s5Time = new ApiS5Time(10, 1);
             if (s5Time.Equals(null))
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null although its null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             if (!s5Time.Equals(null))
             {
@@ -164,7 +164,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - s5Time not null although its null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - s5Time not null although its null!");
             }
             var s5Time2 = new ApiS5Time(10, 1);
             Assert.That(s5Time.Equals(s5Time2));
@@ -278,7 +278,7 @@ namespace Webserver.API.UnitTests
             }
             else
             {
-                Assert.Fail("ResourcNullEqualAndSequenceEqual - apiDateAndTime not null although its null!");
+                Assert.Fail("ResourceNullEqualAndSequenceEqual - apiDateAndTime not null although its null!");
             }
         }
 

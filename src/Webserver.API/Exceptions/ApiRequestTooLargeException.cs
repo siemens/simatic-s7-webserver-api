@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiRequestTooLargeException : Exception
     {
-        private static string message = "The overall size of all HTTP headers requested to be configured is too large. The user shall either reduce the number of headers or the length of an individual HTTP header.";
+        private static readonly string message = "The overall size of all HTTP headers requested to be configured is too large. The user shall either reduce the number of headers or the length of an individual HTTP header.";
 
         /// <summary>
         /// At least one of the provided HTTP headers is not part in the allowed list. The user can choose a HTTP header that is allowed to be set.

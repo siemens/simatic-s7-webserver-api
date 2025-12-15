@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiHTTPHeaderNotAllowedException : Exception
     {
-        private static string message = "At least one of the provided HTTP headers is not part in the allowed list. Choose a HTTP header that is allowed to be set.";
+        private static readonly string message = "At least one of the provided HTTP headers is not part in the allowed list. Choose a HTTP header that is allowed to be set.";
         /// <summary>
         /// At least one of the provided HTTP headers is not part in the allowed list. Choose a HTTP header that is allowed to be set.
         /// </summary>

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiIMDataInvalidIndexException : Exception
     {
-        private static string message = "The requested data record index is invalid";
+        private static readonly string message = "The requested data record index is invalid";
         /// <summary>
         /// The requested data record index is invalid
         /// </summary>

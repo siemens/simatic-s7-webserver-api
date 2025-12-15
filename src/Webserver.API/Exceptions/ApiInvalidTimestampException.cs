@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidTimestampException : Exception
     {
-        private static string message = "The provided timestamp does not match the required timestamp format";
+        private static readonly string message = "The provided timestamp does not match the required timestamp format";
         /// <summary>
         /// The provided timestamp does not match the required timestamp format
         /// </summary>

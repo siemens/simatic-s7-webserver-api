@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiHTTPHeaderInvalidException : Exception
     {
-        private static string message = "At least one of the provided HTTP headers represents an invalid HTTP header. Verify the provided HTTP header string and correct it as required.";
+        private static readonly string message = "At least one of the provided HTTP headers represents an invalid HTTP header. Verify the provided HTTP header string and correct it as required.";
         /// <summary>
         /// At least one of the provided HTTP headers represents an invalid HTTP header. Verify the provided HTTP header string and correct it as required.
         /// </summary>

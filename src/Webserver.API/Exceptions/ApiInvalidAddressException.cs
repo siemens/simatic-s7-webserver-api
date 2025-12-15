@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidAddressException : Exception
     {
-        private static string message = "The structure of the given name to the symbolic address is not correct.";
+        private static readonly string message = "The structure of the given name to the symbolic address is not correct.";
         /// <summary>
         /// The structure of the given name to the symbolic address is not correct.
         /// </summary>

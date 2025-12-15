@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityAccessDeniedException : Exception
     {
-        private static string message = "Access to the given entity is denied";
+        private static readonly string message = "Access to the given entity is denied";
         /// <summary>
         /// Access to the given entity is denied
         /// </summary>

@@ -78,7 +78,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.IdGenerator
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return -2130075011 + Length.GetHashCode();
+            return -2130075011 + Length;
         }
     }
 }

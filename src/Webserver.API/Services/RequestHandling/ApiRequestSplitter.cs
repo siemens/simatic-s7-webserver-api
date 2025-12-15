@@ -29,14 +29,11 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public IEnumerable<byte[]> GetMessageChunks(IEnumerable<IApiRequest> apiRequests, long MaxRequestSize)
         {
             // Clean up null values from Params.
-            foreach (var apiRequest in apiRequests)
+            foreach (var apiRequest in apiRequests.Where(r => r.Params != null))
             {
-                if (apiRequest.Params != null)
-                {
-                    apiRequest.Params = apiRequest.Params
-                        .Where(el => el.Value != null)
-                        .ToDictionary(x => x.Key, x => x.Value);
-                }
+                apiRequest.Params = apiRequest.Params
+                    .Where(el => el.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
             }
 
             // Setup JSON serialization settings.

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiMethodNotFoundException : Exception
     {
-        private static string message = "Method not found - check method name and PLC firmware version.";
+        private static readonly string message = "Method not found - check method name and PLC firmware version.";
         /// <summary>
         /// Method not found - check method name and PLC firmware version.
         /// </summary>

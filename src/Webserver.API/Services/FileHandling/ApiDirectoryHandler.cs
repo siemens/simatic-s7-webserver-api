@@ -93,7 +93,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     await ApiRequestHandler.FilesDeleteAsync(resName, cancellationToken);
                 }
-                catch (ApiEntityDoesNotExistException) { }
+                catch (ApiEntityDoesNotExistException e) {
+                    Logger?.LogDebug(e, $"Trying to call {nameof(DeleteAsync)} within {nameof(ApiDirectoryHandler)} -> seems the resource has already been deleted.");
+                }
             }
             else
             {
@@ -117,7 +119,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                 {
                     await ApiRequestHandler.FilesDeleteDirectoryAsync(dirName, cancellationToken);
                 }
-                catch (ApiEntityDoesNotExistException) { }
+                catch (ApiEntityDoesNotExistException e) {
+                    Logger?.LogDebug(e, $"Trying to call {nameof(DeleteAsync)} within {nameof(ApiDirectoryHandler)} -> seems the directory has already been deleted.");
+                }
 
             }
         }
@@ -300,6 +304,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     }
                     catch (Exception e)
                     {
+                        if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                            throw;
                         errorMessage.AppendLine(e.ToString());
                     }
                     try
@@ -308,6 +314,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
                     }
                     catch (Exception e)
                     {
+                        if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                            throw;
                         errorMessage.AppendLine(e.ToString());
                     }
                     throw new InvalidOperationException(errorMessage.ToString());

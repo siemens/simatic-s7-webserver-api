@@ -835,6 +835,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>whether the two are equal or not</returns>
         public bool Equals(ApiRequestFactory obj)
         {
+            if(obj == null)
+            {
+                return false;
+            }
             var toReturn = this.PerformCheck == obj.PerformCheck;
             toReturn &= this.RequestIdGenerator.Equals(obj.RequestIdGenerator);
             toReturn &= this.RequestParameterChecker.Equals(obj.RequestParameterChecker);

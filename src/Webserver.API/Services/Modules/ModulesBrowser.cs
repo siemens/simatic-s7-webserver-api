@@ -91,7 +91,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Modules
             }
             else
             {
-                _logger.LogTrace($"Nothing to do for node: {node.Name} since it has no children.");
+                _logger?.LogTrace($"Nothing to do for node: {node.Name} since it has no children.");
             }
         }
     }

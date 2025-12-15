@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidHwIdException : Exception
     {
-        private static string message = "The requested hardware identifier is invalid. The user shall verify the request and look up the correct hardware identifier..";
+        private static readonly string message = "The requested hardware identifier is invalid. The user shall verify the request and look up the correct hardware identifier..";
         /// <summary>
         /// The requested hardware identifier is invalid. The user shall verify the request and look up the correct hardware identifier.
         /// </summary>

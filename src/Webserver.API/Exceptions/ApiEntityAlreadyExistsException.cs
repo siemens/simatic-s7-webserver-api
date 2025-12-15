@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityAlreadyExistsException : Exception
     {
-        private static string message = "The requested entity already exists.";
+        private static readonly string message = "The requested entity already exists.";
         /// <summary>
         /// The requested entity already exists.
         /// </summary>

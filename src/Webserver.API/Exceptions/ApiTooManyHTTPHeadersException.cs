@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiTooManyHTTPHeadersException : Exception
     {
-        private static string message = "Too many HTTP response headers are configured -- reduce the number to a supported number of headers. The number is currently capped at 1.";
+        private static readonly string message = "Too many HTTP response headers are configured -- reduce the number to a supported number of headers. The number is currently capped at 1.";
         /// <summary>
         /// Too many HTTP response headers are configured -- reduce the number to a supported number of headers. The number is currently capped at 1.
         /// </summary>

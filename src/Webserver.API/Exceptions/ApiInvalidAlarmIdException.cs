@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidAlarmIdException : Exception
     {
-        private static string message = "The provided alarm ID is invalid. This alarm does not exist (anymore).";
+        private static readonly string message = "The provided alarm ID is invalid. This alarm does not exist (anymore).";
         /// <summary>
         /// The provided alarm ID is invalid. This alarm does not exist (anymore).
         /// </summary>

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2025, Siemens AG
 //
 // SPDX-License-Identifier: MIT
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -23,14 +24,21 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         public TimeSpan CycleTime { get; set; }
 
         /// <summary>
+        /// Logger for the WaitHandler
+        /// </summary>
+        public ILogger Logger { get; set; }
+
+        /// <summary>
         /// Wait for Timeout
         /// </summary>
         /// <param name="timeOut"></param>
         /// <param name="cycleTime">time until next check if condition is met</param>
-        public WaitHandler(TimeSpan timeOut, TimeSpan? cycleTime = null)
+        /// <param name="logger">Logger for the wait handler</param>
+        public WaitHandler(TimeSpan timeOut, TimeSpan? cycleTime = null, ILogger logger = null)
         {
             TimeOut = timeOut;
             CycleTime = cycleTime ?? TimeSpan.FromMilliseconds(50);
+            Logger = logger;
         }
 
         /// <summary>
@@ -44,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         {
             return WaitForCondition(() =>
             {
-                if (!Value()) throw new Exception();
+                if (!Value()) throw new ConditionNotYetReachedException();
             }, TimeOut, CycleTime, errorMessageForException, cancellationToken);
         }
 
@@ -52,39 +60,51 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.HelperHandlers
         /// Wait for a custom condition to be met
         /// </summary>
         /// <param name="Condition">Custom condition to wait for</param>
-        /// <param name="TimeOut">Timeout</param>
-        /// <param name="CycleTime">Cycle time</param>
+        /// <param name="timeOut">Timeout</param>
+        /// <param name="cycleTime">Cycle time</param>
         /// <param name="errorMessageForException">error message for the excption</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns></returns>
-        public TimeSpan WaitForCondition(Action Condition, TimeSpan TimeOut, TimeSpan CycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default)
+        public TimeSpan WaitForCondition(Action Condition, TimeSpan timeOut, TimeSpan cycleTime, string errorMessageForException = "", CancellationToken cancellationToken = default)
         {
             var sw = new Stopwatch();
             sw.Start();
             var start = DateTime.UtcNow;
-            bool throwCancellation = false;
-            while (!(DateTime.UtcNow.Subtract(start) > TimeOut))
+            Exception lastException = null;
+            while (!(DateTime.UtcNow.Subtract(start) > timeOut))
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throwCancellation = true;
-                    break;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
+                // https://github.com/nunit/nunit/issues/2040
                 try
                 {
                     // Condition
                     Condition.Invoke();
                     return sw.Elapsed;
                 }
-                catch (Exception) { }
+                catch (ConditionNotYetReachedException) { }
+                catch (Exception e)
+                {
+                    if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                        throw;
+                    Logger?.LogDebug(e, $"While waiting for a condition!");
+                    lastException = e;
+                }
+                // skip last sleep when not necessary - avoid overshooting the timeout, also good for unit tests
+                var timeSpentSinceStartingWaitForCondition = DateTime.UtcNow.Subtract(start);
+                var timeSpentAfterSleeping = timeSpentSinceStartingWaitForCondition.Add(cycleTime);
+                if (timeSpentAfterSleeping > timeOut)
+                {
+                    Logger?.LogTrace($"Skipping sleep since {timeSpentAfterSleeping} will be bigger than configured timeout: {timeOut}!");
+                    break;
+                }
                 // Cylcle time
-                Thread.Sleep(CycleTime);
+                Thread.Sleep(cycleTime);
             }
-            if (throwCancellation)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-            throw new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {TimeOut}!{Environment.NewLine}Retried every {CycleTime}!{Environment.NewLine}{errorMessageForException}");
+            var exc = new TimeoutException($"{DateTime.Now}: Could not successfully wait for the {nameof(Condition)} to be applied within {timeOut}!{Environment.NewLine}Retried every {cycleTime}!{Environment.NewLine}{errorMessageForException}", lastException);
+            Logger?.LogError(exc, $"trying to {nameof(WaitForCondition)}!");
+            throw exc;
         }
+
+        private class ConditionNotYetReachedException : Exception { }
     }
 }

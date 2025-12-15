@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityNotAFileException : Exception
     {
-        private static string message = "The entity is not a file";
+        private static readonly string message = "The entity is not a file";
         /// <summary>
         /// The entity is not a file
         /// </summary>

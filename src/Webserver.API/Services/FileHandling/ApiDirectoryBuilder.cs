@@ -134,10 +134,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
             var dirsToIgnore = parseConfiguration.DirectoriesToIgnoreForUpload ?? new List<string>();
             var resToIgnore = parseConfiguration.ResourcesToIgnoreForUpload ?? new List<string>();
             var fileExtToIgnore = parseConfiguration.FileExtensionsToIgnoreForUpload ?? new List<string>();
-            foreach (string dir in Directory.GetDirectories(resource.PathToLocalDirectory))
+            foreach (var dirInfo in Directory.GetDirectories(resource.PathToLocalDirectory).Select(el => new DirectoryInfo(el)))
             {
                 // reads a bit weird but translated: if directory name matches any of the directoriestoignore => ignore it - do nothing with that element (=> else)
-                DirectoryInfo dirInfo = new DirectoryInfo(dir);
                 bool directoryIsNotToBeIgnored = !(dirsToIgnore.Any(ign => dirInfo.Name == ign));
                 if (directoryIsNotToBeIgnored)
                 {

@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiTicketingEndpointUploadException : Exception
     {
-        private static string message = $"The ticketing Upload failed! Not enough memory left on the card? Ticket Id:{Environment.NewLine}";
+        private static readonly string message = $"The ticketing Upload failed! Not enough memory left on the card? Ticket Id:{Environment.NewLine}";
         /// <summary>
         /// The ticketing Upload failed! Not enough memory left on the card?
         /// </summary>

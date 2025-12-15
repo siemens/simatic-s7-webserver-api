@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidUtcOffsetException : Exception
     {
-        private static string message = "The provided UTC offset is invalid. Check the main utc offset, and the DaylightSavingsRule object's DST offset.";
+        private static readonly string message = "The provided UTC offset is invalid. Check the main utc offset, and the DaylightSavingsRule object's DST offset.";
         /// <summary>
         /// The provided UTC offset is invalid. Check the main utc offset, and the DaylightSavingsRule object's DST offset.
         /// </summary>

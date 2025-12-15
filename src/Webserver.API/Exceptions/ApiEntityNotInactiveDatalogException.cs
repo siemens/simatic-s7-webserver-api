@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityNotInactiveDatalogException : Exception
     {
-        private static string message = "The given entity does not refer to an inactive datalog";
+        private static readonly string message = "The given entity does not refer to an inactive datalog";
         /// <summary>
         /// The given entity does not refer to an inactive datalog
         /// </summary>

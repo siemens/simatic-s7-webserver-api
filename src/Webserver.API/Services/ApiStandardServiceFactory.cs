@@ -215,33 +215,37 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 });
             byte[] byteArr = Encoding.UTF8.GetBytes(apiLoginRequestString);
-            ByteArrayContent request_body = new ByteArrayContent(byteArr);
-            request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-            // send the request and check for errors
-            var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken);
-            _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
-            var respString = await response.Content.ReadAsStringAsync();
-            _apiResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
-            var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
-            if (apiLoginResponse.Id != apiLoginRequest.Id)
+            using (var request_body = new ByteArrayContent(byteArr))
             {
-                throw new Exception("ids of request and response are not equal!");
-            }
-            if (apiLoginResponse.JsonRpc != apiLoginRequest.JsonRpc)
-            {
-                throw new Exception("jsonrpc of request and response are not equal!");
-            }
+                request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-            //add the authorization token to the httpclients request headers so all methods afterwards can be performed with the auth token
-            httpClient.DefaultRequestHeaders.Add("X-Auth-Token", apiLoginResponse.Result.Token);
+                using(var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken))
+                {
+                    // send the request and check for errors
+                    _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);
+                    var respString = await response.Content.ReadAsStringAsync();
+                    _apiResponseChecker.CheckResponseStringForErros(respString, apiLoginRequestString);
+                    var apiLoginResponse = JsonConvert.DeserializeObject<ApiLoginResponse>(respString);
+                    if (apiLoginResponse.Id != apiLoginRequest.Id)
+                    {
+                        throw new Exception("ids of request and response are not equal!");
+                    }
+                    if (apiLoginResponse.JsonRpc != apiLoginRequest.JsonRpc)
+                    {
+                        throw new Exception("jsonrpc of request and response are not equal!");
+                    }
 
-            if (connectionConfiguration.DiscardPasswordAfterConnect)
-            {
-                connectionConfiguration.DiscardPassword();
+                    //add the authorization token to the httpclients request headers so all methods afterwards can be performed with the auth token
+                    httpClient.DefaultRequestHeaders.Add("X-Auth-Token", apiLoginResponse.Result.Token);
+
+                    if (connectionConfiguration.DiscardPasswordAfterConnect)
+                    {
+                        connectionConfiguration.DiscardPassword();
+                    }
+                    // return the authorized httpclient with the webapplicationcookie
+                    return new HttpClientAndWebAppCookie(httpClient, apiLoginResponse.Result.Web_application_cookie);
+                }
             }
-            // return the authorized httpclient with the webapplicationcookie
-            return new HttpClientAndWebAppCookie(httpClient, apiLoginResponse.Result.Web_application_cookie);
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiApplicationLimitReachedException : Exception
     {
-        private static string message = "The maximum amount of WebApps is reached. Delete unused or not needed Webapplications in order to free resources " +
+        private static readonly string message = "The maximum amount of WebApps is reached. Delete unused or not needed Webapplications in order to free resources " +
             "for new applications (or structure existing applications using /in resources names).";
         /// <summary>
         /// The maximum amount of WebApps is reached. Delete unused or not needed Webapplications in order to free resources for new applications 

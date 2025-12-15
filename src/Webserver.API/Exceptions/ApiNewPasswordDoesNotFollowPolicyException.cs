@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiNewPasswordDoesNotFollowPolicyException : Exception
     {
-        private static string message = "The provided new password does not match the required password policy.";
+        private static readonly string message = "The provided new password does not match the required password policy.";
         /// <summary>
         /// The provided new password does not match the required password policy.
         /// </summary>

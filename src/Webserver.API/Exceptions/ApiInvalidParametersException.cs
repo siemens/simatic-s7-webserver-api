@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     public class ApiInvalidParametersException : Exception
     {
 
-        private static string message = "Invalid Parameters provided (null/empty string that is forbidden?, invalid ticket length?, wrong datetime string format (rfc3339)? ...)";
+        private static readonly string message = "Invalid Parameters provided (null/empty string that is forbidden?, invalid ticket length?, wrong datetime string format (rfc3339)? ...)";
         /// <summary>
         /// Invalid Parameters provided (null/empty string that is forbidden?, invalid ticket length?, wrong datetime string format (rfc3339)? ...)
         /// </summary>

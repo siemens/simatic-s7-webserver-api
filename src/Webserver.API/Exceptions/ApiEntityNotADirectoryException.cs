@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityNotADirectoryException : Exception
     {
-        private static string message = "The entity is not a directory.";
+        private static readonly string message = "The entity is not a directory.";
         /// <summary>
         /// The entity is not a directory.
         /// </summary>

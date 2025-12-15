@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiEntityAccessRestrictedException : Exception
     {
-        private static string message = "Access to the given entity is restricted.";
+        private static readonly string message = "Access to the given entity is restricted.";
         /// <summary>
         /// Access to the given entity is restricted
         /// </summary>

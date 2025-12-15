@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiInvalidVersionStringException : Exception
     {
-        private static string message = "The version string provided does not meet the criteria of a valid version string. Valid version string example: V1.2";
+        private static readonly string message = "The version string provided does not meet the criteria of a valid version string. Valid version string example: V1.2";
         /// <summary>
         /// The version string provided does not meet the criteria of a valid version string.
         /// </summary>

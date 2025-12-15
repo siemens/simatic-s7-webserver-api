@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiResourceAlreadyExistsException : Exception
     {
-        private static string message = "A resource with the given name already exists in this application. " +
+        private static readonly string message = "A resource with the given name already exists in this application. " +
             "Either choose a new resource name or delete/rename the existing resource before calling this method again.";
         /// <summary>
         /// A resource with the given name already exists in this application. 

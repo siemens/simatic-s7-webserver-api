@@ -7,6 +7,7 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Siemens.Simatic.S7.Webserver.API.Models
 {
@@ -78,16 +79,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns></returns>
         public string GetVarNameForMethods()
         {
-            string varName = "/";
+            StringBuilder varName = new StringBuilder("/");
             if (this.Parents != null)
             {
                 foreach (var parent in this.Parents)
                 {
-                    varName += parent.GetNameWithSlash();
+                    varName.Append(parent.GetNameWithSlash());
                 }
             }
-            varName += this.Name;
-            return varName;
+            varName.Append(this.Name);
+            return varName.ToString();
         }
 
         /// <summary>
@@ -138,7 +139,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             if (this.Resources != null && obj.Resources != null)
             {
-                toReturn &= this.Resources.Count == obj.Resources.Count ? this.Resources.SequenceEqual(obj.Resources) : false;
+                toReturn &= this.Resources.Count == obj.Resources.Count 
+                    && this.Resources.SequenceEqual(obj.Resources);
             }
             else
             {

@@ -21,14 +21,12 @@ namespace Webserver.API.UnitTests
             {
                 requests.Add(new ApiRequest("", "", "1"));
             }
-            if (ReqIdGenerator is CharSetIdGenerator)
+            if (ReqIdGenerator is CharSetIdGenerator charSetGen)
             {
-                var charSetGen = ReqIdGenerator as CharSetIdGenerator;
                 Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
             }
-            if (ReqIdGenerator is GUIDGenerator)
+            if (ReqIdGenerator is GUIDGenerator guidGen)
             {
-                var guidGen = ReqIdGenerator as GUIDGenerator;
                 Console.WriteLine($"Determined DefaultLength:{guidGen.DefaultLength}");
             }
             requests = ApiRequestFactory.GetApiBulkRequestWithUniqueIds(requests, TimeSpan.FromMinutes(2)).ToList();
@@ -43,9 +41,8 @@ namespace Webserver.API.UnitTests
             {
                 requests.Add(new ApiRequest("", "", "1"));
             }
-            if (ReqIdGenerator is CharSetIdGenerator)
+            if (ReqIdGenerator is CharSetIdGenerator charSetGen)
             {
-                var charSetGen = ReqIdGenerator as CharSetIdGenerator;
                 Console.WriteLine($"Determined ThreadSleepTime:{charSetGen.ThreadSleepTime}");
             }
             TimeSpan timeOut = TimeSpan.FromMilliseconds(1);

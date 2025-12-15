@@ -102,34 +102,37 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             var browseResult = (await ApiRequestHandler.ApiBrowseAsync(externalCancellationToken)).Result;
             bool restoreMode = !browseResult.Any(x => x.Name == "Plc.CreateBackup");
             string uploadTicket;
-            var waitHandler = new WaitHandler(timeToWait);
+            var waitHandler = new WaitHandler(timeToWait, logger: Logger);
 
             if (!restoreMode)
             {
                 uploadTicket = (await ApiRequestHandler.PlcRestoreBackupAsync(password, externalCancellationToken)).Result;
-                CancellationTokenSource internalCancellationTokenSource = new CancellationTokenSource();
-                try
+                using (var internalCancellationTokenSource = new CancellationTokenSource())
                 {
-                    Task<Models.ApiTicket> uploadTask = ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, internalCancellationTokenSource.Token);
-                    Stopwatch sw = Stopwatch.StartNew();
-                    while (sw.ElapsedMilliseconds < 60_000 || uploadTask.IsCompleted || uploadTask.IsFaulted)
+                    try
                     {
-                        var brTicketsResp = ApiRequestHandler.ApiBrowseTickets(uploadTicket);
-                        string apiTicketData = brTicketsResp.Result.Tickets.First().Data.ToString();
-                        if (apiTicketData.Contains("\"restore_state\": \"rebooting_format\"") || externalCancellationToken.IsCancellationRequested)
+                        Task<Models.ApiTicket> uploadTask = ApiTicketHandler.HandleUploadAsync(uploadTicket, restoreFilePath, internalCancellationTokenSource.Token);
+                        Stopwatch sw = Stopwatch.StartNew();
+                        while (sw.ElapsedMilliseconds < 60_000 || uploadTask.IsCompleted || uploadTask.IsFaulted)
                         {
-                            internalCancellationTokenSource.Cancel();
-                            break;
+                            var brTicketsResp = ApiRequestHandler.ApiBrowseTickets(uploadTicket);
+                            string apiTicketData = brTicketsResp.Result.Tickets.First().Data.ToString();
+                            if (apiTicketData.Contains("\"restore_state\": \"rebooting_format\"") || externalCancellationToken.IsCancellationRequested)
+                            {
+                                internalCancellationTokenSource.Cancel();
+                                break;
+                            }
                         }
+                        sw.Stop();
+                        await uploadTask;
                     }
-                    sw.Stop();
-                    await uploadTask;
-                }
-                catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) { }
-                finally
-                {
-                    internalCancellationTokenSource.Dispose();
-                    externalCancellationToken.ThrowIfCancellationRequested();
+                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) {
+                        Logger?.LogDebug($"Upload cancelled as expecteded due to plc rebooting for format - {e.Message}.");
+                    }
+                    finally
+                    {
+                        externalCancellationToken.ThrowIfCancellationRequested();
+                    }
                 }
                 WaitForPlcReboot(waitHandler, externalCancellationToken);
                 await ApiRequestHandler.ReLoginAsync(userName, password, cancellationToken: externalCancellationToken);
@@ -177,6 +180,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                 }
                 catch (Exception e)
                 {
+                    if (e is OutOfMemoryException || e is StackOverflowException || e is ThreadAbortException)
+                        throw;
                     Logger?.LogDebug(e, $"Plc should be rebooting now.");
                     return true;
                 }
@@ -184,16 +189,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
             Logger?.LogDebug("Wait for plc to be pingable again (reboot).");
             waitHandler.ForTrue(() =>
             {
-                try
-                {
-                    var pingRes = ApiRequestHandler.ApiPing();
-                    Logger?.LogDebug(string.Format("Plc pingable again via api pingresult: {0}", pingRes.Result));
-                    return true;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                var pingRes = ApiRequestHandler.ApiPing();
+                Logger?.LogDebug(string.Format("Plc pingable again via api pingresult: {0}", pingRes.Result));
+                return true;
             });
         }
     }

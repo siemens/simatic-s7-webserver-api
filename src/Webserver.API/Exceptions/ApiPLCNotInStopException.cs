@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiPLCNotInStopException : Exception
     {
-        private static string message = "The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.";
+        private static readonly string message = "The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.";
         /// <summary>
         /// The PLC is not in operating mode stop. The method cannot be executed while the plc is not in stop mode.
         /// </summary>

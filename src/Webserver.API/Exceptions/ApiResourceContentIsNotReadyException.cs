@@ -11,7 +11,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiResourceContentIsNotReadyException : Exception
     {
-        private static string message = "The resource requested is not done processing earlier requests (for example it might still be uploaded,...). Try again later.";
+        private static readonly string message = "The resource requested is not done processing earlier requests (for example it might still be uploaded,...). Try again later.";
         /// <summary>
         /// The resource requested is not done processing earlier requests (for example it might still be uploaded,...). Try again later.
         /// Resource content is not ready exception - might happen e.g. right after/during upload to ticketing endpoint and trying to acces/download the file

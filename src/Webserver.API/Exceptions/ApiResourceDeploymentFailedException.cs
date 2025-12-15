@@ -10,7 +10,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Exceptions
     /// </summary>
     public class ApiResourceDeploymentFailedException : Exception
     {
-        private static string message = "Could not successfully deploy the resources correctly!";
+        private static readonly string message = "Could not successfully deploy the resources correctly!";
         /// <summary>
         /// Resource Deployment failed (using the Deployer)
         /// </summary>

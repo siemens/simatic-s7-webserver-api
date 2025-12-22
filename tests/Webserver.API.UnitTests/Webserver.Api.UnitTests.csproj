@@ -36,7 +36,7 @@
 		<PackageReference Include="MimeMapping" Version="3.1.0" />
 		<PackageReference Include="nunit" Version="4.4.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
 	</ItemGroup>
 

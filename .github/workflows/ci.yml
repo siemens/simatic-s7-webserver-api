@@ -85,15 +85,13 @@ jobs:
           path: "**/coverage.cobertura.xml"
 
   # ----------------------------------------------------------------------
-  # Job 2: Optional ARM64 Linux Tests
+  # Job 2: ARM64 Linux Tests
   # This job will run on ARM64 if a runner is available within the timeout.
   # It will not fail the entire workflow if it fails or times out.
   # ----------------------------------------------------------------------
-  test-arm64-optional:
-    name: Test ARM64 (Optional) - ${{ matrix.dotnet-tfm }}
+  test-arm64:
+    name: Test ARM64 - ${{ matrix.dotnet-tfm }}
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 15 # Set a reasonable timeout for runner acquisition and test execution
-    continue-on-error: true # Crucial: allows the workflow to succeed even if this job fails
     strategy:
       fail-fast: false # Ensures all TFM combinations for ARM64 are attempted
       matrix:

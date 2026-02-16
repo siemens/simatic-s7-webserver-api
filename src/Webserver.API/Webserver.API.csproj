@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

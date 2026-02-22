@@ -24,6 +24,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
         private System.Threading.Timer _pollingTimer;
         private int _isPolling = 0;
         private bool _isDisposed = false;
+        private int _consecutiveSlowPolls = 0;
 
         /// <summary>
         /// Event raised when a monitored item's value changes.
@@ -65,6 +66,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
         /// Interval in milliseconds at which the Monitored Items will be requested from the PLC and updated in the MonitoredItems collection. Default is 1000ms (1 second).
         /// </summary>
         public int PollingInterval { get; set; } = 1000;
+
+        /// <summary>
+        /// Maximum exponential backoff multiplier when polls consistently exceed the polling interval.
+        /// Default is 10x, meaning the maximum delay will be PollingInterval * 10.
+        /// </summary>
+        public int MaxBackoffMultiplier { get; set; } = 10;
 
         /// <summary>
         /// Indicates whether the subscription is currently active and polling.
@@ -159,6 +166,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
                 _pollingTimer.Dispose();
                 _pollingTimer = null;
             }
+            _consecutiveSlowPolls = 0;
         }
 
         private void PollingTimerCallback(object state)
@@ -185,12 +193,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
                         {
                             if (pollDuration > PollingInterval)
                             {
-                                _logger?.LogError($"Within {nameof(ApiPlcProgramSubscriptionFaker)} could not {nameof(PollMonitoredItemsAsync)} within " +
-                                    $"{PollingInterval} milliseconds! instead took: {pollDuration}!");
-                                _pollingTimer.Change(0, Timeout.Infinite);
+                                _consecutiveSlowPolls++;
+                                var backoffMultiplier = Math.Min(_consecutiveSlowPolls, MaxBackoffMultiplier);
+                                var backoffDelay = PollingInterval * backoffMultiplier;
+                                
+                                _logger?.LogWarning($"{nameof(ApiPlcProgramSubscriptionFaker)}: Poll #{_consecutiveSlowPolls} exceeded interval. " +
+                                    $"Expected: {PollingInterval}ms, Actual: {pollDuration:F0}ms. " +
+                                    $"Applying exponential backoff (multiplier: {backoffMultiplier}x, delay: {backoffDelay}ms)");
+                                
+                                _pollingTimer.Change(backoffDelay, Timeout.Infinite);
                             }
                             else
                             {
+                                if (_consecutiveSlowPolls > 0)
+                                {
+                                    _logger?.LogInformation($"{nameof(ApiPlcProgramSubscriptionFaker)}: Poll completed within interval after {_consecutiveSlowPolls} slow poll(s). Resetting backoff.");
+                                    _consecutiveSlowPolls = 0;
+                                }
+                                
                                 var delayUntilNextPoll = Math.Max(0, PollingInterval - (int)pollDuration);
                                 _pollingTimer.Change(delayUntilNextPoll, Timeout.Infinite);
                             }

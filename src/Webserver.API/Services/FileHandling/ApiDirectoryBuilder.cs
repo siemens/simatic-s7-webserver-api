@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MITusing Newtonsoft.Json;
 using Newtonsoft.Json;

@@ -74,6 +74,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
         public int MaxBackoffMultiplier { get; set; } = 10;
 
         /// <summary>
+        /// Maximum duration (in milliseconds) allowed for a single poll before timing out.
+        /// Default is null (3x PollingInterval is calculated automatically).
+        /// Set to a specific value to override the default timeout behavior.
+        /// </summary>
+        public int? PollTimeoutMs { get; set; } = null;
+
+        /// <summary>
         /// Indicates whether the subscription is currently active and polling.
         /// </summary>
         public bool IsRunning => _pollingTimer != null;
@@ -175,23 +182,53 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram.Subscription
             {
                 var pollMonitoredItemsStarted = DateTime.UtcNow;
                 var changedItemsList = new List<(ApiPlcProgramData item, object oldValue, object newValue)>();
+                var pollTimedOut = false;
+                
                 try
                 {
-                    changedItemsList = PollMonitoredItemsAsync().GetAwaiter().GetResult();
+                    var timeoutMs = PollTimeoutMs ?? (PollingInterval * 3);
+                    using (var cts = new CancellationTokenSource(timeoutMs))
+                    {
+                        try
+                        {
+                            changedItemsList = PollMonitoredItemsAsync(cts.Token).GetAwaiter().GetResult();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            pollTimedOut = true;
+                            _logger?.LogError($"{nameof(ApiPlcProgramSubscriptionFaker)}: Poll timeout exceeded {timeoutMs}ms. " +
+                                "Cancelling poll operation. Applying exponential backoff.");
+                        }
+                    }
                 }
                 finally
                 {
                     var pollDuration = (DateTime.UtcNow - pollMonitoredItemsStarted).TotalMilliseconds;
+                    
                     if (changedItemsList.Count > 0 || PollingCycleCompleted != null)
                     {
                         OnPollingCycleCompleted(new PollingCycleCompletedEventArgs(changedItemsList, pollDuration, pollMonitoredItemsStarted));
                     }
+                    
                     Interlocked.Exchange(ref _isPolling, 0);
+                    
                     if (_pollingTimer != null && !_isDisposed)
                     {
                         try
                         {
-                            if (pollDuration > PollingInterval)
+                            if (pollTimedOut)
+                            {
+                                _consecutiveSlowPolls++;
+                                var backoffMultiplier = Math.Min(_consecutiveSlowPolls, MaxBackoffMultiplier);
+                                var backoffDelay = PollingInterval * backoffMultiplier;
+                                
+                                _logger?.LogWarning($"{nameof(ApiPlcProgramSubscriptionFaker)}: Poll timeout triggered backoff. " +
+                                    $"Consecutive slow polls: {_consecutiveSlowPolls}. " +
+                                    $"Applying exponential backoff (multiplier: {backoffMultiplier}x, delay: {backoffDelay}ms)");
+                                
+                                _pollingTimer.Change(backoffDelay, Timeout.Infinite);
+                            }
+                            else if (pollDuration > PollingInterval)
                             {
                                 _consecutiveSlowPolls++;
                                 var backoffMultiplier = Math.Min(_consecutiveSlowPolls, MaxBackoffMultiplier);

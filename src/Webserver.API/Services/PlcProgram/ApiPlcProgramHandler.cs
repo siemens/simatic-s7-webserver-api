@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Microsoft.Extensions.Logging;
@@ -99,51 +99,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
             , CancellationToken cancellationToken = default)
         {
             var toReturn = structToRead.ShallowCopy();
-            toReturn.Children = new List<ApiPlcProgramData>(structToRead.Children);
-            toReturn.ArrayElements = new List<ApiPlcProgramData>(structToRead.ArrayElements);
-            toReturn.Parents = new List<ApiPlcProgramData>(structToRead.Parents);
-            if (toReturn.Children == null || toReturn.Children.Count == 0)
-            {
-                await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn, cancellationToken);
-            }
-            List<IApiRequest> requests = new List<IApiRequest>();
-            foreach (var child in toReturn.Children)
-            {
-                if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
-                {
-                    await PlcProgramReadStructByChildValuesAsync(child, childrenReadMode, cancellationToken);
-                }
-                else if (child.ArrayElements != null && child.ArrayElements.Count != 0)
-                {
-                    foreach (var arrayElement in child.ArrayElements)
-                    {
-                        if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
-                        {
-                            await PlcProgramReadStructByChildValuesAsync(arrayElement, childrenReadMode, cancellationToken);
-                        }
-                        else
-                        {
-                            var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode);
-                            _logger?.LogTrace($"Add PlcProgram Read request for '{arrayElement.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
-                            requests.Add(requestToAdd);
-                        }
-                    }
-                }
-                else if (child.Children?.Count == 0)
-                {
-                    var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode);
-                    _logger?.LogTrace($"Add PlcProgram Read request for '{child.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
-                    requests.Add(requestToAdd);
-                }
-                else
-                {
-                    throw new Exception("The current PlcProgramData Element does not have children, " +
-                        "neither it has ArrayElements but still it is not supported by plcprogram " +
-                        "read or write! should not be the case... please open an issue on https://github.com/siemens/simatic-s7-webserver-api/issues.");
-                }
-            }
-            requests = _requestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
-            if (requests.Count > 0)
+            var requests = await PlcProgramReadStructByChildValuesBulkRequestAsync(structToRead, childrenReadMode, cancellationToken);
+            if (requests.Count() > 0)
             {
                 var childvalues = await _apiRequestHandler.ApiBulkAsync(requests, cancellationToken);
                 foreach (var childval in childvalues.SuccessfulResponses)
@@ -157,7 +114,82 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
                     childOrArrayElementWithVarString.Value = childval.Result;
                 }
             }
+            else
+            {
+                throw new InvalidOperationException($"Did not get requests for {structToRead.GetVarNameForMethods()} in {nameof(PlcProgramReadStructByChildValuesAsync)} using {nameof(PlcProgramReadStructByChildValuesBulkRequestAsync)}!");
+            }
             return toReturn;
+        }
+
+        /// <summary>
+        /// Method to comfortably read all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
+        /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        public async Task<IEnumerable<IApiRequest>> PlcProgramReadStructByChildValuesBulkRequestAsync(
+            ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple
+            , CancellationToken cancellationToken = default)
+        {
+            var result = new List<IApiRequest>();
+            var toReturn = structToRead.ShallowCopy();
+            toReturn.Children = new List<ApiPlcProgramData>(structToRead.Children);
+            toReturn.ArrayElements = new List<ApiPlcProgramData>(structToRead.ArrayElements);
+            toReturn.Parents = new List<ApiPlcProgramData>(structToRead.Parents);
+            if (toReturn.Children == null || toReturn.Children.Count == 0)
+            {
+                await PlcProgramBrowseSetChildrenAndParentsAsync(ApiPlcProgramBrowseMode.Children, toReturn, cancellationToken);
+            }
+            foreach (var child in toReturn.Children)
+            {
+                if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
+                {
+                    result.AddRange(await PlcProgramReadStructByChildValuesBulkRequestAsync(child, childrenReadMode, cancellationToken));
+                }
+                else if (child.ArrayElements != null && child.ArrayElements.Count != 0)
+                {
+                    foreach (var arrayElement in child.ArrayElements)
+                    {
+                        if (!child.Datatype.IsSupportedByPlcProgramReadOrWrite())
+                        {
+                            result.AddRange(await PlcProgramReadStructByChildValuesBulkRequestAsync(arrayElement, childrenReadMode, cancellationToken));
+                        }
+                        else
+                        {
+                            var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(arrayElement.GetVarNameForMethods(), childrenReadMode);
+                            _logger?.LogTrace($"Add PlcProgram Read request for '{arrayElement.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
+                            result.Add(requestToAdd);
+                        }
+                    }
+                }
+                else if (child.Children?.Count == 0)
+                {
+                    var requestToAdd = _requestFactory.GetApiPlcProgramReadRequest(child.GetVarNameForMethods(), childrenReadMode);
+                    _logger?.LogTrace($"Add PlcProgram Read request for '{child.GetVarNameForMethods()}' -> mode '{childrenReadMode}'");
+                    result.Add(requestToAdd);
+                }
+                else
+                {
+                    throw new Exception("The current PlcProgramData Element does not have children, " +
+                        "neither it has ArrayElements but still it is not supported by plcprogram " +
+                        "read or write! should not be the case... please open an issue on https://github.com/siemens/simatic-s7-webserver-api/issues.");
+                }
+            }
+            result = _requestFactory.GetApiBulkRequestWithUniqueIds(result).ToList();
+            return result;
+        }
+
+        /// <summary>
+        /// Method to comfortably read all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
+        /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        public IEnumerable<IApiRequest> PlcProgramReadStructByChildValuesBulkRequest(
+            ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple)
+        {
+            return PlcProgramReadStructByChildValuesBulkRequestAsync(structToRead, childrenReadMode).GetAwaiter().GetResult();
         }
 
         /// <summary>

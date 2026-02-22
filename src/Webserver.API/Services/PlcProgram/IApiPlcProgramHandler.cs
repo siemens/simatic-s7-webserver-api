@@ -1,9 +1,12 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.Models.Responses;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -73,5 +76,24 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.PlcProgram
         /// </summary>
         /// <param name="rootNodeForRecursiveBrowse">The </param>
         void RecursivePlcProgramBrowse(ApiPlcProgramData rootNodeForRecursiveBrowse);
+
+        /// <summary>
+        /// Method to comfortably read all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
+        /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        Task<IEnumerable<IApiRequest>> PlcProgramReadStructByChildValuesBulkRequestAsync(
+            ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple
+            , CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Method to comfortably read all Children of a struct using a Bulk Request
+        /// </summary>
+        /// <param name="structToRead">Struct of which the Children should be Read by Bulk Request</param>
+        /// <param name="childrenReadMode">Mode in which the child values should be read - defaults to simple (easy user handling)</param>
+        /// <returns>The Struct containing the Children with their according Values</returns>
+        IEnumerable<IApiRequest> PlcProgramReadStructByChildValuesBulkRequest(
+            ApiPlcProgramData structToRead, ApiPlcDataRepresentation childrenReadMode = ApiPlcDataRepresentation.Simple);
     }
 }

@@ -215,7 +215,7 @@ jobs:
         run: dir packages
       - name: Push packages
         run: dotnet nuget push "packages/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-      - uses: dotnet/nbgv@v0.4.2
+      - uses: dotnet/nbgv@v0.5.1
         id: nbgv
     
       - name: Create GitHub release

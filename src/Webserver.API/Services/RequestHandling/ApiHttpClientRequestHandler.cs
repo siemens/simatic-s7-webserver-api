@@ -2635,11 +2635,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             using (var request_body = new ByteArrayContent(new byte[0]))
             {
                 request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
-                using (var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body, cancellationToken))
-                {
-                    response.EnsureSuccessStatusCode();
-                    return response;
-                }
+                // do not dispose response here since it is returned and should be disposed by the caller to ensure the content can be read (!)
+                var response = await _httpClient.PostAsync($"/api/ticket?id={ticketId}", request_body, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                return response;
             }
         }
 

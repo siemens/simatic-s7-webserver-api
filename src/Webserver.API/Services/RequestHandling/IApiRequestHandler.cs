@@ -23,7 +23,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
     /// <summary>
     /// Interface for AsyncApiRequestHandler
     /// </summary>
-    public interface IApiRequestHandler
+    public interface IApiRequestHandler : IDisposable
     {
         /// <summary>
         /// appilication/json for requests to the jsonrpc api endpoint

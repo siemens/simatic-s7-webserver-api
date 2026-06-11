@@ -4324,5 +4324,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// </summary>
         /// <returns>ProjectInformationResponse</returns>
         public ProjectInformationResponse ProjectReadInformation() => ProjectReadInformationAsync().GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Dispose the http client and free resources. After calling this method, the instance of ApiHttpClientRequestHandler must not be used anymore.
+        /// </summary>
+        public void Dispose()
+        {
+            _httpClient.Dispose();
+        }
     }
 }

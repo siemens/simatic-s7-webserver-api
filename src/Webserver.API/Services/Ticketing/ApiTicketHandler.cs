@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 
@@ -6,9 +6,11 @@ using Microsoft.Extensions.Logging;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,6 +65,52 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
             {
                 return new ApiTicket() { Id = ticketId, };
             }
+        }
+
+        private static string GetSafeSuggestedFileName(HttpResponseMessage response)
+        {
+            var contentDisposition = response?.Content?.Headers?.ContentDisposition;
+            var rawName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
+
+            if (string.IsNullOrWhiteSpace(rawName))
+            {
+                return "download";
+            }
+
+            var normalizedName = rawName.Trim().Trim('"').Replace('\\', '/');
+            var leafName = normalizedName.Split('/').LastOrDefault();
+
+            if (string.IsNullOrWhiteSpace(leafName))
+            {
+                leafName = "download";
+            }
+
+            foreach (var invalidFileNameCharacter in Path.GetInvalidFileNameChars())
+            {
+                leafName = leafName.Replace(invalidFileNameCharacter, '_');
+            }
+
+            return leafName.Replace("-", "_").Replace(":", "_").Replace(" ", "_");
+        }
+
+        private static string BuildContainedFilePath(string baseDirectory, string fileName, string fileExtension)
+        {
+            var relativePath = (fileName ?? string.Empty) + (fileExtension ?? string.Empty);
+
+            if (Path.IsPathRooted(relativePath))
+            {
+                throw new IOException($"The resolved download target '{relativePath}' must not be an absolute path.");
+            }
+
+            var normalizedBaseDirectory = PathSafetyHelper.GetNormalizedDirectoryRoot(baseDirectory);
+            var combinedPath = Path.GetFullPath(Path.Combine(normalizedBaseDirectory, relativePath));
+
+            if (!PathSafetyHelper.IsPathContainedInRoot(normalizedBaseDirectory, combinedPath))
+            {
+                throw new IOException($"The resolved download target '{combinedPath}' escapes the selected download directory '{normalizedBaseDirectory}'.");
+            }
+
+            return combinedPath;
         }
 
         private async Task<ApiTicket> HandleWriteFileAndCheckAsync(string ticketId, byte[] content, string filePath, bool overwriteExistingFile)
@@ -350,7 +398,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 var response = await ApiRequestHandler.DownloadTicketAndGetResponseAsync(ticketId);
                 //Downloads: 374DE290-123F-4565-9164-39C4925E467B
                 string usedPathToDownloadDirectory = pathToDownloadDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop).Replace("Desktop", "Downloads");
-                var suggestedFileName = response.Content.Headers.ContentDisposition.FileName.Replace("\"", "").Replace("-", "_").Replace(":", "_").Replace(" ", "_");
+                var suggestedFileName = GetSafeSuggestedFileName(response);
                 string usedFilename = fileName ?? suggestedFileName;
                 string usedFileExtension = fileExtension ?? (Path.HasExtension(usedFilename) ? "" : Path.GetExtension(suggestedFileName));
 #if NET6_0_OR_GREATER
@@ -358,7 +406,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
 #else
                 var content = await response.Content.ReadAsByteArrayAsync();
 #endif
-                string path = Path.Combine(usedPathToDownloadDirectory, usedFilename + usedFileExtension);
+                string path = BuildContainedFilePath(usedPathToDownloadDirectory, usedFilename, usedFileExtension);
                 uint counter = 0;
                 var firstPath = path;
                 while (File.Exists(path) && !overwriteExistingFile)
@@ -369,18 +417,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                     path = Path.Combine(dir.FullName, determinedFileName);
                     counter++;
                 }
-                if (usedFilename.Contains("/"))
+                var targetDirectory = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(targetDirectory))
                 {
-                    var split = usedFilename.Split('/');
-                    var paths = "";
-                    foreach (var s in split.Take(split.Length - 1))
-                    {
-                        paths += $"\\{s}";
-                        if (!Directory.Exists(usedPathToDownloadDirectory + paths))
-                        {
-                            Directory.CreateDirectory(usedPathToDownloadDirectory + paths);
-                        }
-                    }
+                    Directory.CreateDirectory(targetDirectory);
                 }
                 success = true;
                 return await HandleWriteFileAndCheckAsync(ticketId, content, path, overwriteExistingFile);

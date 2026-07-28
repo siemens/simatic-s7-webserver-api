@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -35,6 +35,35 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             ApiTicketHandler = apiTicketHandler;
         }
 
+        private static string BuildContainedResourceFilePath(string webAppDirectoryPath, string resourceName)
+        {
+            if (string.IsNullOrWhiteSpace(webAppDirectoryPath))
+            {
+                throw new ArgumentException("Path to the web application directory must not be null or empty.", nameof(webAppDirectoryPath));
+            }
+
+            if (string.IsNullOrWhiteSpace(resourceName))
+            {
+                throw new ArgumentException("Resource name must not be null or empty.", nameof(resourceName));
+            }
+
+            var normalizedRoot = PathSafetyHelper.GetNormalizedDirectoryRoot(webAppDirectoryPath);
+            var normalizedResourcePath = resourceName.Replace('\\', '/').Replace('/', Path.DirectorySeparatorChar);
+
+            if (Path.IsPathRooted(normalizedResourcePath))
+            {
+                throw new IOException($"The resolved resource path '{resourceName}' must not be absolute.");
+            }
+
+            var combinedPath = Path.GetFullPath(Path.Combine(normalizedRoot, normalizedResourcePath));
+            if (!PathSafetyHelper.IsPathContainedInRoot(normalizedRoot, combinedPath))
+            {
+                throw new IOException($"The resolved resource path '{combinedPath}' escapes the selected web application directory '{normalizedRoot}'.");
+            }
+
+            return combinedPath;
+        }
+
         /// <summary>
         /// make sure to set the <see cref="ApiWebAppData.PathToWebAppDirectory"/> before calling this method!
         /// Will send a Createresource, Uploadticket and Closeticket request to the API
@@ -50,7 +79,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
         /// <returns>Task</returns>
         public async Task DeployResourceAsync(ApiWebAppData webApp, ApiWebAppResource resource, CancellationToken cancellationToken = default)
         {
-            string path = webApp.PathToWebAppDirectory + @"\" + resource.Name.Replace("/", "\\");
+            string path = BuildContainedResourceFilePath(webApp.PathToWebAppDirectory, resource.Name);
             if (!File.Exists(path))
                 throw new FileNotFoundException($"file at: {path} has not been found - did you set the webApp PathToWebAppDirectory correctly? given: {Environment.NewLine + webApp.PathToWebAppDirectory}");
             var ticketIdResponse = await ApiRequestHandler.WebAppCreateResourceAsync(webApp.Name, resource.Name, resource.Media_type, resource.Last_modified.ToString(DateTimeFormatting.ApiDateTimeFormat), resource.Visibility, resource.Etag, cancellationToken);

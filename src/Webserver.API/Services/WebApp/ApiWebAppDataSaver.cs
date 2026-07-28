@@ -1,9 +1,10 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.IO;
 
@@ -15,6 +16,30 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
     public class ApiWebAppDataSaver
     {
         private readonly ApiWebAppDataSaveSetting ApiWebAppSaveSetting;
+
+        private static string BuildContainedConfigPath(string directoryPath, string configurationName)
+        {
+            var normalizedDirectory = PathSafetyHelper.GetNormalizedDirectoryRoot(directoryPath);
+            var configFileName = configurationName.EndsWith(".json") ? configurationName : configurationName + ".json";
+
+            if (configFileName != Path.GetFileName(configFileName))
+            {
+                throw new IOException($"The configuration filename '{configFileName}' must not contain path separators.");
+            }
+
+            if (configFileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new IOException($"The configuration filename '{configFileName}' contains invalid filename characters.");
+            }
+
+            var combinedPath = Path.GetFullPath(Path.Combine(normalizedDirectory, configFileName));
+            if (!PathSafetyHelper.IsPathContainedInRoot(normalizedDirectory, combinedPath))
+            {
+                throw new IOException($"The resolved configuration path '{combinedPath}' escapes the selected directory '{normalizedDirectory}'.");
+            }
+
+            return combinedPath;
+        }
 
         /// <summary>
         /// Create ApiWebAppDataSaver with the apiWebAppSaveSetting
@@ -58,9 +83,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             }
             var configString = JsonConvert.SerializeObject(apiWebApp,
                         ApiWebAppSaveSetting.JsonSerializerSetting);
-            string fileNameToSave = ApiWebAppSaveSetting.ConfigurationName.EndsWith(".json") ?
-                ApiWebAppSaveSetting.ConfigurationName : ApiWebAppSaveSetting.ConfigurationName + ".json";
-            using (StreamWriter sw = File.CreateText(Path.Combine(dirToSaveTo, fileNameToSave)))
+            var configPath = BuildContainedConfigPath(dirToSaveTo, ApiWebAppSaveSetting.ConfigurationName);
+            using (StreamWriter sw = File.CreateText(configPath))
             {
                 sw.Write(configString);
             }

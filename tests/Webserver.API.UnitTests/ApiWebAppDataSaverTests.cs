@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
@@ -8,6 +8,7 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
+using System;
 using System.IO;
 
 namespace Webserver.API.UnitTests
@@ -54,6 +55,86 @@ namespace Webserver.API.UnitTests
             finally
             {
                 Directory.Delete(dirPath, true);
+            }
+        }
+
+        [Test]
+        public void ApiWebAppDataSave_RejectsTraversalInConfigurationName()
+        {
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dirPath);
+
+            var testApp = new ApiWebAppData()
+            {
+                Name = "validName",
+                Type = ApiWebAppType.User,
+                State = ApiWebAppState.Enabled,
+                PathToWebAppDirectory = dirPath
+            };
+
+            var traversalConfigName = string.Concat("..", Path.DirectorySeparatorChar, "outside");
+            var saveSetting = new ApiWebAppDataSaveSetting(dirPath, traversalConfigName, true, true, new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+
+            var saver = new ApiWebAppDataSaver(saveSetting);
+            var escapedPath = Path.Combine(Directory.GetParent(dirPath).FullName, "outside.json");
+
+            try
+            {
+                Assert.Throws<IOException>(() => saver.Save(testApp));
+                Assert.That(File.Exists(escapedPath), Is.False);
+            }
+            finally
+            {
+                if (File.Exists(escapedPath))
+                {
+                    File.Delete(escapedPath);
+                }
+
+                if (Directory.Exists(dirPath))
+                {
+                    Directory.Delete(dirPath, true);
+                }
+            }
+        }
+
+        [Test]
+        public void ApiWebAppDataSave_AllowsSimpleConfigurationName()
+        {
+            string dirPath = Path.Combine(CurrentExeDir.FullName, "tmp", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dirPath);
+
+            var testApp = new ApiWebAppData()
+            {
+                Name = "validName",
+                Type = ApiWebAppType.User,
+                State = ApiWebAppState.Enabled,
+                PathToWebAppDirectory = dirPath
+            };
+
+            var saveSetting = new ApiWebAppDataSaveSetting(dirPath, "CustomConfig", true, true, new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+
+            var saver = new ApiWebAppDataSaver(saveSetting);
+            var expectedPath = Path.Combine(dirPath, "CustomConfig.json");
+
+            try
+            {
+                saver.Save(testApp);
+                Assert.That(File.Exists(expectedPath), Is.True);
+            }
+            finally
+            {
+                if (Directory.Exists(dirPath))
+                {
+                    Directory.Delete(dirPath, true);
+                }
             }
         }
     }

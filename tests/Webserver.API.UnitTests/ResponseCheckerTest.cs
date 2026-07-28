@@ -26,17 +26,15 @@ namespace Webserver.API.UnitTests
             const string secret = "PLC-restore-secret-7Y!";
             var serializedRequest = ApiRequestFactory.GetPlcRestoreBackupRequest(secret).ToString();
 
-            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            using (var response = new HttpResponseMessage(HttpStatusCode.BadRequest){ReasonPhrase = "test failure"})
             {
-                ReasonPhrase = "test failure"
-            };
-
-            var ex = Assert.Throws<InvalidHttpRequestException>(() =>
+                var ex = Assert.Throws<InvalidHttpRequestException>(() =>
                 ApiResponseChecker.CheckHttpResponseForErrors(response, serializedRequest));
 
-            Assert.That(ex, Is.Not.Null);
-            Assert.That(ex.Message.IndexOf(secret, StringComparison.Ordinal) < 0, Is.True,
-                $"Exception message must not contain restore password: {secret}, message was: {ex.Message}");
+                Assert.That(ex, Is.Not.Null);
+                Assert.That(ex.Message.IndexOf(secret, StringComparison.Ordinal) < 0, Is.True,
+                    $"Exception message must not contain restore password: {secret}, message was: {ex.Message}");
+            }
         }
 
         [Test]

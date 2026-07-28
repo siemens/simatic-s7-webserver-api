@@ -65,7 +65,13 @@ namespace Webserver.API.UnitTests
 
                 Assert.That(result.File_Downloaded.FullName.StartsWith(Path.GetFullPath(tempRoot), StringComparison.OrdinalIgnoreCase), Is.True);
                 Assert.That(File.Exists(result.File_Downloaded.FullName), Is.True);
+#if NET48
+                Assert.That(File.ReadAllText(result.File_Downloaded.FullName), Is.EqualTo(expectedPayload));
+#elif NET6_0_OR_GREATER
                 Assert.That(await File.ReadAllTextAsync(result.File_Downloaded.FullName), Is.EqualTo(expectedPayload));
+#else
+                throw new NotImplementedException("File.ReadAllTextAsync is not supported in this target framework."); 
+#endif
             }
             finally
             {

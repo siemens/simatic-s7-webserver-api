@@ -85,9 +85,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
                 leafName = "download";
             }
 
-            foreach (var invalidFileNameCharacter in Path.GetInvalidFileNameChars())
+            if (leafName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                leafName = leafName.Replace(invalidFileNameCharacter, '_');
+                leafName = new string(leafName.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c).ToArray());
             }
 
             return leafName.Replace("-", "_").Replace(":", "_").Replace(" ", "_");

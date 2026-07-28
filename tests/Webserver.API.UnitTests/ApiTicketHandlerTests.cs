@@ -83,12 +83,13 @@ namespace Webserver.API.UnitTests
             var tempRoot = Path.Combine(Path.GetTempPath(), "s7webapi-ticket-tests", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempRoot);
             var escapedPath = Path.Combine(Directory.GetParent(tempRoot).FullName, "caller-escape.txt");
+            var traversalFileName = string.Concat("..", Path.DirectorySeparatorChar, "caller-escape.txt");
 
             try
             {
                 var handler = CreateTicketHandlerWithResponse(ticketId, "payload", "\"safe.txt\"");
 
-                Assert.ThrowsAsync<IOException>(async () => await handler.HandleDownloadAsync(ticketId, pathToDownloadDirectory: tempRoot, fileName: "..\\caller-escape.txt", fileExtension: null, overwriteExistingFile: false));
+                Assert.ThrowsAsync<IOException>(async () => await handler.HandleDownloadAsync(ticketId, pathToDownloadDirectory: tempRoot, fileName: traversalFileName, fileExtension: null, overwriteExistingFile: false));
                 Assert.That(File.Exists(escapedPath), Is.False);
             }
             finally

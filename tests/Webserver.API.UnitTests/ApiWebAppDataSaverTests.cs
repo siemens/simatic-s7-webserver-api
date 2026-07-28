@@ -72,7 +72,8 @@ namespace Webserver.API.UnitTests
                 PathToWebAppDirectory = dirPath
             };
 
-            var saveSetting = new ApiWebAppDataSaveSetting(dirPath, "..\\outside", true, true, new JsonSerializerSettings()
+            var traversalConfigName = string.Concat("..", Path.DirectorySeparatorChar, "outside");
+            var saveSetting = new ApiWebAppDataSaveSetting(dirPath, traversalConfigName, true, true, new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver()

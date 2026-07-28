@@ -27,12 +27,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 throw new IOException($"The configuration filename '{configFileName}' must not contain path separators.");
             }
 
-            foreach (var invalidFileNameCharacter in Path.GetInvalidFileNameChars())
+            if (configFileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                if (configFileName.Contains(invalidFileNameCharacter.ToString()))
-                {
-                    throw new IOException($"The configuration filename '{configFileName}' contains invalid filename characters.");
-                }
+                throw new IOException($"The configuration filename '{configFileName}' contains invalid filename characters.");
             }
 
             var combinedPath = Path.GetFullPath(Path.Combine(normalizedDirectory, configFileName));

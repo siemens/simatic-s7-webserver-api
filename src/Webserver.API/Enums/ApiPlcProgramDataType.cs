@@ -12,7 +12,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Enums
     public static class ApiPlcProgramDataTypes
     {
         /// <summary>
-        /// function to determine whethere the PlcProgramDataType is supported by simple mode for reading/writing - status: Firmware >=2.8 and less than at least 2.9 (planned V18)
+        /// function to determine whether the PlcProgramDataType is supported by simple mode for reading/writing - status: Firmware >=2.8 and less than at least 2.9 (planned V18)
         /// </summary>
         /// <param name="plcProgramDataType"></param>
         /// <returns></returns>

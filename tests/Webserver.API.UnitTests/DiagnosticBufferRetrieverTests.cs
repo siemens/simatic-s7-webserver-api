@@ -125,7 +125,7 @@ namespace Webserver.API.UnitTests
                 .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
             mockHttp.Expect(HttpMethod.Post, url)
                 .WithPartialContent("\"count\":75")
-                .Respond("application/json", BuildDiagnosticBufferResponse(74, 74));
+                .Respond("application/json", BuildDiagnosticBufferResponse(75, 76));
 
             using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
             var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);

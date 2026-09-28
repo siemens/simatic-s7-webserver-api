@@ -18,6 +18,7 @@ namespace Webserver.API.UnitTests
     public class DiagnosticBufferRetrieverTests : Base
     {
         private const string LastModified = "2026-09-27T00:00:00Z";
+        private const string ChangedLastModified = "2026-09-27T00:01:00Z";
 
         [Test]
         public async Task RetrieveAllAsync_AppendsFiftyEntryChunksAndFinalPartialChunk()
@@ -114,7 +115,53 @@ namespace Webserver.API.UnitTests
             mockHttp.VerifyNoOutstandingExpectation();
         }
 
-        private static string BuildDiagnosticBufferResponse(int returnedCount, int totalCount)
+        [Test]
+        public void RetrieveAllAsync_ThrowsWhenCountCurrentChangesDuringRetrieval()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            var url = $"https://{Ip}/api/jsonrpc";
+            mockHttp.Expect(HttpMethod.Post, url)
+                .WithPartialContent("\"count\":50")
+                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
+            mockHttp.Expect(HttpMethod.Post, url)
+                .WithPartialContent("\"count\":75")
+                .Respond("application/json", BuildDiagnosticBufferResponse(74, 74));
+
+            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
+            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var retriever = new DiagnosticBufferRetriever(requestHandler);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+
+            Assert.That(exception.Message, Does.Contain("changed"));
+            mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [Test]
+        public void RetrieveAllAsync_ThrowsWhenLastModifiedChangesDuringRetrieval()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            var url = $"https://{Ip}/api/jsonrpc";
+            mockHttp.Expect(HttpMethod.Post, url)
+                .WithPartialContent("\"count\":50")
+                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
+            mockHttp.Expect(HttpMethod.Post, url)
+                .WithPartialContent("\"count\":75")
+                .Respond("application/json", BuildDiagnosticBufferResponse(75, 75, ChangedLastModified));
+
+            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
+            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var retriever = new DiagnosticBufferRetriever(requestHandler);
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+
+            Assert.That(exception.Message, Does.Contain("changed"));
+            mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        private static string BuildDiagnosticBufferResponse(int returnedCount, int totalCount, string lastModified = LastModified)
         {
             var entries = new JArray(Enumerable.Range(0, returnedCount).Select(index =>
                 new JObject
@@ -134,7 +181,7 @@ namespace Webserver.API.UnitTests
             var result = new JObject
             {
                 ["entries"] = entries,
-                ["last_modified"] = LastModified,
+                ["last_modified"] = lastModified,
                 ["count_current"] = totalCount,
                 ["count_max"] = 3200,
                 ["language"] = "en-US"

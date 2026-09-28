@@ -18,7 +18,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
     /// </summary>
     public class SyslogHandler : ISyslogHandler
     {
-        private const uint ChunkSize = 50;
+        // The Syslog.Browse request table specifies a maximum of 20 entries.
+        private const uint ChunkSize = 20;
         private readonly IApiRequestHandler _apiRequestHandler;
         private readonly ILogger _logger;
 
@@ -36,83 +37,82 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// <summary>
         /// Retrieves all currently available syslog events from the PLC-internal ring buffer.
         /// </summary>
+        /// <remarks>
+        /// Entries are returned newest first. Each continuation includes the previous page's
+        /// last entry; a page containing only that entry marks the end of the retained buffer.
+        /// Short pages with additional entries are followed until this boundary is reached.
+        /// Count_Total and Count_Lost are cumulative counters, not the current buffer size.
+        /// If either counter changes during retrieval, the operation fails without returning
+        /// a partial result. The caller may retry with its own cancellation or timeout policy.
+        /// </remarks>
         /// <param name="redundancyId">(optional) If the target is an S7-1500 R/H system, you can choose if you want to request the syslog of the primary or backup PLC</param>
         /// <param name="cancellationToken">Cancellation token for the operation.</param>
         /// <returns>The aggregated <see cref="ApiPlcSyslog"/> containing all currently available entries.</returns>
+        /// <exception cref="InvalidOperationException">The buffer changed or a response is inconsistent.</exception>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         public async Task<ApiPlcSyslog> RetrieveAllAsync(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC, CancellationToken cancellationToken = default)
         {
             ApiPlcSyslog result = null;
-            uint expectedTotal = 0;
-            uint expectedLost = 0;
-            uint availableCount = 0;
+            uint? first = null;
 
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                uint? first = null;
-                uint requestedCount = ChunkSize;
-
-                if (result != null)
-                {
-                    uint alreadyRetrieved = (uint)result.Entries.Count;
-                    uint remaining = availableCount - alreadyRetrieved;
-                    requestedCount = Math.Min(ChunkSize, remaining);
-                    first = expectedTotal - alreadyRetrieved;
-                }
+                uint requestedCount = Math.Min(ChunkSize, first ?? ChunkSize);
 
                 _logger?.LogTrace($"Requesting syslog browse: redundancyId={redundancyId}, count={requestedCount}, first={first}");
-                var response = await _apiRequestHandler.ApiSyslogBrowseAsync(redundancyId, requestedCount, first, cancellationToken);
+                var response = await _apiRequestHandler.ApiSyslogBrowseAsync(redundancyId, requestedCount, first, cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
                 var current = response?.Result ?? throw new InvalidOperationException("Syslog.Browse returned no result.");
+                var entries = current.Entries;
+                uint pageFirst = first ?? current.Count_Total;
+                if (current.Count_Total < current.Count_Lost || entries == null ||
+                    entries.Count > requestedCount || (uint)entries.Count > pageFirst ||
+                    entries.Any(entry => entry == null || entry.Raw == null))
+                {
+                    throw new InvalidOperationException("Syslog.Browse returned an inconsistent response.");
+                }
 
                 if (result == null)
                 {
-                    if (current.Count_Total < current.Count_Lost)
-                    {
-                        throw new InvalidOperationException("Syslog.Browse returned an invalid syslog count state (count_total < count_lost).");
-                    }
-
-                    expectedTotal = current.Count_Total;
-                    expectedLost = current.Count_Lost;
-                    availableCount = expectedTotal - expectedLost;
-
                     result = new ApiPlcSyslog
                     {
                         Count_Total = current.Count_Total,
                         Count_Lost = current.Count_Lost,
                         Entries = new List<ApiPlcSyslog_Entry>()
                     };
-
-                    if (availableCount == 0)
-                    {
-                        return result;
-                    }
                 }
-                else if (current.Count_Total != expectedTotal || current.Count_Lost != expectedLost)
+                else if (current.Count_Total != result.Count_Total || current.Count_Lost != result.Count_Lost)
                 {
                     throw new InvalidOperationException("The syslog buffer changed while it was being retrieved.");
                 }
 
-                var currentEntries = current.Entries ?? new List<ApiPlcSyslog_Entry>();
-                if (currentEntries.Count == 0)
+                int skip = first.HasValue ? 1 : 0;
+                if (first.HasValue && (entries.Count == 0 ||
+                    entries[0].Raw != result.Entries[result.Entries.Count - 1].Raw))
                 {
-                    if (result.Entries.Count < availableCount)
-                    {
-                        throw new InvalidOperationException("Syslog.Browse made no progress while retrieving all entries.");
-                    }
+                    throw new InvalidOperationException("Syslog.Browse did not return the continuation entry.");
+                }
+
+                // Lost counts only overwritten entries that were NOT saved to a syslog
+                // server. Total - lost is an upper bound, never a completion target.
+                if ((ulong)result.Entries.Count + (uint)(entries.Count - skip) >
+                    (ulong)current.Count_Total - current.Count_Lost)
+                {
+                    throw new InvalidOperationException("Syslog.Browse returned more entries than its counters allow.");
+                }
+
+                if (entries.Count == skip)
+                {
                     return result;
                 }
 
-                int remainingToTake = (int)(availableCount - (uint)result.Entries.Count);
-                int takeCount = Math.Min(currentEntries.Count, remainingToTake);
-                if (takeCount <= 0)
-                {
-                    return result;
-                }
-
-                result.Entries.AddRange(currentEntries.Take(takeCount));
-
-                if (result.Entries.Count >= availableCount)
+                result.Entries.AddRange(entries.Skip(skip));
+                // Re-read the last known entry, not an ID older than the retained buffer.
+                // Only page-sized values are converted; cumulative counters remain uint.
+                first = pageFirst - (uint)(entries.Count - 1);
+                if (first == 1)
                 {
                     return result;
                 }
@@ -124,7 +124,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// </summary>
         /// <param name="redundancyId">(optional) If the target is an S7-1500 R/H system, you can choose if you want to request the syslog of the primary or backup PLC</param>
         /// <returns>The aggregated <see cref="ApiPlcSyslog"/> containing all currently available entries.</returns>
+        /// <remarks>Runs the asynchronous call chain on the thread pool to avoid blocking a captured caller context.</remarks>
         public ApiPlcSyslog RetrieveAll(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC)
-            => RetrieveAllAsync(redundancyId).GetAwaiter().GetResult();
+            => Task.Run(() => RetrieveAllAsync(redundancyId)).GetAwaiter().GetResult();
     }
 }

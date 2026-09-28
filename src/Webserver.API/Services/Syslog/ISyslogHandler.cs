@@ -16,6 +16,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// <summary>
         /// Retrieves all currently available syslog events from the PLC-internal ring buffer.
         /// </summary>
+        /// <remarks>
+        /// Returns entries newest first. Changes to either cumulative counter during retrieval
+        /// cause an InvalidOperationException; no partial result is returned. The caller controls retries.
+        /// </remarks>
         /// <param name="redundancyId">(optional) If the target is an S7-1500 R/H system, you can choose if you want to request the syslog of the primary or backup PLC</param>
         /// <param name="cancellationToken">Cancellation token for the operation.</param>
         /// <returns>The aggregated <see cref="ApiPlcSyslog"/> containing all currently available entries.</returns>
@@ -24,6 +28,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// <summary>
         /// Retrieves all currently available syslog events from the PLC-internal ring buffer.
         /// </summary>
+        /// <remarks>Uses the same ordering and buffer-change policy as RetrieveAllAsync.</remarks>
         /// <param name="redundancyId">(optional) If the target is an S7-1500 R/H system, you can choose if you want to request the syslog of the primary or backup PLC</param>
         /// <returns>The aggregated <see cref="ApiPlcSyslog"/> containing all currently available entries.</returns>
         ApiPlcSyslog RetrieveAll(ApiPlcRedundancyId redundancyId = ApiPlcRedundancyId.StandardPLC);

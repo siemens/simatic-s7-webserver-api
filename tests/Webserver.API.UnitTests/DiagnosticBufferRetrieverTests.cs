@@ -1,16 +1,20 @@
-﻿// Copyright (c) 2026, Siemens AG
+// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
+using Siemens.Simatic.S7.Webserver.API.Enums;
+using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Webserver.API.UnitTests
@@ -18,152 +22,156 @@ namespace Webserver.API.UnitTests
     public class DiagnosticBufferRetrieverTests : Base
     {
         private const string LastModified = "2026-09-27T00:00:00Z";
-        private const string ChangedLastModified = "2026-09-27T00:01:00Z";
+        private MockHttpMessageHandler _mockHttp;
+        private HttpClient _client;
+        private DiagnosticBufferRetriever _retriever;
 
-        [Test]
-        public async Task RetrieveAllAsync_AppendsFiftyEntryChunksAndFinalPartialChunk()
+        [SetUp]
+        public void SetUp()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
+            _mockHttp = new MockHttpMessageHandler();
+            _client = new HttpClient(_mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
+            var handler = new ApiHttpClientRequestHandler(_client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            _retriever = new DiagnosticBufferRetriever(handler);
+        }
 
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Respond("application/json", BuildDiagnosticBufferResponse(50, 123));
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":100")
-                .Respond("application/json", BuildDiagnosticBufferResponse(100, 123));
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":123")
-                .Respond("application/json", BuildDiagnosticBufferResponse(123, 123));
+        [TearDown]
+        public void TearDown() => _client.Dispose();
 
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
-
-            var result = await retriever.RetrieveAllAsync(new CultureInfo("en-US"));
-
-            Assert.Multiple(() =>
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(49)]
+        [TestCase(50)]
+        [TestCase(51)]
+        [TestCase(100)]
+        [TestCase(123)]
+        public async Task RetrieveAllAsync_ReturnsEveryEntryInResponseOrder(int totalCount)
+        {
+            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));
+            if (totalCount > 50)
             {
-                Assert.That(result.Entries.Count, Is.EqualTo(123));
-                Assert.That(result.Entries[0].Short_Text, Is.EqualTo("entry-0"));
-                Assert.That(result.Entries[49].Short_Text, Is.EqualTo("entry-49"));
-                Assert.That(result.Entries[50].Short_Text, Is.EqualTo("entry-50"));
-                Assert.That(result.Entries[122].Short_Text, Is.EqualTo("entry-122"));
-                Assert.That(result.Count_Current, Is.EqualTo(123));
-            });
-            mockHttp.VerifyNoOutstandingExpectation();
+                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount));
+            }
+
+            var result = await _retriever.RetrieveAllAsync(new CultureInfo("en-US"));
+
+            Assert.That(result.Entries.Select(entry => entry.Short_Text),
+                Is.EqualTo(Enumerable.Range(0, totalCount).Select(index => $"entry-{index}")));
+            Assert.That(result.Count_Current, Is.EqualTo(totalCount));
+            _mockHttp.VerifyNoOutstandingExpectation();
         }
 
         [Test]
-        public async Task RetrieveAllAsync_StopsAfterEmptyBufferResponse()
+        public async Task RetrieveAllAsync_DoesNotSpliceResponsesWhenTimestampPrecisionIsLost()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Respond("application/json", BuildDiagnosticBufferResponse(0, 0));
+            ExpectBrowse(50).Respond("application/json", BuildResponse(50, 75, "2026-09-27T00:00:00.514678521Z"));
+            ExpectBrowse(75).Respond("application/json", BuildResponse(75, 75, "2026-09-27T00:00:00.514678531Z", 1));
 
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
+            var result = await _retriever.RetrieveAllAsync(new CultureInfo("en-US"));
 
-            var result = await retriever.RetrieveAllAsync(new CultureInfo("en-US"));
+            Assert.That(result.Entries.Select(entry => entry.Short_Text),
+                Is.EqualTo(Enumerable.Range(1, 75).Select(index => $"entry-{index}")));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
 
-            Assert.That(result.Entries, Is.Empty);
-            Assert.That(result.Count_Current, Is.Zero);
-            mockHttp.VerifyNoOutstandingExpectation();
+        [TestCase(74, LastModified)]
+        [TestCase(76, LastModified)]
+        [TestCase(75, "2026-09-27T00:01:00Z")]
+        public void RetrieveAllAsync_ThrowsWhenBufferChangeIsDetected(int changedCount, string lastModified)
+        {
+            ExpectBrowse(50).Respond("application/json", BuildResponse(50, 75));
+            ExpectBrowse(75).Respond("application/json", BuildResponse(Math.Min(75, changedCount), changedCount, lastModified));
+
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+
+            Assert.That(exception.Message, Does.Contain("changed"));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [TestCase(0)]
+        [TestCase(50)]
+        [TestCase(74)]
+        [TestCase(76)]
+        public void RetrieveAllAsync_RejectsIncompleteOrOversizedFinalResponse(int returnedCount)
+        {
+            ExpectBrowse(50).Respond("application/json", BuildResponse(50, 75));
+            ExpectBrowse(75).Respond("application/json", BuildResponse(returnedCount, 75));
+
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [TestCase(0, -1)]
+        [TestCase(50, 3201)]
+        [TestCase(49, 75)]
+        [TestCase(1, 0)]
+        public void RetrieveAllAsync_RejectsInvalidInitialResponse(int returnedCount, int totalCount)
+        {
+            ExpectBrowse(50).Respond("application/json", BuildResponse(returnedCount, totalCount));
+
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+            _mockHttp.VerifyNoOutstandingExpectation();
         }
 
         [Test]
         public void RetrieveAllAsync_PropagatesRequestFailure()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Throw(new HttpRequestException("diagnostic buffer request failed"));
-
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
+            ExpectBrowse(50).Throw(new HttpRequestException("diagnostic buffer request failed"));
 
             Assert.ThrowsAsync<HttpRequestException>(async () =>
-                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
-            mockHttp.VerifyNoOutstandingExpectation();
+                await _retriever.RetrieveAllAsync(new CultureInfo("en-US")));
+            _mockHttp.VerifyNoOutstandingExpectation();
         }
 
         [Test]
-        public void RetrieveAllAsync_ThrowsWhenLargerCountMakesNoProgress()
+        public void RetrieveAllAsync_PropagatesCancellationBetweenRequests()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":75")
-                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
+            using (var cancellation = new CancellationTokenSource())
+            {
+                ExpectBrowse(50).Respond(() =>
+                {
+                    cancellation.Cancel();
+                    return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(BuildResponse(50, 75))
+                    });
+                });
 
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
-
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
-
-            Assert.That(exception.Message, Does.Contain("made no progress"));
-            mockHttp.VerifyNoOutstandingExpectation();
+                Assert.CatchAsync<OperationCanceledException>(async () =>
+                    await _retriever.RetrieveAllAsync(new CultureInfo("en-US"), cancellationToken: cancellation.Token));
+                _mockHttp.VerifyNoOutstandingExpectation();
+            }
         }
 
         [Test]
-        public void RetrieveAllAsync_ThrowsWhenCountCurrentChangesDuringRetrieval()
+        public async Task RetrieveAllAsync_ForwardsLanguageAndAttributeFiltersOnBothRequests()
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":75")
-                .Respond("application/json", BuildDiagnosticBufferResponse(75, 76));
+            var filters = new ApiDiagnosticBuffer_RequestFilters
+            {
+                Mode = ApiBrowseFilterMode.Include,
+                Attributes = new List<ApiDiagnosticBufferBrowseFilterAttributes> { ApiDiagnosticBufferBrowseFilterAttributes.ShortText }
+            };
+            foreach (var count in new[] { 50, 75 })
+            {
+                ExpectBrowse(count)
+                    .WithPartialContent("\"language\":\"de-DE\"")
+                    .WithPartialContent("\"filters\":{\"mode\":\"include\",\"attributes\":[\"short_text\"]}")
+                    .Respond("application/json", BuildResponse(count, 75));
+            }
 
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
-
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
-
-            Assert.That(exception.Message, Does.Contain("changed"));
-            mockHttp.VerifyNoOutstandingExpectation();
+            await _retriever.RetrieveAllAsync(new CultureInfo("de-DE"), filters);
+            _mockHttp.VerifyNoOutstandingExpectation();
         }
 
-        [Test]
-        public void RetrieveAllAsync_ThrowsWhenLastModifiedChangesDuringRetrieval()
+        private MockedRequest ExpectBrowse(int count) => _mockHttp.Expect(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
+            .WithPartialContent($"\"count\":{count}");
+
+        private static string BuildResponse(int returnedCount, int totalCount, string lastModified = LastModified, int firstEntry = 0)
         {
-            var mockHttp = new MockHttpMessageHandler();
-            var url = $"https://{Ip}/api/jsonrpc";
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":50")
-                .Respond("application/json", BuildDiagnosticBufferResponse(50, 75));
-            mockHttp.Expect(HttpMethod.Post, url)
-                .WithPartialContent("\"count\":75")
-                .Respond("application/json", BuildDiagnosticBufferResponse(75, 75, ChangedLastModified));
-
-            using var client = new HttpClient(mockHttp) { BaseAddress = new Uri($"https://{Ip}") };
-            var requestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
-            var retriever = new DiagnosticBufferRetriever(requestHandler);
-
-            var exception = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await retriever.RetrieveAllAsync(new CultureInfo("en-US")));
-
-            Assert.That(exception.Message, Does.Contain("changed"));
-            mockHttp.VerifyNoOutstandingExpectation();
-        }
-
-        private static string BuildDiagnosticBufferResponse(int returnedCount, int totalCount, string lastModified = LastModified)
-        {
-            var entries = new JArray(Enumerable.Range(0, returnedCount).Select(index =>
+            var entries = new JArray(Enumerable.Range(firstEntry, returnedCount).Select(index =>
                 new JObject
                 {
                     ["timestamp"] = $"2026-09-27T00:{index / 60:00}:{index % 60:00}Z",
@@ -171,27 +179,20 @@ namespace Webserver.API.UnitTests
                     ["long_text"] = $"entry-{index}",
                     ["short_text"] = $"entry-{index}",
                     ["help_text"] = string.Empty,
-                    ["event"] = new JObject
-                    {
-                        ["textlist_id"] = 1,
-                        ["text_id"] = index
-                    }
+                    ["event"] = new JObject { ["textlist_id"] = 1, ["text_id"] = index }
                 }));
-
-            var result = new JObject
-            {
-                ["entries"] = entries,
-                ["last_modified"] = lastModified,
-                ["count_current"] = totalCount,
-                ["count_max"] = 3200,
-                ["language"] = "en-US"
-            };
-
             return new JObject
             {
                 ["jsonrpc"] = "2.0",
                 ["id"] = "test",
-                ["result"] = result
+                ["result"] = new JObject
+                {
+                    ["entries"] = entries,
+                    ["last_modified"] = lastModified,
+                    ["count_current"] = totalCount,
+                    ["count_max"] = 3200,
+                    ["language"] = "en-US"
+                }
             }.ToString(Formatting.None);
         }
     }

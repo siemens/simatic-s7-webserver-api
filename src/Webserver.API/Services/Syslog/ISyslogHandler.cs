@@ -19,6 +19,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// <remarks>
         /// Returns entries newest first. Changes to either cumulative counter during retrieval
         /// cause an InvalidOperationException; no partial result is returned. The caller controls retries.
+        /// Completion requires reaching ID 1 or receiving as many entries as the cumulative counters
+        /// allow at most. A response with no new entries before that proof causes an InvalidOperationException,
+        /// including an anchor-only response at an otherwise unknown oldest retained boundary.
         /// </remarks>
         /// <param name="redundancyId">(optional) If the target is an S7-1500 R/H system, you can choose if you want to request the syslog of the primary or backup PLC</param>
         /// <param name="cancellationToken">Cancellation token for the operation.</param>

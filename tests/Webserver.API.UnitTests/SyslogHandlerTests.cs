@@ -47,57 +47,105 @@ namespace Webserver.API.UnitTests
             }
         }
 
+        [TestCase(20)]
+        [TestCase(1)]
+        public void RetrieveAllAsync_AnchorOnlyBeforeOldestBoundary_FailsWithoutPartialSuccess(int pageLimit)
+        {
+            int calls = 0;
+            var ring = Ring(100, 53, 0, pageLimit);
+            using (var s = new Session(this, async (p, ct) =>
+            {
+                Assert.That(++calls, Is.LessThanOrEqualTo(2), "A no-progress response must not be retried.");
+                var r = await ring(p, ct);
+                if (calls == 2)
+                    r["result"]["entries"] = new JArray(r["result"]["entries"][0].DeepClone());
+                return r;
+            }))
+            {
+                var ex = Assert.ThrowsAsync<InvalidOperationException>(() => s.Handler.RetrieveAllAsync());
+                Assert.That(ex.Message, Does.Contain("no progress"));
+                Assert.That(calls, Is.EqualTo(2));
+                Assert.That((uint)s.Requests[1]["first"], Is.EqualTo(101u - (uint)pageLimit));
+            }
+        }
+
         [TestCase(0u)]
         [TestCase(10u)]
-        [TestCase(20u)]
-        public async Task RetrieveAllAsync_WrappedBuffer_DoesNotInferOccupancyFromLost(uint lost)
+        public void RetrieveAllAsync_WrappedBuffer_UnprovenBoundaryFailsClosed(uint lost)
         {
             // Oldest 20 events were overwritten; some/all were already saved to a server.
             using (var s = new Session(this, Ring(123, 103, lost)))
             {
-                var result = await s.Handler.RetrieveAllAsync();
-                Assert.That(result.Entries.Select(e => e.Raw),
-                    Is.EqualTo(Enumerable.Range(21, 103).Reverse().Select(id => "entry-" + id)));
-                Assert.That(result.Count_Lost, Is.EqualTo(lost));
+                var ex = Assert.ThrowsAsync<InvalidOperationException>(() => s.Handler.RetrieveAllAsync());
+                Assert.That(ex.Message, Does.Contain("no progress"));
                 Assert.That(s.Requests.Select(p => (uint?)p["first"]),
                     Is.EqualTo(new uint?[] { null, 104, 85, 66, 47, 28, 21 }));
+            }
+        }
+
+        [Test]
+        public async Task RetrieveAllAsync_FullyLostPrefix_StopsAtProvenOldestBoundary()
+        {
+            using (var s = new Session(this, Ring(100, 53, 47)))
+            {
+                var result = await s.Handler.RetrieveAllAsync();
+                Assert.That(result.Entries.Select(e => e.Raw),
+                    Is.EqualTo(Enumerable.Range(48, 53).Reverse().Select(id => "entry-" + id)));
+                Assert.That(result.Count_Total, Is.EqualTo(100));
+                Assert.That(result.Count_Lost, Is.EqualTo(47));
+                Assert.That(s.Requests.Select(p => (uint?)p["first"]),
+                    Is.EqualTo(new uint?[] { null, 81, 62 }));
             }
         }
 
         [TestCase(2)]
         [TestCase(7)]
         [TestCase(20)]
-        public async Task RetrieveAllAsync_ShortPages_ContinueUntilOnlyAnchorRemains(int pageLimit)
+        public async Task RetrieveAllAsync_ShortPages_ContinueUntilProvenOldestBoundary(int pageLimit)
         {
-            using (var s = new Session(this, Ring(100, 53, 0, pageLimit)))
+            using (var s = new Session(this, Ring(53, 53, 0, pageLimit)))
             {
                 var result = await s.Handler.RetrieveAllAsync();
                 Assert.That(result.Entries.Select(e => e.Raw),
-                    Is.EqualTo(Enumerable.Range(48, 53).Reverse().Select(id => "entry-" + id)));
-                Assert.That((uint)s.Requests.Last()["first"], Is.EqualTo(48));
+                    Is.EqualTo(Enumerable.Range(1, 53).Reverse().Select(id => "entry-" + id)));
+                Assert.That(s.Requests.Skip(1).All(p => (uint)p["first"] > 1), Is.True);
             }
         }
 
         [TestCase(2147483648u, 0u)]
         [TestCase(uint.MaxValue, 0u)]
         [TestCase(uint.MaxValue, 2147483648u)]
-        [TestCase(uint.MaxValue, uint.MaxValue - 53)]
-        public async Task RetrieveAllAsync_LargeCumulativeCounters_DoNotOverflow(uint total, uint lost)
+        public void RetrieveAllAsync_LargeCumulativeCounters_DoNotOverflowAtUnprovenBoundary(uint total, uint lost)
         {
             using (var s = new Session(this, Ring(total, 53, lost)))
+            {
+                var ex = Assert.ThrowsAsync<InvalidOperationException>(() => s.Handler.RetrieveAllAsync());
+                Assert.That(ex.Message, Does.Contain("no progress"));
+                Assert.That(s.Requests.Select(p => (uint?)p["first"]),
+                    Is.EqualTo(new uint?[] { null, total - 19, total - 38, total - 52 }));
+            }
+        }
+
+        [TestCase(2147483648u)]
+        [TestCase(uint.MaxValue)]
+        public async Task RetrieveAllAsync_LargeCumulativeCounters_CompleteAtProvenBoundary(uint total)
+        {
+            using (var s = new Session(this, Ring(total, 53, total - 53)))
             {
                 var result = await s.Handler.RetrieveAllAsync();
                 Assert.That(result.Entries.Count, Is.EqualTo(53));
                 Assert.That(result.Entries.First().Raw, Is.EqualTo("entry-" + total));
                 Assert.That(result.Entries.Last().Raw, Is.EqualTo("entry-" + (total - 52)));
                 Assert.That(result.Count_Total, Is.EqualTo(total));
+                Assert.That(result.Count_Lost, Is.EqualTo(total - 53));
+                Assert.That(s.Requests.Count, Is.EqualTo(3));
             }
         }
 
         [Test]
         public async Task RetrieveAllAsync_IdenticalRawValues_AreNotDeduplicated()
         {
-            using (var s = new Session(this, Ring(100, 43, 0, raw: id => "same event")))
+            using (var s = new Session(this, Ring(100, 43, 57, raw: id => "same event")))
             {
                 var result = await s.Handler.RetrieveAllAsync();
                 Assert.That(result.Entries.Count, Is.EqualTo(43));
@@ -105,16 +153,43 @@ namespace Webserver.API.UnitTests
             }
         }
 
-        [Test]
-        public async Task RetrieveAllAsync_EmptyRetainedBuffer_PreservesCounters()
+        [TestCase(0u)]
+        [TestCase(10u)]
+        [TestCase(uint.MaxValue)]
+        public async Task RetrieveAllAsync_EmptyRetainedBuffer_PreservesCounters(uint total)
         {
-            using (var s = new Session(this, Ring(10, 0, 10)))
+            using (var s = new Session(this, Ring(total, 0, total)))
             {
                 var result = await s.Handler.RetrieveAllAsync();
                 Assert.That(result.Entries, Is.Empty);
-                Assert.That(result.Count_Total, Is.EqualTo(10));
-                Assert.That(result.Count_Lost, Is.EqualTo(10));
+                Assert.That(result.Count_Total, Is.EqualTo(total));
+                Assert.That(result.Count_Lost, Is.EqualTo(total));
                 Assert.That(s.Requests.Count, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void RetrieveAllAsync_EmptyInitialPageWithoutEmptyBufferProof_FailsClosed()
+        {
+            using (var s = new Session(this, (p, ct) =>
+                Task.FromResult(Response(100, 0, Enumerable.Empty<string>()))))
+            {
+                var ex = Assert.ThrowsAsync<InvalidOperationException>(() => s.Handler.RetrieveAllAsync());
+                Assert.That(ex.Message, Does.Contain("no progress"));
+                Assert.That(s.Requests.Count, Is.EqualTo(1));
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(20)]
+        public async Task RetrieveAllAsync_IdOneBoundary_DoesNotRequestFirstZero(int pageLimit)
+        {
+            using (var s = new Session(this, Ring(1, 1, 0, pageLimit)))
+            {
+                var result = await s.Handler.RetrieveAllAsync();
+                Assert.That(result.Entries.Select(e => e.Raw), Is.EqualTo(new[] { "entry-1" }));
+                Assert.That(s.Requests.Count, Is.EqualTo(1));
+                Assert.That(s.Requests[0]["first"], Is.Null);
             }
         }
 
@@ -123,7 +198,7 @@ namespace Webserver.API.UnitTests
         [TestCase(ApiPlcRedundancyId.RedundancyId_2)]
         public async Task RetrieveAllAsync_RedundancyId_IsPassedOnEveryPage(ApiPlcRedundancyId redundancyId)
         {
-            using (var s = new Session(this, Ring(50, 43, 0)))
+            using (var s = new Session(this, Ring(50, 43, 7)))
             {
                 await s.Handler.RetrieveAllAsync(redundancyId);
                 foreach (var p in s.Requests)

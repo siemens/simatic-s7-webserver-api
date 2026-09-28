@@ -39,8 +39,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
         /// </summary>
         /// <remarks>
         /// Entries are returned newest first. Each continuation includes the previous page's
-        /// last entry; a page containing only that entry marks the end of the retained buffer.
-        /// Short pages with additional entries are followed until this boundary is reached.
+        /// last entry. Short pages with additional entries are followed until ID 1 is reached
+        /// or the entries actually received exhaust the upper bound Count_Total - Count_Lost.
+        /// An empty initial response succeeds only when that upper bound is zero.
+        /// An anchor-only continuation does not prove completion and causes an InvalidOperationException.
         /// Count_Total and Count_Lost are cumulative counters, not the current buffer size.
         /// If either counter changes during retrieval, the operation fails without returning
         /// a partial result. The caller may retry with its own cancellation or timeout policy.
@@ -96,23 +98,29 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Syslog
                 }
 
                 // Lost counts only overwritten entries that were NOT saved to a syslog
-                // server. Total - lost is an upper bound, never a completion target.
-                if ((ulong)result.Entries.Count + (uint)(entries.Count - skip) >
-                    (ulong)current.Count_Total - current.Count_Lost)
+                // server. Total - lost is an upper bound, not the current buffer size.
+                ulong maximumRetainedCount = (ulong)current.Count_Total - current.Count_Lost;
+                if ((ulong)result.Entries.Count + (uint)(entries.Count - skip) > maximumRetainedCount)
                 {
                     throw new InvalidOperationException("Syslog.Browse returned more entries than its counters allow.");
                 }
 
                 if (entries.Count == skip)
                 {
-                    return result;
+                    if (!first.HasValue && maximumRetainedCount == 0)
+                    {
+                        return result;
+                    }
+                    throw new InvalidOperationException("Syslog.Browse made no progress; completion of the retained buffer could not be established.");
                 }
 
                 result.Entries.AddRange(entries.Skip(skip));
                 // Re-read the last known entry, not an ID older than the retained buffer.
                 // Only page-sized values are converted; cumulative counters remain uint.
                 first = pageFirst - (uint)(entries.Count - 1);
-                if (first == 1)
+                // Reaching the upper bound proves no retained entries can remain;
+                // stopping below it does not prove the oldest boundary was reached.
+                if (first == 1 || (ulong)result.Entries.Count == maximumRetainedCount)
                 {
                     return result;
                 }

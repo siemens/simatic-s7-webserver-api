@@ -7,6 +7,7 @@ using NUnit.Framework;
 using RichardSzalay.MockHttp;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer;
+using Siemens.Simatic.S7.Webserver.API.Services;
 using Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
@@ -37,6 +38,52 @@ namespace Webserver.API.UnitTests
 
         [TearDown]
         public void TearDown() => _client.Dispose();
+
+        [TestCase(0)]
+        [TestCase(50)]
+        [TestCase(75)]
+        public void RetrieveAll_ReturnsEveryEntryInResponseOrder(int totalCount)
+        {
+            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));
+            if (totalCount > 50)
+            {
+                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount));
+            }
+
+            var result = _retriever.RetrieveAll(new CultureInfo("en-US"));
+
+            Assert.That(result.Entries.Select(entry => entry.Short_Text),
+                Is.EqualTo(Enumerable.Range(0, totalCount).Select(index => $"entry-{index}")));
+            Assert.That(result.Count_Current, Is.EqualTo(totalCount));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [Test]
+        public void RetrieveAll_PropagatesRequestFailureWithoutWrappingIt()
+        {
+            var failure = new HttpRequestException("diagnostic buffer request failed");
+            ExpectBrowse(50).Throw(failure);
+
+            var exception = Assert.Throws<HttpRequestException>(() =>
+                _retriever.RetrieveAll(new CultureInfo("en-US")));
+
+            Assert.That(exception, Is.SameAs(failure));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [Test]
+        public void ServiceFactory_CreatesRetrieverUsingProvidedRequestHandler()
+        {
+            IApiServiceFactory factory = new ApiStandardServiceFactory();
+            var handler = new ApiHttpClientRequestHandler(_client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var retriever = factory.GetDiagnosticBufferRetriever(handler);
+            ExpectBrowse(50).Respond("application/json", BuildResponse(1, 1));
+
+            var result = retriever.RetrieveAll(new CultureInfo("en-US"));
+
+            Assert.That(result.Entries.Single().Short_Text, Is.EqualTo("entry-0"));
+            _mockHttp.VerifyNoOutstandingExpectation();
+        }
 
         [TestCase(0)]
         [TestCase(1)]

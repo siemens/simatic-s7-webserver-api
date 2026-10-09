@@ -2911,7 +2911,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+        public ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, mode, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Api.Login Request 

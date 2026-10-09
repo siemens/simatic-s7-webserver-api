@@ -215,8 +215,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     var missing = "";
                     browsedExceptApp.ForEach(el => browsedThatShouldntBe = browsedThatShouldntBe + Environment.NewLine + el.Name);
                     appExceptBrowsed.ForEach(el => missing = missing + Environment.NewLine + el.Name);
-                    throw new ApiResourceDeploymentFailedException($"Resources found that should were not expected to be on the app:{browsedThatShouldntBe}" +
-                        $"Resources that were expected to be on the app but aren't:{missing}");
+                    throw new ApiResourceDeploymentFailedException(
+                        $"Resources found that were not expected to be on the app:{browsedThatShouldntBe}{Environment.NewLine}" +
+                        $"Resources that were expected to be on the app but are missing:{missing}");
                 }
                 var browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                 ApiWebAppData browsedWebApp = browsedWebAppResp.Result.Applications.First();

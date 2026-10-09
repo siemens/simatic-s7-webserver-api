@@ -16,6 +16,31 @@ namespace Webserver.API.UnitTests
 {
     public class FileParserTests : Base
     {
+        [TestCase("../outside.json")]
+        [TestCase("..\\outside.json")]
+        [TestCase("nested/../../outside.json")]
+        [TestCase("nested\\../../outside.json")]
+        [TestCase("../webapp-other/config.json")]
+        [TestCase("/outside.json")]
+        [TestCase("\\outside.json")]
+        public void Parse_PathOutsideWebAppDirectory_ThrowsIOException(string configFileName)
+        {
+            var rootDirectory = Path.Combine(Path.GetTempPath(), "webapp");
+            var parser = new ApiWebAppConfigParser(rootDirectory, configFileName, new ApiWebAppResourceBuilder());
+
+            Assert.Throws<IOException>(() => parser.Parse());
+        }
+
+        [Test]
+        public void Parse_AbsoluteConfigPath_ThrowsIOException()
+        {
+            var rootDirectory = Path.Combine(Path.GetTempPath(), "webapp");
+            var absolutePath = Path.Combine(rootDirectory, "config.json");
+            var parser = new ApiWebAppConfigParser(rootDirectory, absolutePath, new ApiWebAppResourceBuilder());
+
+            Assert.Throws<IOException>(() => parser.Parse());
+        }
+
         [Test]
         public void InvalidApplicationsExceptionThrown()
         {

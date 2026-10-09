@@ -138,7 +138,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
             {
-                await DeployAsync(webApp);
+                await DeployAsync(webApp, progress, cancellationToken);
             }
             else
             {

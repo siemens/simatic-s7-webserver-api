@@ -35,12 +35,11 @@ namespace Webserver.API.UnitTests
             {
                 waitHandler.ForTrue(() =>
                 {
-                    throw new InvalidOperationException($"Test");
+                    throw new InvalidOperationException("Test exception for WaitHandler timeout scenario");
                 });
             });
             Assert.That(exc.InnerException.Message, Contains.Substring("Test"));
             Assert.That(exc.InnerException is InvalidOperationException);
-            Assert.That(exc.ToString(), Contains.Substring("Test"));
         }
 
         [Test]

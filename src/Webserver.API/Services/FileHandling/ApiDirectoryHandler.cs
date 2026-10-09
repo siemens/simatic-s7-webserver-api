@@ -141,9 +141,17 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         /// <returns>A resource containing everything that is present underneath</returns>
         public async Task<ApiFileResource> BrowseAndBuildResourceAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
-            // should we clone here?
-            var res = (ApiFileResource)resource.Clone();
-            res.Resources = new List<ApiFileResource>();
+            var res = new ApiFileResource
+            {
+                Name = resource.Name,
+                Size = resource.Size,
+                Last_Modified = resource.Last_Modified,
+                Type = resource.Type,
+                State = resource.State,
+                Parents = resource.Parents,
+                PathToLocalDirectory = resource.PathToLocalDirectory,
+                Resources = new List<ApiFileResource>()
+            };
             var browseResponse = await ApiRequestHandler.FilesBrowseAsync(resource.GetVarNameForMethods(), cancellationToken);
             if (resource.Type == Enums.ApiFileResourceType.Dir)
             {

@@ -1,4 +1,4 @@
-// Copyright (c) 2026, Siemens AG
+﻿// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Siemens.Simatic.S7.Webserver.API.Enums;
@@ -23,13 +23,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
     public interface IApiServiceFactory
     {
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
@@ -37,7 +37,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         IApiRequestHandler GetApiHttpClientRequestHandler(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode);
 
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> 
         /// </summary>
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
@@ -45,7 +45,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         IApiRequestHandler GetApiHttpClientRequestHandler(string baseAddress, string username, string password);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> 
         /// </summary>
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
@@ -54,27 +54,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         IApiRequestHandler GetApiHttpClientRequestHandler(string baseAddress, string username, string password, ApiAuthenticationMode loginMode);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>A usable and authenticated <see cref="ApiHttpClientRequestHandler"/></returns>
         Task<IApiRequestHandler> GetApiHttpClientRequestHandlerAsync(HttpClientConnectionConfiguration connectionConfiguration, CancellationToken cancellationToken = default);
         /// <summary>
-        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an <see cref="ApiHttpClientRequestHandler"/> using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
@@ -136,27 +136,27 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>A HttpClientConnectionConfiguration with standard values</returns>
         HttpClientConnectionConfiguration GetConnectionConfiguration(string baseAddress, string username, string password);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         HttpClient GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         HttpClient GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, ApiAuthenticationMode loginMode);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         HttpClientAndWebAppCookie GetHttpClient(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection configuration to use</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
@@ -181,7 +181,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an authorized httpclient (client with header value x-auth-token set)</returns>
         HttpClient GetHttpClient(string baseAddress, string username, string password, ApiAuthenticationMode loginMode);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages)
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) 
         /// </summary>
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
@@ -190,7 +190,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, bool include_web_application_cookie);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages)
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) 
         /// </summary>
         /// <param name="baseAddress">ip address or dns name of your plc</param>
         /// <param name="username">username to login with</param>
@@ -200,7 +200,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         HttpClientAndWebAppCookie GetHttpClient(string baseAddress, string username, string password, ApiAuthenticationMode loginMode, bool include_web_application_cookie);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
         /// <param name="include_web_application_cookie">bool used to determine if the response should include a valid application cookie value for protected pages access</param>
@@ -208,7 +208,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <returns>an authorized httpclient (client with header value x-auth-token set) and the according webappcookie</returns>
         Task<HttpClientAndWebAppCookie> GetHttpClientAsync(HttpClientConnectionConfiguration connectionConfiguration, bool include_web_application_cookie, CancellationToken cancellationToken = default);
         /// <summary>
-        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/>
+        /// Get an httpclient and a webappcookie (for accessing userdefined web pages) using the given <see cref="HttpClientConnectionConfiguration"/> 
         /// </summary>
         /// <param name="connectionConfiguration">Connection Configuration which should contains the base address, username, passwort etc.</param>
         /// <param name="loginMode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>

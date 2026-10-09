@@ -27,7 +27,7 @@ using System.Xml;
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Request Handlerusing the Microsoft.Net.HttpClient to send the requests to the API
+    /// Request Handler using the Microsoft.Net.HttpClient to send the requests to the API
     /// </summary>
     public class ApiHttpClientRequestHandler : IApiRequestHandler
     {

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
+using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

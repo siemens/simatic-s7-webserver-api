@@ -224,7 +224,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             using (var request_body = new ByteArrayContent(byteArr))
             {
                 request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body))
+                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken))
                 {
                     _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
                     var responseString = await response.Content.ReadAsStringAsync();

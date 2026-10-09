@@ -174,7 +174,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     foreach (ApiWebAppResource r in browsedExceptApp)
                     {
                         Logger?.LogDebug(string.Format("{0}: start deleting: {1} resources.", nameof(DeployOrUpdate), browsedExceptApp.Count));
-                        await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
+                        await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name, cancellationToken);
                     }
                     if (browsedExceptApp.Count != 0)
                     {

@@ -4,6 +4,7 @@
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.Backup;
+using Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer;
 using Siemens.Simatic.S7.Webserver.API.Services.FileHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.Services.Modules;
@@ -320,5 +321,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         /// <param name="requestHandler">Request Handler the Modules Browser shall use</param>
         /// <returns>an <see cref="ModulesBrowser"/></returns>
         ModulesBrowser GetModulesBrowser(IApiRequestHandler requestHandler);
+
+        /// <summary>
+        /// Get a DiagnosticBufferRetriever with the given requestHandler
+        /// </summary>
+        /// <param name="requestHandler">Request Handler the diagnostic buffer retriever shall use</param>
+        /// <returns>a <see cref="DiagnosticBufferRetriever"/></returns>
+        DiagnosticBufferRetriever GetDiagnosticBufferRetriever(IApiRequestHandler requestHandler);
     }
 }

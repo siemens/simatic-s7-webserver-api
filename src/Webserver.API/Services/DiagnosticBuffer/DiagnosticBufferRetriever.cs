@@ -29,10 +29,15 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer
         }
 
         /// <summary>
-        /// Retrieves a complete diagnostic buffer in at most two requests.
-        /// Entries are returned from a single response, since the API exposes no snapshot cursor.
-        /// A detected change between requests causes an InvalidOperationException.
+        /// Retrieves all currently available diagnostic buffer entries.
         /// </summary>
+        /// <remarks>
+        /// The first request asks for 50 entries and obtains the total available count, <c>count_current</c>.
+        /// If more entries are available, a second request asks for <c>count_current</c> entries.
+        /// For example, a buffer containing 1000 entries is requested with counts of 50 and then 1000.
+        /// All entries are returned from the complete final response, since the API exposes no offset or snapshot cursor.
+        /// A detected change between requests causes an <see cref="InvalidOperationException"/>.
+        /// </remarks>
         /// <param name="language">Language in which diagnostic texts shall be returned.</param>
         /// <param name="filters">Optional attributes filter for diagnostic buffer entries.</param>
         /// <param name="cancellationToken">Cancellation token for the operation.</param>
@@ -76,8 +81,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer
         }
 
         /// <summary>
-        /// Retrieves a complete diagnostic buffer in at most two requests.
+        /// Retrieves all currently available diagnostic buffer entries.
         /// </summary>
+        /// <remarks>
+        /// The first request asks for 50 entries. If more entries are available, a second request asks
+        /// for the full <c>count_current</c> reported by the first response and returns that complete response.
+        /// </remarks>
         /// <param name="language">Language in which diagnostic texts shall be returned.</param>
         /// <param name="filters">Optional attributes filter for diagnostic buffer entries.</param>
         /// <returns>The complete diagnostic buffer from the last response.</returns>

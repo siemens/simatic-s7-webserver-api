@@ -1,6 +1,6 @@
 ![1518F](./docs/screens/1518F.png)
 # WebserverApi Client Library for .NET
-This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0, 10.0 and .NET Standard 2.0 and above provides the user with Method calls to the PLC Webserver Api using the HttpClient to make the usage of Api functionalities easier.
+This package targets .NET Framework 4.8, .NET Standard 2.0, and .NET 8.0, 9.0, and 10.0. NuGet may select a compatible package asset for other frameworks; those are not additional target-specific builds. The library provides methods for calling the PLC Webserver API using HttpClient.
 
 * Package name: **Siemens.Simatic.S7.Webserver.API**
 
@@ -20,7 +20,7 @@ This package targeting .NET Framework: 4.8, 6.0, 7.0, 8.0, 9.0, 10.0 and .NET St
 - [Topics (Web API methods)](#topics-web-api-methods)
   - [ApiHttpClientRequestHandler](#apihttpclientrequesthandler)
   - [WebApps](#webapps)
-    - [AsyncWebAppDeployer, WebAppConfigParser](#asyncwebappdeployer-webappconfigparser)
+    - [AsyncWebAppDeployer, ApiWebAppConfigParser](#asyncwebappdeployer-apiwebappconfigparser)
   - [PlcProgram Browse Read and Write](#plcprogram-browse-read-and-write)
   - [Modules](#modules)
     - [ModulesBrowser](#modulesbrowser)
@@ -55,12 +55,12 @@ So generally all available methods of the S7 Web API can be called easily withou
     * ApiWebAppDeployer: Deploy/Update of an ApiWebAppData to the plc
     * ApiWebAppResourceBuilder: Create an ApiWebAppResource from a file (html, js, ...)
 * PlcProgram
-    * ApiPlcProgramHandler: Implementation to comfortably read/write all children of a struct via Bulk requests (under construction)
+    * ApiPlcProgramHandler: Read and write all children of a struct using bulk requests (some open work)
 * Files and Directories
     * ApiFileResourceBuilder: Build an ApiFileResource from the path to a local resource (e.g. windows file)
     * ApiDirectoryBuilder: Build a directory containing multiple files from a given ApiDirectoryBuilderConfiguration
     * ApiFileHandler: Take care of Upload/Download of a file
-    * ApiDirectoryHandler: Take care of Upload/Update/download of a local directory (todo: download + deltadownload)
+    * ApiDirectoryHandler: Browse, deploy, update, and delete directory resources on the PLC; directory download and delta download are not implemented
 * Backups
     * ApiBackupHandler: Download/Restore a backup
 * Modules
@@ -118,7 +118,7 @@ using System.Net;
 ...
 // For .net48
 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-// For .net6.0 and greater
+// For .NET 8.0 and greater (the package's net8.0+ targets)
 Siemens.Simatic.S7.Webserver.API.Services.ServerCertificateCallback.CertificateCallback = (sender, cert, chain, sslPolicyErrors) => true;
 ```
 Of course you can also implement a check for the sender and so on.
@@ -153,10 +153,13 @@ await requestHandler.WebAppSetDefaultPageAsync(app, "index.html");
 // do this in a loop for all resources and perform management yourself OR            
 ```
 but further comfort can be accomplished with:
-### AsyncWebAppDeployer, WebAppConfigParser
+### AsyncWebAppDeployer, ApiWebAppConfigParser
 You can use Implementations to comfortably deploy the apps to the plc with a Deployer and FileParser for your WebAppDirectory:
 ```cs
-var parser = new WebAppConfigParser(Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"), "WebAppConfig.json");
+var parser = new ApiWebAppConfigParser(
+    Path.Combine(CurrentExeDir.FullName, "_WebApps", "customerExample"),
+    "WebAppConfig.json",
+    serviceFactory.GetApiWebAppResourceBuilder());
 app = parser.Parse();
 var deployer = serviceFactory.GetApiWebAppDeployer(reqHandler);
 await deployer.DeployOrUpdateAsync(app);
@@ -173,7 +176,7 @@ public class ApiResourceHandler {}
 public class ApiWebAppResourceBuilder {}
 }
 ```
-**Hint**: It is possible to add another parameter to the new WebAppConfigParser(*,*,bool ignoreBOMDifference = false):
+**Hint**: To ignore this BOM difference, pass `ignoreBOMDifference: true` as the fourth argument to `ApiWebAppConfigParser`, after the required resource builder. For example: `new ApiWebAppConfigParser(path, configFileName, serviceFactory.GetApiWebAppResourceBuilder(), ignoreBOMDifference: true)`.
 This is the case because uploading files using javascript on a webpage has shown that the BOM (Byte Order Mark) is not transmitted!
 Therefor if you upload a file using javascript and then make the deployer do the comparison between the file locally (windows explorer) and the one on the server(plc) the files would be different since the size is different by three bytes. To get rid of this "false positive" on a difference you can set the ignoreBOMDifference to true - but keep in mind that a change of 3 bytes would then also be accepted as no difference. The deployer would still reupload the file since the last_modified dates would not match!
 

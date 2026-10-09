@@ -165,6 +165,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Ticketing
         /// <exception cref="Exception">File has no content</exception>
         public async Task<ApiTicket> HandleDownloadAsync(string ticketId, string filePath, bool overwriteExistingFile = false, CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                var exc = new ArgumentException("The file path must not be null or empty!", nameof(filePath));
+                Logger?.LogError(exc, $"In {nameof(HandleDownloadAsync)} -> ticket: {ticketId}!");
+                throw exc;
+            }
             var dirPath = filePath.Substring(0, filePath.LastIndexOf(@"\") + 1);
             if (!Directory.Exists(dirPath))
             {

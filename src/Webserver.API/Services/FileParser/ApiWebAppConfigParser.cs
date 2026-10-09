@@ -6,6 +6,7 @@ using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,7 +62,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileParser
         /// </returns>
         public ApiWebAppData Parse()
         {
-            string configFilePath = Path.Combine(PathToWebAppDirectory, WebAppConfigFileName);
+            string configFilePath = PathSafetyHelper.GetContainedFilePath(PathToWebAppDirectory, WebAppConfigFileName);
             if (!File.Exists(configFilePath))
             {
                 throw new FileNotFoundException($"Webapp config file at {configFilePath} not found!");

@@ -4,6 +4,7 @@
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
+using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System;
 using System.IO;
 using System.Threading;
@@ -126,7 +127,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.FileHandling
         public async Task DeployFileAsync(ApiFileResource resource, CancellationToken cancellationToken = default)
         {
             var varNameForMethods = resource.GetVarNameForMethods();
-            var accordingFile = Path.Combine(resource.PathToLocalDirectory, resource.Name);
+            var accordingFile = PathSafetyHelper.GetContainedFilePath(resource.PathToLocalDirectory, resource.Name);
             await DeployFileAsync(varNameForMethods, accordingFile, cancellationToken);
         }
 

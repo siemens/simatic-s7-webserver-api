@@ -1,3 +1,6 @@
+// Copyright (c) 2026, Siemens AG
+//
+// SPDX-License-Identifier: MIT
 using NUnit.Framework;
 using Siemens.Simatic.S7.Webserver.API.Models;
 using Siemens.Simatic.S7.Webserver.API.Services.FileHandling;

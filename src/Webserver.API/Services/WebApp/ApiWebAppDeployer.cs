@@ -165,9 +165,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 while (!Enumerable.SequenceEqual(appOrdered, browsedOrdered) && (tries < amountOfTriesForResourceDeployment))
                 {
                     // elements that should further be deleted but are not found in the comparison before!
-                    var elemsToFurtherdelete = (browsedOrdered.Where(el => appExceptBrowsed
+                    var elementsToFurtherDelete = (browsedOrdered.Where(el => appExceptBrowsed
                     .Any(el2 => el2.Name == el.Name && !(browsedExceptApp.Any(el3 => el3.Name == el2.Name))))).ToList();
-                    if (elemsToFurtherdelete.Count != 0)
+                    if (elementsToFurtherDelete.Count != 0)
                     {
                         throw new Exception("Comparison insufficient!");
                     }

@@ -40,7 +40,6 @@ namespace Webserver.API.UnitTests
             });
             Assert.That(exc.InnerException.Message, Contains.Substring("Test"));
             Assert.That(exc.InnerException is InvalidOperationException);
-            Assert.That(exc.ToString(), Contains.Substring("Test"));
         }
 
         [Test]

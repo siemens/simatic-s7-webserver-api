@@ -3105,7 +3105,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
         /// <returns>True if the settings are applied successfully</returns>
         public ApiTrueOnSuccessResponse PlcSetTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null) =>
-            PlcSetTimeSettingsAsync(utcOffset, daylightSavings = null).GetAwaiter().GetResult();
+            PlcSetTimeSettingsAsync(utcOffset, daylightSavings).GetAwaiter().GetResult();
         /// <summary>
         /// Send a Files.Browse Request
         /// </summary>

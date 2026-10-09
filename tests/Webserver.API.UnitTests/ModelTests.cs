@@ -885,6 +885,30 @@ namespace Webserver.API.UnitTests
             Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal2.GetHashCode()), "GetHashcode was equal although it should not be");
             Assert.That(equal1.GetHashCode(), Is.Not.EqualTo(not_equal3.GetHashCode()), "GetHashcode was equal although it should not be");
         }
+
+        [Test]
+        public void Module_GetHashCode_EqualNestedCollectionsSameHash()
+        {
+            var first = new Module
+            {
+                Hwid = 1,
+                Name = "node",
+                Attributes = new List<ApiModulesNodeAttribute> { ApiModulesNodeAttribute.FirmwareUpdate },
+                Children = new List<Module> { new Module { Hwid = 2, Name = "child" } },
+                Parent = new List<uint> { 0 }
+            };
+            var second = new Module
+            {
+                Hwid = 1,
+                Name = "node",
+                Attributes = new List<ApiModulesNodeAttribute> { ApiModulesNodeAttribute.FirmwareUpdate },
+                Children = new List<Module> { new Module { Hwid = 2, Name = "child" } },
+                Parent = new List<uint> { 0 }
+            };
+
+            Assert.That(first, Is.EqualTo(second));
+            Assert.That(first.GetHashCode(), Is.EqualTo(second.GetHashCode()));
+        }
         [Test]
         public void ApiSyslog_Entry_HashCodeCheck()
         {

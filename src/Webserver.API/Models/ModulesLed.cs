@@ -79,7 +79,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             int hashCode = -1337457871;
             hashCode = hashCode * -1521134295 + Type.GetHashCode();
             hashCode = hashCode * -1521134295 + Period.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<ApiLedColor>>.Default.GetHashCode(Colors);
+            hashCode = hashCode * -1521134295 + SequenceHashCode.GetSequenceHashCode(Colors);
             hashCode = hashCode * -1521134295 + Status.GetHashCode();
             return hashCode;
         }

@@ -147,7 +147,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Hashcode</returns>
         public override int GetHashCode()
         {
-            return (Status, Messages, Language).GetHashCode();
+            return (Status, SequenceHashCode.GetSequenceHashCode(Messages), Language).GetHashCode();
         }
 
         /// <summary>

@@ -336,7 +336,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">ticket containing ticket id (28 chars)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiCloseTicketAsync(ticket.Id);
+        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiCloseTicketAsync(ticket.Id, cancellationToken);
 
         /// <summary>
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory

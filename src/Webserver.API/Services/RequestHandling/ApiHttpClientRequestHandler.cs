@@ -192,14 +192,14 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public async Task<string> SendPostRequestAsync(string apiRequestString, CancellationToken cancellationToken = default)
         {
             byte[] byteArr = Encoding.GetBytes(apiRequestString);
-            using(var request_body = new ByteArrayContent(byteArr))
+            using (var request_body = new ByteArrayContent(byteArr))
             {
                 request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
                 using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken))
                 {
                     _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
 #if NET6_0_OR_GREATER
-            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 #else
                     var responseString = await response.Content.ReadAsStringAsync();
 #endif
@@ -207,7 +207,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                     return responseString;
                 }
             }
-            
+
         }
 
         /// <summary>

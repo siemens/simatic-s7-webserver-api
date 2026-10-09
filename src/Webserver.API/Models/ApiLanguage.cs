@@ -39,7 +39,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         {
             return obj is ApiLanguage language &&
                    language.Language.Equals(Language) &&
-                   Active == language.Active && (language.User_interface_languages == null ? User_interface_languages == null : (User_interface_languages == null ? false : language.User_interface_languages.SequenceEqual(User_interface_languages)));
+                   Active == language.Active && (language.User_interface_languages == null ? User_interface_languages == null : User_interface_languages != null && language.User_interface_languages.SequenceEqual(User_interface_languages));
         }
 
         /// <summary>

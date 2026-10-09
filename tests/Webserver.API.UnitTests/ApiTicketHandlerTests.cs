@@ -70,7 +70,7 @@ namespace Webserver.API.UnitTests
 #elif NET6_0_OR_GREATER
                 Assert.That(await File.ReadAllTextAsync(result.File_Downloaded.FullName), Is.EqualTo(expectedPayload));
 #else
-                throw new NotImplementedException("File.ReadAllTextAsync is not supported in this target framework."); 
+                throw new NotImplementedException("File.ReadAllTextAsync is not supported in this target framework.");
 #endif
             }
             finally

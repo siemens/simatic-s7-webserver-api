@@ -246,7 +246,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     }
                     if (browsedWebApp.Redirect_mode != webApp.Redirect_mode)
                     {
-                        if(webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
+                        if (webApp.Redirect_mode == Enums.ApiWebAppRedirectMode.None)
                         {
                             throw new InvalidOperationException($"Browsed web app has redirect mode: {browsedWebApp.Redirect_mode}, desired redirect mode is: {webApp.Redirect_mode} - " +
                                 $"that is not applicable/possible!");

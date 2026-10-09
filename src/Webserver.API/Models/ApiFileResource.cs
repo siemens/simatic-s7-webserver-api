@@ -14,7 +14,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
     /// <summary>
     /// File resource 
     /// </summary>
-    public class ApiFileResource : ICloneable
+    public class ApiFileResource
     {
         /// <summary>
         /// Name of the resource
@@ -139,7 +139,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             if (this.Resources != null && obj.Resources != null)
             {
-                toReturn &= this.Resources.Count == obj.Resources.Count 
+                toReturn &= this.Resources.Count == obj.Resources.Count
                     && this.Resources.SequenceEqual(obj.Resources);
             }
             else
@@ -167,14 +167,5 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             return (Name, Type, State, Size, SequenceHashCode.GetSequenceHashCode(Resources)).GetHashCode();
         }
 
-        /// <summary>
-        /// Get a Clone of the ApiFileResource
-        /// </summary>
-        /// <returns>the cloned ApiFileResource</returns>
-        public object Clone()
-        {
-            var resource = (ApiFileResource)MemberwiseClone();
-            return resource;
-        }
     }
 }

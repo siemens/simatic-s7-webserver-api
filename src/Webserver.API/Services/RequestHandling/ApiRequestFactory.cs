@@ -135,15 +135,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         {
             string jsonRpcReq = jsonRpc ?? JsonRpcVersion;
             string idReq = id ?? RequestIdGenerator.Generate();
-            if (mode != ApiAuthenticationMode.Local)
-            {
-                return new ApiRequest("Api.GetPasswordPolicy", jsonRpcReq, idReq,
-                                      new Dictionary<string, object>() { { "mode", mode.ToString().ToLower() } });
-            }
-            else
-            {
-                return new ApiRequest("Api.GetPasswordPolicy", jsonRpcReq, idReq);
-            }
+            return new ApiRequest("Api.GetPasswordPolicy", jsonRpcReq, idReq,
+                                  mode == ApiAuthenticationMode.Local ? null :
+                                  new Dictionary<string, object>() { { "mode", mode.ToString().ToLower() } });
         }
 
         /// <summary>
@@ -835,7 +829,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>whether the two are equal or not</returns>
         public bool Equals(ApiRequestFactory obj)
         {
-            if(obj == null)
+            if (obj == null)
             {
                 return false;
             }

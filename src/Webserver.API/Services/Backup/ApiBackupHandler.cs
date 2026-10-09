@@ -126,7 +126,8 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.Backup
                         sw.Stop();
                         await uploadTask;
                     }
-                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException) {
+                    catch (ApiTicketingEndpointUploadException e) when (e.InnerException is TaskCanceledException)
+                    {
                         Logger?.LogDebug($"Upload cancelled as expecteded due to plc rebooting for format - {e.Message}.");
                     }
                     finally

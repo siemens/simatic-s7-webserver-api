@@ -1256,13 +1256,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 requestParams = new Dictionary<string, object>()
                 {
-                    {"headers",
-                        new List<Dictionary<string, object>>()
+                    { "headers", new List<Dictionary<string, object>>()
                         {
                             new Dictionary<string, object>()
                             {
-                                {"pattern", pattern },
-                                {"header", header }
+                                { "pattern", pattern },
+                                { "header", header }
                             }
                         }
                     },
@@ -1272,7 +1271,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             {
                 requestParams = new Dictionary<string, object>()
                 {
-                    {"headers", new List<Dictionary<string, object>>()}
+                    {   "headers", new List<Dictionary<string, object>>()}
                 };
             }
             return new ApiRequest("WebServer.ChangeResponseHeaders", jsonRpcReq, idReq, requestParams);

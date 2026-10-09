@@ -52,7 +52,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiDiagnosticBuffer
             }
             if (structure.Entries != null)
             {
-                if(this.Entries == null)
+                if (this.Entries == null)
                 {
                     return false;
                 }

@@ -8,11 +8,10 @@ using Siemens.Simatic.S7.Webserver.API.Exceptions;
 using Siemens.Simatic.S7.Webserver.API.Models.Requests;
 using Siemens.Simatic.S7.Webserver.API.StaticHelpers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Diagnostics;
-using System;
 
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
@@ -51,7 +50,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
                 var beginBytes = Encoding.UTF8.GetBytes("[");
                 var endBytes = Encoding.UTF8.GetBytes("]");
                 _logger?.LogInformation($"Chunk the Requests into multiple Bulk Requests '{byteArr.Length}' is > '{MaxRequestSize}' -> split into sub requests.");
-                
+
 #if DEBUG
                 var chunkLenSum = 0;
                 var commaMissingSum = 0;
@@ -105,12 +104,12 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 #endif
                     }
                 }
-                
+
 #if DEBUG
                 // Validation: verify chunking integrity (only in debug builds)
                 var expectedTotal = byteArr.Length + (messageChunks.Count * (beginBytes.Length + endBytes.Length)) - commaBytes.Length;
                 var sum = chunkLenSum + commaMissingSum;
-                Debug.Assert(sum == expectedTotal, 
+                Debug.Assert(sum == expectedTotal,
                     $"Chunking integrity check failed: sum ({sum}) != expectedTotal ({expectedTotal}). " +
                     $"Original size: {byteArr.Length}, Chunks: {messageChunks.Count}, ChunkLenSum: {chunkLenSum}, CommaMissingSum: {commaMissingSum}");
 #endif

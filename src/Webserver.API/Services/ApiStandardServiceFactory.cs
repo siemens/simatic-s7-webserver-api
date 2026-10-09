@@ -219,7 +219,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
             {
                 request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-                using(var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken))
+                using (var response = await httpClient.PostAsync("api/jsonrpc", request_body, cancellationToken))
                 {
                     // send the request and check for errors
                     _apiResponseChecker.CheckHttpResponseForErrors(response, apiLoginRequestString);

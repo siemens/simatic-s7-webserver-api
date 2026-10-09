@@ -139,7 +139,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             }
             if (this.Resources != null && obj.Resources != null)
             {
-                toReturn &= this.Resources.Count == obj.Resources.Count 
+                toReturn &= this.Resources.Count == obj.Resources.Count
                     && this.Resources.SequenceEqual(obj.Resources);
             }
             else

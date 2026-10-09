@@ -26,7 +26,7 @@ namespace Webserver.API.UnitTests
             const string secret = "PLC-restore-secret-7Y!";
             var serializedRequest = ApiRequestFactory.GetPlcRestoreBackupRequest(secret).ToString();
 
-            using (var response = new HttpResponseMessage(HttpStatusCode.BadRequest){ReasonPhrase = "test failure"})
+            using (var response = new HttpResponseMessage(HttpStatusCode.BadRequest) { ReasonPhrase = "test failure" })
             {
                 var ex = Assert.Throws<InvalidHttpRequestException>(() =>
                 ApiResponseChecker.CheckHttpResponseForErrors(response, serializedRequest));

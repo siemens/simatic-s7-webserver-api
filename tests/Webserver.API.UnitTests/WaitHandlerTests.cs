@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Webserver.API.UnitTests
 {
-    public class WaitHandlerTests 
+    public class WaitHandlerTests
     {
 
         [Test]
@@ -13,7 +13,7 @@ namespace Webserver.API.UnitTests
         {
             // Arrange
             var waitHandler = new WaitHandler(TimeSpan.FromSeconds(30));
-            using(var cancellationTokenSource = new CancellationTokenSource())
+            using (var cancellationTokenSource = new CancellationTokenSource())
             {
                 cancellationTokenSource.Cancel(); // Cancel the token immediately
                                                   // Act & Assert

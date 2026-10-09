@@ -187,7 +187,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
-                            await ApiResourceHandler.DeployResourceAsync(webApp, r);
+                            await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                             progressCounter++;
                             progress?.Report(progressCounter * 100 / appExceptBrowsed.Count);
                         }

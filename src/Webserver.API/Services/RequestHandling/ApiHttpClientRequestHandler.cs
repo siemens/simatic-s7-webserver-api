@@ -27,7 +27,7 @@ using System.Xml;
 namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
 {
     /// <summary>
-    /// Request Handlerusing the Microsoft.Net.HttpClient to send the requests to the API
+    /// Request Handler using the Microsoft.Net.HttpClient to send the requests to the API
     /// </summary>
     public class ApiHttpClientRequestHandler : IApiRequestHandler
     {
@@ -224,7 +224,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
             using (var request_body = new ByteArrayContent(byteArr))
             {
                 request_body.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(ContentType);
-                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body))
+                using (var response = await _httpClient.PostAsync(JsonRpcApi, request_body, cancellationToken))
                 {
                     _apiResponseChecker.CheckHttpResponseForErrors(response, apiRequestString);
                     var responseString = await response.Content.ReadAsStringAsync();
@@ -336,7 +336,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="ticket">ticket containing ticket id (28 chars)</param>
         /// <param name="cancellationToken">Cancellation token to cancel pending requests.</param>
         /// <returns>True to indicate Success</returns>
-        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiCloseTicketAsync(ticket.Id);
+        public async Task<ApiTrueOnSuccessResponse> ApiCloseTicketAsync(ApiTicket ticket, CancellationToken cancellationToken = default(CancellationToken)) => await ApiCloseTicketAsync(ticket.Id, cancellationToken);
 
         /// <summary>
         /// Send an Api.CloseTicket Request using the Request from the ApiRequestFactory
@@ -2911,7 +2911,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="mode">The mode defines where the login shall be performed. All available modes supported by API method Api.GetAuthenticationMode can be passed. </param>
         /// <param name="includeWebApplicationCookie">Used to determine whether or not a WebApplicationCookie should be included in the Response (Result)</param>
         /// <returns>ApiLoginResponse: contains ApiTokenResult: Token(auth token string) and if requested Web_application_cookie</returns>
-        public ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, includeWebApplicationCookie).GetAwaiter().GetResult();
+        public ApiLoginResponse ApiLogin(string userName, string password, ApiAuthenticationMode mode, bool? includeWebApplicationCookie = null) => ApiLoginAsync(userName, password, mode, includeWebApplicationCookie).GetAwaiter().GetResult();
 
         /// <summary>
         /// Send a Api.Login Request 
@@ -3105,7 +3105,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <param name="daylightSavings">(Optional) Represents the settings for daylight-savings. If there is no daylight-savings rule configured, the utcOffset is applied to calculate the local time</param>
         /// <returns>True if the settings are applied successfully</returns>
         public ApiTrueOnSuccessResponse PlcSetTimeSettings(TimeSpan utcOffset, DaylightSavingsRule daylightSavings = null) =>
-            PlcSetTimeSettingsAsync(utcOffset, daylightSavings = null).GetAwaiter().GetResult();
+            PlcSetTimeSettingsAsync(utcOffset, daylightSavings).GetAwaiter().GetResult();
         /// <summary>
         /// Send a Files.Browse Request
         /// </summary>

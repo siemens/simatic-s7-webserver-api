@@ -317,7 +317,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>HashCode</returns>
         public override int GetHashCode()
         {
-            return (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only, Value, Children).GetHashCode();
+            return (Name, Has_children, Db_number, Datatype, Array_dimensions, Max_length, Address, Area, Read_only, Value, SequenceHashCode.GetSequenceHashCode(Children)).GetHashCode();
         }
     }
 }

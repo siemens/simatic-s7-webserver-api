@@ -80,7 +80,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Hashcode</returns>
         public override int GetHashCode()
         {
-            return (Packages).GetHashCode();
+            return SequenceHashCode.GetSequenceHashCode(Packages);
         }
     }
 

@@ -4,6 +4,7 @@
 using Newtonsoft.Json;
 using Siemens.Simatic.S7.Webserver.API.Enums;
 using Siemens.Simatic.S7.Webserver.API.Models.Technology;
+using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.Responses.ResponseResults
         /// <returns>The Hashcode</returns>
         public override int GetHashCode()
         {
-            return (Type, Objects).GetHashCode();
+            return (Type, SequenceHashCode.GetSequenceHashCode(Objects)).GetHashCode();
         }
 
         /// <summary>

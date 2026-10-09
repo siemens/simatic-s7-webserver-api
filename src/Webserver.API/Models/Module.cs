@@ -128,10 +128,10 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Class);
             hashCode = hashCode * -1521134295 + Type.GetHashCode();
             hashCode = hashCode * -1521134295 + SubType.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<ApiModulesNodeAttribute>>.Default.GetHashCode(Attributes);
+            hashCode = hashCode * -1521134295 + SequenceHashCode.GetSequenceHashCode(Attributes);
             hashCode = hashCode * -1521134295 + HasChildren.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<Module>>.Default.GetHashCode(Children);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<uint>>.Default.GetHashCode(Parent);
+            hashCode = hashCode * -1521134295 + SequenceHashCode.GetSequenceHashCode(Children);
+            hashCode = hashCode * -1521134295 + SequenceHashCode.GetSequenceHashCode(Parent);
             return hashCode;
         }
 
@@ -173,7 +173,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Hashcode</returns>
         public override int GetHashCode()
         {
-            return (Nodes).GetHashCode();
+            return SequenceHashCode.GetSequenceHashCode(Nodes);
         }
 
         /// <summary>

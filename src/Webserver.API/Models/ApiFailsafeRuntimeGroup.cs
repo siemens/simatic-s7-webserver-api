@@ -64,7 +64,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models
         /// <returns>Hash code</returns>
         public override int GetHashCode()
         {
-            return (Name, Signature, Cycle_time_current, Cycle_time_Max, Runtime_current, Runtime_max).GetHashCode();
+            return (Name, SequenceHashCode.GetSequenceHashCode(Signature), Cycle_time_current, Cycle_time_Max, Runtime_current, Runtime_max).GetHashCode();
         }
 
         /// <summary>

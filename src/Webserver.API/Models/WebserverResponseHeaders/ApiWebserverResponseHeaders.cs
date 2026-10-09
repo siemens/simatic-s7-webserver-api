@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
+using Siemens.Simatic.S7.Webserver.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.WebserverResponseHeaders
         /// <returns>Hashcode</returns>
         public override int GetHashCode()
         {
-            return (Configured_headers, Allowed_headers).GetHashCode();
+            return (SequenceHashCode.GetSequenceHashCode(Configured_headers), SequenceHashCode.GetSequenceHashCode(Allowed_headers)).GetHashCode();
         }
 
         /// <summary>

@@ -138,7 +138,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
             var webApps = await ApiRequestHandler.WebAppBrowseAsync(cancellationToken: cancellationToken);
             if (!webApps.Result.Applications.Any(el => el.Name == webApp.Name))
             {
-                await DeployAsync(webApp);
+                await DeployAsync(webApp, progress, cancellationToken);
             }
             else
             {
@@ -165,16 +165,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                 while (!Enumerable.SequenceEqual(appOrdered, browsedOrdered) && (tries < amountOfTriesForResourceDeployment))
                 {
                     // elements that should further be deleted but are not found in the comparison before!
-                    var elemsToFurtherdelete = (browsedOrdered.Where(el => appExceptBrowsed
+                    var elementsToFurtherDelete = (browsedOrdered.Where(el => appExceptBrowsed
                     .Any(el2 => el2.Name == el.Name && !(browsedExceptApp.Any(el3 => el3.Name == el2.Name))))).ToList();
-                    if (elemsToFurtherdelete.Count != 0)
+                    if (elementsToFurtherDelete.Count != 0)
                     {
                         throw new Exception("Comparison insufficient!");
                     }
                     foreach (ApiWebAppResource r in browsedExceptApp)
                     {
                         Logger?.LogDebug(string.Format("{0}: start deleting: {1} resources.", nameof(DeployOrUpdate), browsedExceptApp.Count));
-                        await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name);
+                        await ApiRequestHandler.WebAppDeleteResourceAsync(webApp.Name, r.Name, cancellationToken);
                     }
                     if (browsedExceptApp.Count != 0)
                     {
@@ -187,7 +187,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                         cancellationToken.ThrowIfCancellationRequested();
                         try
                         {
-                            await ApiResourceHandler.DeployResourceAsync(webApp, r);
+                            await ApiResourceHandler.DeployResourceAsync(webApp, r, cancellationToken);
                             progressCounter++;
                             progress?.Report(progressCounter * 100 / appExceptBrowsed.Count);
                         }
@@ -215,8 +215,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.WebApp
                     var missing = "";
                     browsedExceptApp.ForEach(el => browsedThatShouldntBe = browsedThatShouldntBe + Environment.NewLine + el.Name);
                     appExceptBrowsed.ForEach(el => missing = missing + Environment.NewLine + el.Name);
-                    throw new ApiResourceDeploymentFailedException($"Resources found that should were not expected to be on the app:{browsedThatShouldntBe}" +
-                        $"Resources that were expected to be on the app but aren't:{missing}");
+                    throw new ApiResourceDeploymentFailedException(
+                        $"Resources found that were not expected to be on the app:{browsedThatShouldntBe}{Environment.NewLine}" +
+                        $"Resources that were expected to be on the app but are missing:{missing}");
                 }
                 var browsedWebAppResp = await ApiRequestHandler.WebAppBrowseAsync(webApp, cancellationToken);
                 ApiWebAppData browsedWebApp = browsedWebAppResp.Result.Applications.First();

@@ -46,12 +46,14 @@ namespace Webserver.API.UnitTests
         [TestCase(1050)]
         [TestCase(1051)]
         [TestCase(3200)]
+        [TestCase(10000)]
         public void RetrieveAll_ReturnsEveryEntryInResponseOrder(int totalCount)
         {
-            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));
+            var maximumCount = Math.Max(3200, totalCount);
+            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount, maximumCount: maximumCount));
             if (totalCount > 50)
             {
-                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount));
+                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount, maximumCount: maximumCount));
             }
 
             var result = _retriever.RetrieveAll(new CultureInfo("en-US"));
@@ -100,12 +102,14 @@ namespace Webserver.API.UnitTests
         [TestCase(1050)]
         [TestCase(1051)]
         [TestCase(3200)]
+        [TestCase(10000)]
         public async Task RetrieveAllAsync_ReturnsEveryEntryInResponseOrder(int totalCount)
         {
-            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));
+            var maximumCount = Math.Max(3200, totalCount);
+            ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount, maximumCount: maximumCount));
             if (totalCount > 50)
             {
-                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount));
+                ExpectBrowse(totalCount).Respond("application/json", BuildResponse(totalCount, totalCount, maximumCount: maximumCount));
             }
 
             var result = await _retriever.RetrieveAllAsync(new CultureInfo("en-US"));
@@ -224,12 +228,14 @@ namespace Webserver.API.UnitTests
         private MockedRequest ExpectBrowse(int count) => _mockHttp.Expect(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
             .WithPartialContent($"\"count\":{count}");
 
-        private static string BuildResponse(int returnedCount, int totalCount, string lastModified = LastModified, int firstEntry = 0)
+        private static string BuildResponse(int returnedCount, int totalCount, string lastModified = LastModified,
+            int firstEntry = 0, int maximumCount = 3200)
         {
             var entries = new JArray(Enumerable.Range(firstEntry, returnedCount).Select(index =>
                 new JObject
                 {
-                    ["timestamp"] = $"2026-09-27T00:{index / 60:00}:{index % 60:00}Z",
+                    ["timestamp"] = new DateTime(2026, 9, 27, 0, 0, 0, DateTimeKind.Utc)
+                        .AddSeconds(index).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture),
                     ["status"] = "incoming",
                     ["long_text"] = $"entry-{index}",
                     ["short_text"] = $"entry-{index}",
@@ -245,7 +251,7 @@ namespace Webserver.API.UnitTests
                     ["entries"] = entries,
                     ["last_modified"] = lastModified,
                     ["count_current"] = totalCount,
-                    ["count_max"] = 3200,
+                    ["count_max"] = maximumCount,
                     ["language"] = "en-US"
                 }
             }.ToString(Formatting.None);

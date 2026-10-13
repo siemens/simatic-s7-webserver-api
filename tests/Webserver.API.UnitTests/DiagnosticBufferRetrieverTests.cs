@@ -42,6 +42,10 @@ namespace Webserver.API.UnitTests
         [TestCase(0)]
         [TestCase(50)]
         [TestCase(75)]
+        [TestCase(1000)]
+        [TestCase(1050)]
+        [TestCase(1051)]
+        [TestCase(3200)]
         public void RetrieveAll_ReturnsEveryEntryInResponseOrder(int totalCount)
         {
             ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));
@@ -92,6 +96,10 @@ namespace Webserver.API.UnitTests
         [TestCase(51)]
         [TestCase(100)]
         [TestCase(123)]
+        [TestCase(1000)]
+        [TestCase(1050)]
+        [TestCase(1051)]
+        [TestCase(3200)]
         public async Task RetrieveAllAsync_ReturnsEveryEntryInResponseOrder(int totalCount)
         {
             ExpectBrowse(50).Respond("application/json", BuildResponse(Math.Min(50, totalCount), totalCount));

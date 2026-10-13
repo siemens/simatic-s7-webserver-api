@@ -34,7 +34,9 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer
         /// <remarks>
         /// The first request asks for 50 entries and obtains the total available count, <c>count_current</c>.
         /// If more entries are available, a second request asks for <c>count_current</c> entries.
-        /// For example, a buffer containing 1000 entries is requested with counts of 50 and then 1000.
+        /// For example, a buffer containing 3200 entries is requested with counts of 50 and then 3200.
+        /// The requested count follows the CPU's metadata and may exceed 1000 entries.
+        /// The reported <c>count_max</c> describes that CPU's buffer capacity.
         /// All entries are returned from the complete final response, since the API exposes no offset or snapshot cursor.
         /// A detected change between requests causes an <see cref="InvalidOperationException"/>.
         /// </remarks>
@@ -86,6 +88,7 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.DiagnosticBuffer
         /// <remarks>
         /// The first request asks for 50 entries. If more entries are available, a second request asks
         /// for the full <c>count_current</c> reported by the first response and returns that complete response.
+        /// The requested count follows the CPU's metadata, including buffers larger than 1000 entries.
         /// </remarks>
         /// <param name="language">Language in which diagnostic texts shall be returned.</param>
         /// <param name="filters">Optional attributes filter for diagnostic buffer entries.</param>

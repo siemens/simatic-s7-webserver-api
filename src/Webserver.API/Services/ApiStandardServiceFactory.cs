@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026, Siemens AG
+// Copyright (c) 2026, Siemens AG
 //
 // SPDX-License-Identifier: MIT
 using Microsoft.Extensions.Logging;
@@ -13,6 +13,7 @@ using Siemens.Simatic.S7.Webserver.API.Services.IdGenerator;
 using Siemens.Simatic.S7.Webserver.API.Services.Modules;
 using Siemens.Simatic.S7.Webserver.API.Services.PlcProgram;
 using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
+using Siemens.Simatic.S7.Webserver.API.Services.Syslog;
 using Siemens.Simatic.S7.Webserver.API.Services.Ticketing;
 using Siemens.Simatic.S7.Webserver.API.Services.WebApp;
 using System;
@@ -564,6 +565,16 @@ namespace Siemens.Simatic.S7.Webserver.API.Services
         public ModulesBrowser GetModulesBrowser(IApiRequestHandler requestHandler)
         {
             return new ModulesBrowser(requestHandler, _logger);
+        }
+
+        /// <summary>
+        /// Get a SyslogHandler with the given requestHandler
+        /// </summary>
+        /// <param name="requestHandler">Request Handler the syslog handler shall use</param>
+        /// <returns>an <see cref="ISyslogHandler"/></returns>
+        public ISyslogHandler GetSyslogHandler(IApiRequestHandler requestHandler)
+        {
+            return new SyslogHandler(requestHandler, _logger);
         }
     }
 }

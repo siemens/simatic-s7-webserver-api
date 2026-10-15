@@ -19,11 +19,13 @@ namespace Siemens.Simatic.S7.Webserver.API.Models.ApiSyslog
         /// <summary>
         /// This attribute contains the total number of insertions into the syslog buffer since PLC booted up.
         /// </summary>
+        [JsonProperty(Required = Required.Always)]
         public uint Count_Total { get; set; }
         /// <summary>
         /// This attribute contains the number of insertions into the syslog buffer that were lost, <br/> 
         /// meaning the number of the entries which were overwritten by new entries, and which were not saved to a syslog server.
         /// </summary>
+        [JsonProperty(Required = Required.Always)]
         public uint Count_Lost { get; set; }
 
         /// <summary>

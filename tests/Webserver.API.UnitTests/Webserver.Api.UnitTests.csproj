@@ -9,9 +9,12 @@
 		<AssemblyName>Webserver.API.UnitTests</AssemblyName>
 		<RootNamespace>Webserver.API.UnitTests</RootNamespace>
 		<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+		<Platforms>AnyCPU</Platforms>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\..\simatic-s7-webserver-api.snk</AssemblyOriginatorKeyFile>
 	</PropertyGroup>
 	
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>full</DebugType>
 		<Optimize>false</Optimize>
@@ -19,9 +22,6 @@
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
-		<PlatformTarget>x64</PlatformTarget>
-		<Prefer32Bit>false</Prefer32Bit>
-		<Platforms>x64</Platforms>
 	</PropertyGroup>
 	
 	<ItemGroup>

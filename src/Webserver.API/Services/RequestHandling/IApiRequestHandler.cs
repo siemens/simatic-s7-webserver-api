@@ -278,6 +278,22 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         Task<ApiResultResponse<T>> PlcProgramReadAsync<T>(string var, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default);
         /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Names of the variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        Task<ApiBulkResponse> PlcProgramBulkReadAsync(IEnumerable<string> vars, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        Task<ApiBulkResponse> PlcProgramBulkReadAsync(IEnumerable<ApiPlcProgramData> vars, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default);
+        /// <summary>
         /// Send a PlcProgram.Write Request 
         /// This function will build up the name with quotes from the parents given with the ApiPlcProgramDataand call PlcProgramWrite
         /// </summary>
@@ -1246,6 +1262,20 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         /// in Kapitel "Unterstützte Datentypen"
         /// <returns>ApiPlcProgramReadResponse: object with the value for the variables value to be read</returns>
         ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcDataRepresentation? plcProgramReadMode = null);
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Names of the variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        ApiBulkResponse PlcProgramBulkRead(IEnumerable<string> vars, ApiPlcDataRepresentation? plcProgramReadMode = null);
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        ApiBulkResponse PlcProgramBulkRead(IEnumerable<ApiPlcProgramData> vars, ApiPlcDataRepresentation? plcProgramReadMode = null);
         /// <summary>
         /// Send a PlcProgram.Write Request 
         /// This function will build up the name with quotes from the parents given with the ApiPlcProgramDataand call PlcProgramWrite

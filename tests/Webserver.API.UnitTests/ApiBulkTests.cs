@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -11,6 +12,7 @@ using Siemens.Simatic.S7.Webserver.API.Services.RequestHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -264,6 +266,46 @@ namespace Webserver.API.UnitTests
             requests.Add(new ApiRequest("Api.Ping100SizeUsingCharsEx", "2.0", ReqIdGenerator.Generate()));
             var response = await TestHandler.ApiBulkAsync(requests);
             Assert.That(response.SuccessfulResponses.Count(), Is.EqualTo(2 * 100)); // 5 requests, the answer (105) has 100 success
+        }
+
+        [Test]
+        public async Task PlcProgramBulkReadAsync_ThreeVariables_ReturnsOneResponsePerVariable()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            string requestBody = null;
+            mockHttp.When(HttpMethod.Post, $"https://{Ip}/api/jsonrpc")
+                .Respond(request =>
+                {
+                    requestBody = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    var responses = new JArray();
+                    foreach (var apiRequest in JArray.Parse(requestBody))
+                    {
+                        responses.Add(new JObject
+                        {
+                            ["jsonrpc"] = "2.0",
+                            ["id"] = apiRequest["id"],
+                            ["result"] = true
+                        });
+                    }
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(responses.ToString(), Encoding.UTF8, "application/json")
+                    };
+                });
+            var client = new HttpClient(mockHttp)
+            {
+                BaseAddress = new Uri($"https://{Ip}")
+            };
+            TestHandler = new ApiHttpClientRequestHandler(client, ApiRequestFactory, ApiResponseChecker, ApiRequestSplitter);
+            var vars = new List<string> { "\"DB\".\"A\"", "\"DB\".\"B\"", "\"DB\".\"C\"" };
+
+            var response = await TestHandler.PlcProgramBulkReadAsync(vars);
+
+            Assert.That(response.SuccessfulResponses.Count(), Is.EqualTo(vars.Count));
+            Assert.That(requestBody, Does.Contain("\"method\":\"PlcProgram.Read\""));
+            Assert.That(requestBody, Does.Contain("\"var\":\"\\\"DB\\\".\\\"A\\\"\""));
+            Assert.That(requestBody, Does.Contain("\"var\":\"\\\"DB\\\".\\\"B\\\"\""));
+            Assert.That(requestBody, Does.Contain("\"var\":\"\\\"DB\\\".\\\"C\\\"\""));
         }
     }
 }

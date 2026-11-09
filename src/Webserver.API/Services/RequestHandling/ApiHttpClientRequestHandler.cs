@@ -817,6 +817,76 @@ namespace Siemens.Simatic.S7.Webserver.API.Services.RequestHandling
         public ApiResultResponse<T> PlcProgramRead<T>(string var, ApiPlcDataRepresentation? plcProgramReadMode = null) => PlcProgramReadAsync<T>(var, plcProgramReadMode).GetAwaiter().GetResult();
 
         /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Names of the variables to be read</param>
+        /// <param name="plcProgramReadMode">
+        /// this parameter is optional and defaults to "simple":
+        /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
+        /// "raw" : will get the variable values according to the presentation of the manual "raw"
+        ///
+        /// Aufzählung, die das Antwortformat für diese Methode festlegt:
+        /// • "simple": liefert Variablenwerte gemäß der Darstellung
+        /// "simple" in Kapitel "Unterstützte Datentypen (Seite 162)"
+        /// • "raw": liefert Variablenwerte gemäß der Darstellung "raw"
+        /// in Kapitel "Unterstützte Datentypen"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        public async Task<ApiBulkResponse> PlcProgramBulkReadAsync(IEnumerable<string> vars, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (vars == null)
+            {
+                throw new ArgumentNullException(nameof(vars));
+            }
+            var requests = vars
+                .Select(var => _apiRequestFactory.GetApiPlcProgramReadRequest(var, plcProgramReadMode))
+                .ToList();
+            if (requests.Count == 0)
+            {
+                return new ApiBulkResponse();
+            }
+            requests = _apiRequestFactory.GetApiBulkRequestWithUniqueIds(requests).ToList();
+            return await ApiBulkAsync(requests, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Variables to be read</param>
+        /// <param name="plcProgramReadMode">
+        /// this parameter is optional and defaults to "simple":
+        /// "simple" will get the variable values according to the presentation of the manual - "supported Datatypes"
+        /// "raw" : will get the variable values according to the presentation of the manual "raw"</param>
+        /// <param name="cancellationToken">Enables the method to terminate its operation if a cancellation is requested from it's CancellationTokenSource.</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        public async Task<ApiBulkResponse> PlcProgramBulkReadAsync(IEnumerable<ApiPlcProgramData> vars, ApiPlcDataRepresentation? plcProgramReadMode = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (vars == null)
+            {
+                throw new ArgumentNullException(nameof(vars));
+            }
+            return await PlcProgramBulkReadAsync(vars.Select(var => var.GetVarNameForMethods()), plcProgramReadMode, cancellationToken);
+        }
+
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Names of the variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        public ApiBulkResponse PlcProgramBulkRead(IEnumerable<string> vars, ApiPlcDataRepresentation? plcProgramReadMode = null) =>
+            PlcProgramBulkReadAsync(vars, plcProgramReadMode).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Send a PlcProgram.Read Request for multiple variables at once using an Api Bulk Request
+        /// </summary>
+        /// <param name="vars">Variables to be read</param>
+        /// <param name="plcProgramReadMode">this parameter is optional and defaults to "simple"</param>
+        /// <returns>ApiBulkResponse: contains the successful read responses for the variables</returns>
+        public ApiBulkResponse PlcProgramBulkRead(IEnumerable<ApiPlcProgramData> vars, ApiPlcDataRepresentation? plcProgramReadMode = null) =>
+            PlcProgramBulkReadAsync(vars, plcProgramReadMode).GetAwaiter().GetResult();
+
+        /// <summary>
         /// Send a PlcProgram.Write Request using the Request from the ApiRequestFactory
         /// This function will build up the name with quotes from the parents given with the ApiPlcProgramDataand call PlcProgramWrite
         /// </summary>
